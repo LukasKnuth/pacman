@@ -2,6 +2,7 @@ package org.knuth.pacman;
 
 import org.knuth.pacman.figures.Pacman;
 import org.knuth.pacman.game.GameLoop;
+import org.knuth.pacman.logic.Map;
 
 import javax.swing.*;
 
@@ -33,6 +34,11 @@ public class Main {
         Pacman pacman = new Pacman();
         GameLoop.INSTANCE.addRenderEvent(pacman);
         GameLoop.INSTANCE.addInputEvent(pacman);
+        Map map = new Map( // Use real canvas-size for map-generation!
+                GameLoop.INSTANCE.getView().getWidth(),
+                GameLoop.INSTANCE.getView().getHeight()
+        );
+        GameLoop.INSTANCE.addRenderEvent(map);
     }
 
     /**
