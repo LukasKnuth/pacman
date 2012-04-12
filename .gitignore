@@ -1,0 +1,7 @@
+# Ignore IntelliJ stuff
+.idea/
+Pacman.iml
+
+# Ignore binary files
+*.class
+out/
