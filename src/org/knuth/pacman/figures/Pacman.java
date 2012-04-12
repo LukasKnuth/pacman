@@ -45,7 +45,7 @@ public class Pacman implements RenderEvent, InputEvent {
     }
     
     @Override
-    public Graphics render(Graphics g) {
+    public void render(Graphics g) {
         // Draw the "ball"
         g.setColor(Color.YELLOW);
         g.fillOval(20, 20, 40, 40);
@@ -71,7 +71,6 @@ public class Pacman implements RenderEvent, InputEvent {
             // Mouth is closed. Open it again!
             mouth_closing = false;
         }
-        return g;
     }
 
     /**

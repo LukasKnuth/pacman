@@ -15,5 +15,5 @@ public interface RenderEvent {
      * @param g the object to draw an.
      * @return the drawn object.
      */
-    public Graphics render(Graphics g);
+    public void render(Graphics g);
 }
