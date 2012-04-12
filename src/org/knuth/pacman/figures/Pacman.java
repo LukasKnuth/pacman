@@ -1,15 +1,17 @@
 package org.knuth.pacman.figures;
 
+import org.knuth.pacman.game.InputEvent;
 import org.knuth.pacman.game.RenderEvent;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 /**
  * The main-character of this game.
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Pacman implements RenderEvent{
+public class Pacman implements RenderEvent, InputEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 90;
@@ -20,6 +22,18 @@ public class Pacman implements RenderEvent{
     private int mouth_degrees;
     /** Specifies if the mouth is closing or opening */
     private boolean mouth_closing;
+    
+    /** Possible directions that pacman can look */
+    private enum FacingDirection{
+        UP(0), DOWN(180), LEFT(90), RIGHT(270);
+        
+        private final int degrees;
+        private FacingDirection(int degrees){
+            this.degrees = degrees;
+        }
+    }
+    /** The current direction pacman looks */
+    private FacingDirection current_direction;
 
     /**
      * Create a new Pacman-figure with an animated mouth.
@@ -27,6 +41,7 @@ public class Pacman implements RenderEvent{
     public Pacman(){
         mouth_degrees = 0;
         mouth_closing = false;
+        current_direction = FacingDirection.LEFT;
     }
     
     @Override
@@ -39,11 +54,17 @@ public class Pacman implements RenderEvent{
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
-            g.fillArc(20, 20, 40, 40, calculateMouthSpacer(mouth_degrees)+90, mouth_degrees);
+            g.fillArc(20, 20, 40, 40,
+                    calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
+                    mouth_degrees
+            );
             mouth_degrees++;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
-            g.fillArc(20, 20, 40, 40, calculateMouthSpacer(mouth_degrees)+90, mouth_degrees);
+            g.fillArc(20, 20, 40, 40,
+                    calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
+                    mouth_degrees
+            );
             mouth_degrees--;
             mouth_closing = true;
         } else {
@@ -65,5 +86,17 @@ public class Pacman implements RenderEvent{
         int element_space = current_degrees + 180;
         int usable_space = 360 - element_space;
         return (usable_space / 2);
+    }
+
+    @Override
+    public void keyboardInput(KeyEvent event, KeyEventType type) {
+        if (event.getKeyCode() == KeyEvent.VK_UP)
+            current_direction = FacingDirection.UP;
+        else if (event.getKeyCode() == KeyEvent.VK_DOWN)
+            current_direction = FacingDirection.DOWN;
+        else if (event.getKeyCode() == KeyEvent.VK_LEFT)
+            current_direction = FacingDirection.LEFT;
+        else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
+            current_direction = FacingDirection.RIGHT;
     }
 }

@@ -32,6 +32,7 @@ public class Main {
     private void addFigures(){
         Pacman pacman = new Pacman();
         GameLoop.INSTANCE.addRenderEvent(pacman);
+        GameLoop.INSTANCE.addInputEvent(pacman);
     }
 
     /**
