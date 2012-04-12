@@ -11,21 +11,22 @@ import java.awt.*;
  */
 public class Pacman implements RenderEvent{
 
-    private MouthStates current_MouthState;
-    private boolean mouth_opening;
-    
+    /** The count of degrees needed to consider the moth "fully opened" */
+    private final static int MOUTH_MAX = 90;
+    /** The count of degrees needed to consider the moth "fully closed" */
+    private final static int MOUTH_MIN = 0;
+
+    /** The current degrees of the mouth */
+    private int mouth_degrees;
+    /** Specifies if the mouth is closing or opening */
+    private boolean mouth_closing;
+
+    /**
+     * Create a new Pacman-figure with an animated mouth.
+     */
     public Pacman(){
-        this.current_MouthState = MouthStates.CLOSED;
-        mouth_opening = true;
-    }
-    
-    private enum MouthStates{
-        OPEN(90), CLOSING(65), HALF_CLOSED(45), ALMOST_CLOSED(22), CLOSED(2);
-        
-        public final int degrees;
-        private MouthStates(int degrees){
-            this.degrees = degrees;
-        }
+        mouth_degrees = 0;
+        mouth_closing = false;
     }
     
     @Override
@@ -35,32 +36,19 @@ public class Pacman implements RenderEvent{
         g.fillOval(20, 20, 40, 40);
         // Draw the mouth:
         g.setColor(Color.BLACK);
-        switch (current_MouthState){
-            case OPEN:
-                g.fillArc(20, 20, 40, 40, 130, MouthStates.OPEN.degrees);
-                mouth_opening = false;
-                current_MouthState = MouthStates.CLOSING;
-                break;
-            case CLOSING:
-                g.fillArc(20, 20, 40, 40, 130, MouthStates.CLOSING.degrees);
-                if (mouth_opening) current_MouthState = MouthStates.OPEN;
-                else current_MouthState = MouthStates.HALF_CLOSED;
-                break;
-            case HALF_CLOSED:
-                g.fillArc(20, 20, 40, 40, 130, MouthStates.HALF_CLOSED.degrees);
-                if (mouth_opening) current_MouthState = MouthStates.CLOSING;
-                else current_MouthState = MouthStates.ALMOST_CLOSED;
-                break;
-            case ALMOST_CLOSED:
-                g.fillArc(20, 20, 40, 40, 130, MouthStates.ALMOST_CLOSED.degrees);
-                if (mouth_opening) current_MouthState = MouthStates.HALF_CLOSED;
-                else current_MouthState = MouthStates.CLOSED;
-                break;
-            case CLOSED:
-                g.fillArc(20, 20, 40, 40, 130, MouthStates.CLOSED.degrees);
-                mouth_opening = true;
-                current_MouthState = MouthStates.ALMOST_CLOSED;
-                break;
+        // Animate the mouth:
+        if (mouth_degrees < MOUTH_MAX && !mouth_closing){
+            // Mouth is opening.
+            g.fillArc(20, 20, 40, 40, 130, mouth_degrees);
+            mouth_degrees++;
+        } else if (mouth_degrees > MOUTH_MIN) {
+            // Mouth is closing
+            g.fillArc(20, 20, 40, 40, 130, mouth_degrees);
+            mouth_degrees--;
+            mouth_closing = true;
+        } else {
+            // Mouth is closed. Open it again!
+            mouth_closing = false;
         }
         return g;
     }
