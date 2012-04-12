@@ -11,6 +11,8 @@ import javax.swing.*;
  */
 class GameCanvas extends JPanel{
 
+    // TODO Implement double-buffer for smooth animations!
+
     /**
      * Package-private constructor. Only to be initialized
      *  by {@code GameLoop}.

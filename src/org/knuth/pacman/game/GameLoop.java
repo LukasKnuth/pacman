@@ -78,7 +78,6 @@ public enum GameLoop implements KeyListener{
     private Runnable game_loop = new Runnable() {
         @Override
         public void run() {
-            System.out.println("in!");
             // Check if terminated:
             if (!isRunning) return;
             // Input events:
@@ -161,14 +160,12 @@ public enum GameLoop implements KeyListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("Key pressed!");
         last_key_event = e;
         last_key_type = InputEvent.KeyEventType.PRESSED;
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        System.out.println("Key released!");
         last_key_event = e;
         last_key_type = InputEvent.KeyEventType.RELEASED;
     }
