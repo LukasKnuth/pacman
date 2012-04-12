@@ -39,11 +39,11 @@ public class Pacman implements RenderEvent{
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
-            g.fillArc(20, 20, 40, 40, 130, mouth_degrees);
+            g.fillArc(20, 20, 40, 40, calculateMouthSpacer(mouth_degrees)+90, mouth_degrees);
             mouth_degrees++;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
-            g.fillArc(20, 20, 40, 40, 130, mouth_degrees);
+            g.fillArc(20, 20, 40, 40, calculateMouthSpacer(mouth_degrees)+90, mouth_degrees);
             mouth_degrees--;
             mouth_closing = true;
         } else {
@@ -51,5 +51,19 @@ public class Pacman implements RenderEvent{
             mouth_closing = false;
         }
         return g;
+    }
+
+    /**
+     * Calculates the space needed to "center" the mouth on the
+     *  body during the "open-close" animation.
+     * @param current_degrees the number of degrees the mouth is
+     *  currently opened.
+     * @return the calculated space used to center the mouth.
+     * TODO Add pictures or something for better explanation.
+     */
+    public int calculateMouthSpacer(int current_degrees){
+        int element_space = current_degrees + 180;
+        int usable_space = 360 - element_space;
+        return (usable_space / 2);
     }
 }
