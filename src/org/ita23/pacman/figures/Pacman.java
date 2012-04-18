@@ -1,7 +1,7 @@
-package org.knuth.pacman.figures;
+package org.ita23.pacman.figures;
 
-import org.knuth.pacman.game.InputEvent;
-import org.knuth.pacman.game.RenderEvent;
+import org.ita23.pacman.game.InputEvent;
+import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;

@@ -1,4 +1,4 @@
-package org.knuth.pacman.logic;
+package org.ita23.pacman.logic;
 
 /**
  * Represents a single, quadratic chunk on the Map.

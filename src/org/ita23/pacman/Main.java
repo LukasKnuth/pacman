@@ -1,8 +1,8 @@
-package org.knuth.pacman;
+package org.ita23.pacman;
 
-import org.knuth.pacman.figures.Pacman;
-import org.knuth.pacman.game.GameLoop;
-import org.knuth.pacman.logic.Map;
+import org.ita23.pacman.figures.Pacman;
+import org.ita23.pacman.game.GameLoop;
+import org.ita23.pacman.logic.Map;
 
 import javax.swing.*;
 
@@ -47,7 +47,7 @@ public class Main {
     private void populateWindow(){
         f = new JFrame("Pacman Tests");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setSize(300, 300);
+        f.setSize(640,800);
         f.add(GameLoop.INSTANCE.getView());
         f.setVisible(true);
         // Hook up the windows key-listener with the event-loops I/O system:

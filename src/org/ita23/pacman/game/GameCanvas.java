@@ -1,4 +1,4 @@
-package org.knuth.pacman.game;
+package org.ita23.pacman.game;
 
 import javax.swing.*;
 
@@ -7,6 +7,7 @@ import javax.swing.*;
  * This canvas already implements buffered drawing against
  *  fading's when multiple re-draws take place.
  * @author Lukas Knuth
+ * @author Fabian Bottler
  * @version 1.0
  */
 class GameCanvas extends JPanel{
@@ -18,6 +19,8 @@ class GameCanvas extends JPanel{
      *  by {@code GameLoop}.
      */
     GameCanvas(){
-        
     }
+
+
+
 }

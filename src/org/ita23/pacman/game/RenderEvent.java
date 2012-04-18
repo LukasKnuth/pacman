@@ -1,4 +1,4 @@
-package org.knuth.pacman.game;
+package org.ita23.pacman.game;
 
 import java.awt.*;
 

@@ -1,6 +1,6 @@
-package org.knuth.pacman.logic;
+package org.ita23.pacman.logic;
 
-import org.knuth.pacman.game.RenderEvent;
+import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
 
