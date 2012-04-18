@@ -2,6 +2,7 @@ package org.ita23.pacman.game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 /**
  * The canvas all actions on the game-filed are drawn on.</p>
@@ -14,21 +15,31 @@ import java.awt.*;
 class GameCanvas extends JPanel{
 
     private Image dbImage;
-    private Graphics dbg = this.getGraphics();
+    private Graphics dbg;
+    private List<RenderEvent> renderEvents;
     // TODO Implement double-buffer for smooth animations!
 
     /**
      * Package-private constructor. Only to be initialized
      *  by {@code GameLoop}.
      */
-    GameCanvas(){
+    GameCanvas(List<RenderEvent> renderEvents){
+        this.renderEvents=renderEvents;
+        dbg =this.getGraphics();
     }
 
     public Graphics getBufferedGraphics(){
         return dbg;
     }
 
-    public void doubleBuffer(){
+    @Override
+    public void paint( Graphics g )
+    {
+        for (RenderEvent event : renderEvents)
+            event.render(g);
+    }
+    @Override
+    public void update(Graphics g){
         // Initialisierung des DoubleBuffers
         if (dbImage == null) {
             dbImage = createImage(this.getSize().width, this.getSize().height);
@@ -45,7 +56,8 @@ class GameCanvas extends JPanel{
 
         // Nun fertig gezeichnetes Bild Offscreen auf dem richtigen Bildschirm
         // anzeigen
-        this.getGraphics().drawImage(dbImage, 0, 0, this);
+        g.drawImage(dbImage, 0, 0, this);
     }
+
 
 }

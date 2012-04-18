@@ -68,37 +68,40 @@ public enum GameLoop implements KeyListener{
         renderEvents = new ArrayList<RenderEvent>(20);
         isRunning = false;
         main_loop = Executors.newSingleThreadScheduledExecutor();
-        canvas = new GameCanvas();
+        canvas = new GameCanvas(renderEvents);
     }
 
     /**
      * The {@code Runnable} used for the {@code Executor}, executing
-     *  all defined methods of the registered Events.
+     * all defined methods of the registered Events.
      */
-    private Runnable game_loop = new Runnable() {
-        @Override
-        public void run() {
-            // Check if terminated:
-            if (!isRunning) return;
-            // Input events:
-            if (last_key_event != null && last_key_type != null){
-                for (InputEvent event : inputEvents)
-                    event.keyboardInput(last_key_event, last_key_type);
-                // Clear
-                last_key_type = null;
-                last_key_event = null;
-            }
-            // AI-events:
-            for (AIEvent event : aiEvents)
-                event.think();
-            // Render-events:
-            // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
-            for (RenderEvent event : renderEvents)
-                event.render(canvas.getBufferedGraphics());
+    private Runnable game_loop;
 
-            canvas.doubleBuffer();
-        }
-    };
+    {
+        game_loop = new Runnable() {
+            @Override
+            public void run() {
+                // Check if terminated:
+                if (!isRunning) return;
+                // Input events:
+                if (last_key_event != null && last_key_type != null) {
+                    for (InputEvent event : inputEvents)
+                        event.keyboardInput(last_key_event, last_key_type);
+                    // Clear
+                    last_key_type = null;
+                    last_key_event = null;
+                }
+                // AI-events:
+                for (AIEvent event : aiEvents)
+                    event.think();
+                // Render-events:
+                // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
+
+                    canvas.repaint();
+
+            }
+        };
+    }
 
     /**
      * Add the {@code Runnable} for the main-loop, set it for schedule and
