@@ -48,20 +48,20 @@ public class Pacman implements RenderEvent, InputEvent {
     public void render(Graphics g) {
         // Draw the "ball"
         g.setColor(Color.YELLOW);
-        g.fillOval(20, 20, 40, 40);
+        g.fillOval(20, 20, 28, 28);
         // Draw the mouth:
         g.setColor(Color.BLACK);
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
-            g.fillArc(20, 20, 40, 40,
+            g.fillArc(20, 20, 28, 28,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
             mouth_degrees++;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
-            g.fillArc(20, 20, 40, 40,
+            g.fillArc(20, 20, 28, 28,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );

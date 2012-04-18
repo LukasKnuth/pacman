@@ -45,21 +45,19 @@ public class Map implements RenderEvent{
                 for (int i = 0; i < objects.length; i++)
                     for (int z = 0; z < objects[0].length; z++){
                         // Draw the Object:
-                        // TODO Use standard-sizes from the original!
-                        // http://www.cg-shoutbox.de/wp-content/gallery/retro/pacman.gif
                         switch (objects[i][z]){
                             case POINT:
                                 g.fillRect(
                                         (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer),
                                         (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer),
-                                        5, 5
+                                        4, 4
                                 );
                                 break;
                             case BALL:
                                 g.fillOval(
-                                        (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-2),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-2),
-                                        10, 10
+                                        (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-4),
+                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-4),
+                                        12, 12
                                 );
                                 break;
                         }
