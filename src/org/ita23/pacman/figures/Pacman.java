@@ -11,7 +11,7 @@ import java.awt.event.KeyEvent;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Pacman implements RenderEvent, InputEvent {
+public class Pacman extends Container implements RenderEvent, InputEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 90;
@@ -49,6 +49,7 @@ public class Pacman implements RenderEvent, InputEvent {
         // Draw the "ball"
         g.setColor(Color.YELLOW);
         g.fillOval(20, 20, 28, 28);
+
         // Draw the mouth:
         g.setColor(Color.BLACK);
         // Animate the mouth:

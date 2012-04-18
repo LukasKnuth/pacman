@@ -9,7 +9,7 @@ import java.awt.*;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Map implements RenderEvent{
+public class Map extends Container implements RenderEvent{
 
     /** The game-field */
     private final Chunk[][] field;
