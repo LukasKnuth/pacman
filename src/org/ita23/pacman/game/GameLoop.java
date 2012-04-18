@@ -94,7 +94,9 @@ public enum GameLoop implements KeyListener{
             // Render-events:
             // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
             for (RenderEvent event : renderEvents)
-                event.render(canvas.getGraphics());
+                event.render(canvas.getBufferedGraphics());
+
+            canvas.doubleBuffer();
         }
     };
 
