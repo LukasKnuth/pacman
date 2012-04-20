@@ -57,7 +57,7 @@ public enum GameLoop implements KeyListener{
     /** All registered {@code AIEvent}s */
     private List<AIEvent> aiEvents;
     /** All registered {@code RenderEvent}s */
-    private List<RenderEvent> renderEvents;
+    private List<RenderContainer> renderEvents;
 
     /**
      * Singleton. Private constructor!
@@ -65,7 +65,7 @@ public enum GameLoop implements KeyListener{
     private GameLoop(){
         inputEvents = new ArrayList<InputEvent>(4);
         aiEvents = new ArrayList<AIEvent>(6);
-        renderEvents = new ArrayList<RenderEvent>(20);
+        renderEvents = new ArrayList<RenderContainer>(20);
         isRunning = false;
         main_loop = Executors.newSingleThreadScheduledExecutor();
         canvas = new GameCanvas(renderEvents);
@@ -126,8 +126,10 @@ public enum GameLoop implements KeyListener{
      * Add a new {@code RenderEvent} to the schedule.
      * @param event the new element to add.
      */
-    public void addRenderEvent(RenderEvent event){
-        this.renderEvents.add(event);
+    public void addRenderEvent(RenderEvent event, int zIndex){
+        RenderContainer re = new RenderContainer(zIndex,event);
+
+        this.renderEvents.add(re);
     }
 
     /**

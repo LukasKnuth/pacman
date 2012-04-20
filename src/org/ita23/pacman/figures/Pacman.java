@@ -11,12 +11,14 @@ import java.awt.event.KeyEvent;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Pacman extends Container implements RenderEvent, InputEvent {
+public class Pacman implements RenderEvent, InputEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 90;
     /** The count of degrees needed to consider the moth "fully closed" */
     private final static int MOUTH_MIN = 0;
+    
+    private final static int ZINDEX = 1;
 
     /** The current degrees of the mouth */
     private int mouth_degrees;
@@ -42,6 +44,11 @@ public class Pacman extends Container implements RenderEvent, InputEvent {
         mouth_degrees = 0;
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
+
+    }
+    
+    public int getZIndex(){
+        return ZINDEX;
     }
     
     @Override
@@ -73,6 +80,8 @@ public class Pacman extends Container implements RenderEvent, InputEvent {
             mouth_closing = false;
         }
     }
+
+
 
     /**
      * Calculates the space needed to "center" the mouth on the

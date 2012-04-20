@@ -2,6 +2,7 @@ package org.ita23.pacman.game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,14 +17,14 @@ class GameCanvas extends JPanel{
 
     private Image dbImage;
     private Graphics dbg;
-    private List<RenderEvent> renderEvents;
+    private List<RenderContainer> renderEvents;
     // TODO Implement double-buffer for smooth animations!
 
     /**
      * Package-private constructor. Only to be initialized
      *  by {@code GameLoop}.
      */
-    GameCanvas(List<RenderEvent> renderEvents){
+    GameCanvas(List<RenderContainer> renderEvents){
         this.renderEvents=renderEvents;
         dbg =this.getGraphics();
     }
@@ -35,8 +36,14 @@ class GameCanvas extends JPanel{
     @Override
     public void paint( Graphics g )
     {
-        for (RenderEvent event : renderEvents)
-            event.render(g);
+        Collections.sort(renderEvents);
+    
+
+        
+        for (RenderContainer event : renderEvents){
+
+            event.getEvent().render(g);
+        }
     }
     @Override
     public void update(Graphics g){

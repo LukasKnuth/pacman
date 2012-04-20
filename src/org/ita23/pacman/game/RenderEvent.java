@@ -9,6 +9,7 @@ import java.awt.*;
  */
 public interface RenderEvent {
 
+
     /**
      * This method is used to draw the current state on the
      *  given {@code Graphics}-object.
@@ -16,4 +17,6 @@ public interface RenderEvent {
      * @return the drawn object.
      */
     public void render(Graphics g);
+
+
 }
