@@ -2,6 +2,7 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.InputEvent;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.logic.Map;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -20,6 +21,9 @@ public class Pacman implements RenderEvent, InputEvent {
     private final static int MOUTH_MIN = 0;
     
     private final static int ZINDEX = 1;
+
+    /** The color of pacmans body */
+    private static final Color BODY_COLOR = new Color(255, 255, 87);
 
     /** The current degrees of the mouth */
     private int mouth_degrees;
@@ -55,11 +59,10 @@ public class Pacman implements RenderEvent, InputEvent {
     @Override
     public void render(Graphics g) {
         // Draw the "ball"
-        g.setColor(Color.YELLOW);
+        g.setColor(BODY_COLOR);
         g.fillOval(20, 20, 28, 28);
-
         // Draw the mouth:
-        g.setColor(Color.BLACK);
+        g.setColor(Map.BACKGROUND_COLOR);
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
