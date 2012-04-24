@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Where {@code frame} is for example a {@code JFrame}.
  *
  * @author Lukas Knuth
+ * @author Fabain Bottler
  * @version 1.0
  */
 public enum GameLoop implements KeyListener{

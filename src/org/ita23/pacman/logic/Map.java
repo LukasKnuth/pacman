@@ -8,6 +8,7 @@ import java.awt.*;
  * Describes a Map on which the player can play the game.
  *
  * @author Lukas Knuth
+ * @author Fabain Bottler
  * @version 1.0
  */
 public class Map implements RenderEvent {
@@ -41,6 +42,8 @@ public class Map implements RenderEvent {
                 field[x][y] = new Chunk();
         // Add a ball: // TODO RANDOM!
         field[1][3].addBall(1, 2);
+        field[2][5].addBlock(1,2);
+
     }
     
     public int getZIndex(){
@@ -77,6 +80,12 @@ public class Map implements RenderEvent {
                                         12, 12
                                 );
                                 break;
+                            case BLOCK:
+                                g.drawRect(
+                                        (x * Chunk.CHUNK_SIZE) + ((i + 1) * object_spacer),
+                                        (y * Chunk.CHUNK_SIZE) + ((z + 1) * object_spacer),
+                                        4, 4
+                                );
                         }
                     }
             }

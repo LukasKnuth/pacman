@@ -47,10 +47,25 @@ public class Chunk {
      */
     public void addBall(int x, int y){
         // Check coordinate-validity
-        if (x >= OBJECTS_PER_CHUNK_LINE || x >= OBJECTS_PER_CHUNK_LINE)
+        if (x >= OBJECTS_PER_CHUNK_LINE || y >= OBJECTS_PER_CHUNK_LINE)
             throw new IllegalArgumentException
                     ("Coordinates must be between 0 and "+OBJECTS_PER_CHUNK_LINE);
         // Add the ball:
         objects[x][y] = ChunkObject.BALL;
+    }
+
+    /**
+     * Add a Block to this chunk on the given coordinates.
+     * @para x the zero-based x-coordinate of the ball
+     * @para y the zero-based y-coordinate of the ball
+     */
+    public void addBlock(int x, int y){
+        // Check coordinate-validity
+      /*  if (x >= OBJECTS_PER_CHUNK_LINE || y >= OBJECTS_PER_CHUNK_LINE)
+            throw new IllegalArgumentException
+                    ("Coordinates must be between 0 and "+OBJECTS_PER_CHUNK_LINE);
+        // Set everything to food:*/
+        objects[x][y] = ChunkObject.BLOCK;
+
     }
 }

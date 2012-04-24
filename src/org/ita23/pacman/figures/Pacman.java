@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 /**
  * The main-character of this game.
  * @author Lukas Knuth
+ * @author Fabain Bottler
  * @version 1.0
  */
 public class Pacman implements RenderEvent, InputEvent {

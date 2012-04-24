@@ -18,7 +18,7 @@ class GameCanvas extends JPanel{
     private Image dbImage;
     private Graphics dbg;
     private List<RenderContainer> renderEvents;
-    // TODO Implement double-buffer for smooth animations!
+
 
     /**
      * Package-private constructor. Only to be initialized
