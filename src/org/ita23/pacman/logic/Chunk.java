@@ -11,7 +11,7 @@ public class Chunk {
     private static final int OBJECTS_PER_CHUNK_LINE = 3;
 
     /** The site-length of a chunk in pixel */
-    public static final int CHUNK_SIZE = 30;
+    public static final int CHUNK_SIZE = 48;
     
     /** Possible objects on a chunk */
     public enum ChunkObject{
