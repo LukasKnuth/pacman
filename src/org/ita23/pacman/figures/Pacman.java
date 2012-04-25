@@ -16,14 +16,23 @@ import java.awt.event.KeyEvent;
 public class Pacman implements RenderEvent, InputEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
-    private final static int MOUTH_MAX = 90;
+    private final static int MOUTH_MAX = 75;
     /** The count of degrees needed to consider the moth "fully closed" */
     private final static int MOUTH_MIN = 0;
+    /** The pixels-per-repaint that pacman moves */
+    private final static int MOVE_PER_PAINT = 1; // TODO Slower when not eating!
+    /** The speed indicating how fast the mouth moves. The higher, the faster! */
+    private final static int MOUTH_SPEED = 6;
     
     private final static int ZINDEX = 1;
-
+    
     /** The color of pacmans body */
     private static final Color BODY_COLOR = new Color(255, 255, 87);
+
+    /** The current X-coordinate */
+    private int x;
+    /** The current Y-coordinate */
+    private int y;
 
     /** The current degrees of the mouth */
     private int mouth_degrees;
@@ -49,7 +58,8 @@ public class Pacman implements RenderEvent, InputEvent {
         mouth_degrees = 0;
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
-
+        this.x = 80; // TODO Calculate that on the screen-size or create a "Start"-object to do the Job.
+        this.y = 20;
     }
     
     public int getZIndex(){
@@ -58,34 +68,47 @@ public class Pacman implements RenderEvent, InputEvent {
     
     @Override
     public void render(Graphics g) {
+        // Move the character:
+        switch (current_direction){
+            case UP:
+                this.y -= MOVE_PER_PAINT;
+                break;
+            case RIGHT:
+                this.x += MOVE_PER_PAINT;
+                break;
+            case DOWN:
+                this.y += MOVE_PER_PAINT;
+                break;
+            case LEFT:
+                this.x -= MOVE_PER_PAINT;
+                break;
+        }
         // Draw the "ball"
         g.setColor(BODY_COLOR);
-        g.fillOval(20, 20, 28, 28);
+        g.fillOval(this.x, this.y, 28, 28);
         // Draw the mouth:
         g.setColor(Map.BACKGROUND_COLOR);
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
-            g.fillArc(20, 20, 28, 28,
+            g.fillArc(this.x, this.y, 28, 28,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
-            mouth_degrees++;
+            mouth_degrees += MOUTH_SPEED;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
-            g.fillArc(20, 20, 28, 28,
+            g.fillArc(this.x, this.y, 28, 28,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
-            mouth_degrees--;
+            mouth_degrees -= MOUTH_SPEED;
             mouth_closing = true;
         } else {
             // Mouth is closed. Open it again!
             mouth_closing = false;
         }
     }
-
-
 
     /**
      * Calculates the space needed to "center" the mouth on the
