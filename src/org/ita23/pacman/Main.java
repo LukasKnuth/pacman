@@ -5,6 +5,8 @@ import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.logic.Map;
 
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * The main entry-point for the Pacman game.
@@ -28,11 +30,10 @@ public class Main {
 
     /**
      * Add all Events (figures as of this case) to the
-     *  {@code GameLoop}, so they get usefull.
+     *  {@code GameLoop}, so they get useful.
      */
     private void addFigures(){
         Pacman pacman = new Pacman();
-
         GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
         GameLoop.INSTANCE.addInputEvent(pacman);
         Map map = new Map( // Use real canvas-size for map-generation!
@@ -46,8 +47,16 @@ public class Main {
      * Create and populate the window for the game.
      */
     private void populateWindow(){
-        f = new JFrame("Pacman Tests");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f = new JFrame("Pacman");
+        f.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // Terminate the Game-loop:
+                GameLoop.INSTANCE.stopLoop();
+                // Close the application:
+                System.exit(0);
+            }
+        });
         f.setSize(640,800);
         f.add(GameLoop.INSTANCE.getView());
         f.setVisible(true);

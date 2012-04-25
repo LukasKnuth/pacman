@@ -24,9 +24,19 @@ class GameCanvas extends JPanel{
      * Package-private constructor. Only to be initialized
      *  by {@code GameLoop}.
      */
-    GameCanvas(List<RenderContainer> renderEvents){
-        this.renderEvents=renderEvents;
-        dbg =this.getGraphics();
+    GameCanvas(){
+        dbg = this.getGraphics();
+    }
+
+    /**
+     * Sets the {@code RenderEvent}s (packed in a {@code RenderContainer}
+     *  with their desired Z-index), which should be rendered on this
+     *  Canvas.
+     * @param renderEvents the events to be painted on this canvas.
+     */
+    void setRenderEvents(List<RenderContainer> renderEvents){
+        this.renderEvents = renderEvents;
+        Collections.sort(this.renderEvents);
     }
 
     public Graphics getBufferedGraphics(){
@@ -36,15 +46,12 @@ class GameCanvas extends JPanel{
     @Override
     public void paint( Graphics g )
     {
-        Collections.sort(renderEvents);
-    
-
-        
+        if (renderEvents == null || renderEvents.size() < 1) return;
         for (RenderContainer event : renderEvents){
-
             event.getEvent().render(g);
         }
     }
+
     @Override
     public void update(Graphics g){
         // Initialisierung des DoubleBuffers

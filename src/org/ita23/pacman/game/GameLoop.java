@@ -5,9 +5,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,9 +42,12 @@ public enum GameLoop implements KeyListener{
     
     /** Indicates if the game-loop is currently running */
     private boolean isRunning;
-    
+
     /** The executor-service running the main game-loop */
-    private Executor game_loop_executor;
+    private ScheduledExecutorService game_loop_executor;
+    /** The handler fot the main-game-thread, used to stop it */
+    private ScheduledFuture game_loop_handler;
+    
     /** The canvas to draw all game-elements on */
     private GameCanvas canvas;
 
@@ -69,45 +72,42 @@ public enum GameLoop implements KeyListener{
         renderEvents = new ArrayList<RenderContainer>(20);
         isRunning = false;
         game_loop_executor = Executors.newSingleThreadScheduledExecutor();
-        canvas = new GameCanvas(renderEvents);
+        canvas = new GameCanvas();
     }
 
     /**
      * The {@code Runnable} used for the {@code Executor}, executing
      * all defined methods of the registered Events.
      */
-    private Runnable game_loop;
-
-    {
-        game_loop = new Runnable() {
-            @Override
-            public void run() {
-                // Check if terminated:
-                if (!isRunning) return;
-                // Input events:
-                if (last_key_event != null && last_key_type != null) {
-                    for (InputEvent event : inputEvents)
-                        event.keyboardInput(last_key_event, last_key_type);
-                    // Clear
-                    last_key_type = null;
-                    last_key_event = null;
-                }
-                // AI-events:
-                for (AIEvent event : aiEvents)
-                    event.think();
-                // Render-events:
-                // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
-                    canvas.repaint();
+    private Runnable game_loop = new Runnable() {
+        @Override
+        public void run() {
+            // Input events:
+            if (last_key_event != null && last_key_type != null) {
+                for (InputEvent event : inputEvents)
+                    event.keyboardInput(last_key_event, last_key_type);
+                // Clear
+                last_key_type = null;
+                last_key_event = null;
             }
-        };
-    }
+            // AI-events:
+            for (AIEvent event : aiEvents)
+                event.think();
+            // Render-events:
+            // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
+                canvas.repaint();
+        }
+    };
 
     /**
      * Add the {@code Runnable} for the main-loop, set it for schedule and
      *  begin executing it.
      */
     private void createMainLoop(){
-        ((ScheduledExecutorService) game_loop_executor).scheduleAtFixedRate(
+        // Give the Canvas all Elements to paint:
+        canvas.setRenderEvents(this.renderEvents);
+        // Start the new game executor:
+        game_loop_handler = game_loop_executor.scheduleAtFixedRate(
                 game_loop, 0L, 16L, TimeUnit.MILLISECONDS
         );
     }
@@ -122,10 +122,7 @@ public enum GameLoop implements KeyListener{
      * @return whether if the main game-loop is currently running or not.
      */
     private boolean isLocked(){
-        if ( !((ScheduledExecutorService)game_loop_executor).isShutdown()
-              && isRunning)
-            return true;
-        return false;
+        return isRunning;
     }
 
     /**
@@ -145,6 +142,7 @@ public enum GameLoop implements KeyListener{
      * This method <u>will not have any effect</u>, after the {@code startLoop()}-
      *  method has already been called!
      * @param event the new element to add.
+     * @param zIndex the z-index this element should be drawn at.
      */
     public void addRenderEvent(RenderEvent event, int zIndex){
         // Check if locked:
@@ -170,7 +168,7 @@ public enum GameLoop implements KeyListener{
      * Start the game-loop.
      */
     public void startLoop(){
-        if (!isRunning && game_loop_executor != null){
+        if (!isRunning){
             createMainLoop();
             isRunning = true;
         }
@@ -181,6 +179,8 @@ public enum GameLoop implements KeyListener{
      *  to finish first.
      */
     public void stopLoop(){
+        game_loop_handler.cancel(true);
+        game_loop_executor.shutdown();
         isRunning = false;
     }
 
