@@ -44,7 +44,7 @@ public enum GameLoop implements KeyListener{
     private boolean isRunning;
     
     /** The executor-service running the main game-loop */
-    private Executor main_loop;
+    private Executor game_loop_executor;
     /** The canvas to draw all game-elements on */
     private GameCanvas canvas;
 
@@ -68,7 +68,7 @@ public enum GameLoop implements KeyListener{
         aiEvents = new ArrayList<AIEvent>(6);
         renderEvents = new ArrayList<RenderContainer>(20);
         isRunning = false;
-        main_loop = Executors.newSingleThreadScheduledExecutor();
+        game_loop_executor = Executors.newSingleThreadScheduledExecutor();
         canvas = new GameCanvas(renderEvents);
     }
 
@@ -97,10 +97,7 @@ public enum GameLoop implements KeyListener{
                     event.think();
                 // Render-events:
                 // TODO Add mechanic to draw thinks on top of each other, despite the order in the List.
-
-
                     canvas.repaint();
-
             }
         };
     }
@@ -110,42 +107,70 @@ public enum GameLoop implements KeyListener{
      *  begin executing it.
      */
     private void createMainLoop(){
-        ((ScheduledExecutorService)main_loop).scheduleAtFixedRate(
+        ((ScheduledExecutorService) game_loop_executor).scheduleAtFixedRate(
                 game_loop, 0L, 16L, TimeUnit.MILLISECONDS
         );
     }
 
     /**
-     * Add a new {@code AIEvent} to the schedule.
+     * Checks if the game-loop is already running. If so, the state of the
+     *  events, added to their corresponding lists is considered "locked".
+     * </p>
+     * This is to prevent any writing-access to the list's, while another
+     *  thread is using them, which would cause an
+     *  {@code ConcurrentModificationException}
+     * @return whether if the main game-loop is currently running or not.
+     */
+    private boolean isLocked(){
+        if ( !((ScheduledExecutorService)game_loop_executor).isShutdown()
+              && isRunning)
+            return true;
+        return false;
+    }
+
+    /**
+     * Add a new {@code AIEvent} to the schedule.</p>
+     * This method <u>will not have any effect</u>, after the {@code startLoop()}-
+     *  method has already been called!
      * @param event the new element to add.
      */
     public void addAIEvent(AIEvent event){
-        this.aiEvents.add(event);
+        // Check if locked:
+        if (!isLocked())
+            this.aiEvents.add(event);
     }
 
     /**
      * Add a new {@code RenderEvent} to the schedule.
+     * This method <u>will not have any effect</u>, after the {@code startLoop()}-
+     *  method has already been called!
      * @param event the new element to add.
      */
     public void addRenderEvent(RenderEvent event, int zIndex){
-        RenderContainer re = new RenderContainer(zIndex,event);
-
-        this.renderEvents.add(re);
+        // Check if locked:
+        if (!isLocked()){
+            RenderContainer re = new RenderContainer(zIndex,event);
+            this.renderEvents.add(re);
+        }
     }
 
     /**
      * Add a new {@code InputEvent} to the schedule.
+     * This method <u>will not have any effect</u>, after the {@code startLoop()}-
+     *  method has already been called!
      * @param event the new element to add.
      */
     public void addInputEvent(InputEvent event){
-        this.inputEvents.add(event);
+        // Check if locked:
+        if (!isLocked())
+            this.inputEvents.add(event);
     }
 
     /**
      * Start the game-loop.
      */
     public void startLoop(){
-        if (!isRunning && main_loop != null){
+        if (!isRunning && game_loop_executor != null){
             createMainLoop();
             isRunning = true;
         }
