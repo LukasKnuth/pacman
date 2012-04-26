@@ -21,7 +21,7 @@ public class Pacman implements RenderEvent, InputEvent {
     /** The count of degrees needed to consider the moth "fully closed" */
     private final static int MOUTH_MIN = 0;
     /** The pixels-per-repaint that pacman moves */
-    private final static int MOVE_PER_PAINT = 1; // TODO Slower when not eating!
+    private final static int MOVE_PER_PAINT = 2; // TODO Slower when not eating!
     /** The speed indicating how fast the mouth moves. The higher, the faster! */
     private final static int MOUTH_SPEED = 6;
     
