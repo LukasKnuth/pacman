@@ -23,9 +23,9 @@ public class Map implements RenderEvent{
     private final Chunk[][] field;
     /** The start-point of the game */
     private final Point start_point;
-    
+
     private  final static int ZINDEX=2;
-    
+
     private int w = 0;
     private int h = 0;
 
@@ -45,15 +45,34 @@ public class Map implements RenderEvent{
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++)
                 field[x][y] = new Chunk();
+        // Add some blocks:
+        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 0, 2);
+        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
+        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
+        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 0, 2);
+        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
+        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
+        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
+        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 1, 1);
+        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 0, 1);
+        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 1, 1);
+        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
+        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
+        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
+        field[1][7].addObject(Chunk.ChunkObject.BLOCK, 1, 0);
+        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 0);
+        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
+        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
+        field[0][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
+        field[0][7].addObject(Chunk.ChunkObject.BLOCK, 2, 0);
         // Add a ball: // TODO RANDOM!
         field[1][3].addObject(Chunk.ChunkObject.BALL, 1, 2);
-        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
         // Set the point for the start:
         field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
                 ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3))));
     }
-    
+
     public int getZIndex(){
         return ZINDEX;
     }
@@ -91,7 +110,7 @@ public class Map implements RenderEvent{
                                 break;
                             case BLOCK:
                                 g.setColor(BLOCK_COLOR);
-                                g.drawRect(
+                                g.fillRect(
                                         (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-1),
                                         (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-1),
                                         4, 4
