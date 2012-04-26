@@ -21,11 +21,13 @@ public class Map implements RenderEvent{
 
     /** The game-field */
     private final Chunk[][] field;
+    /** The start-point of the game */
+    private final Point start_point;
     
     private  final static int ZINDEX=2;
     
-    private int w =0;
-    private int h =0;
+    private int w = 0;
+    private int h = 0;
 
     /**
      * Construct a Map with the given size.
@@ -46,6 +48,10 @@ public class Map implements RenderEvent{
         // Add a ball: // TODO RANDOM!
         field[1][3].addBall(1, 2);
         field[2][5].addBlock(1,2);
+        // Set the point for the start:
+        field[8][3].setStartPoint(0,2); // TODO Better way without copying coordinates!
+        start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
+                ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3))));
     }
     
     public int getZIndex(){
@@ -93,5 +99,13 @@ public class Map implements RenderEvent{
                         }
                     }
             }
+    }
+
+    /**
+     * Get the start-point as a {@code Point}-object.
+     * @return the {@code Point} to start on.
+     */
+    public Point getStartPoint(){
+        return start_point;
     }
 }

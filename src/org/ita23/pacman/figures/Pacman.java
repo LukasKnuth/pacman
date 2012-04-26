@@ -3,6 +3,7 @@ package org.ita23.pacman.figures;
 import org.ita23.pacman.game.InputEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.Map;
+import org.ita23.pacman.logic.Point;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -54,12 +55,12 @@ public class Pacman implements RenderEvent, InputEvent {
     /**
      * Create a new Pacman-figure with an animated mouth.
      */
-    public Pacman(){
+    public Pacman(Point point){
         mouth_degrees = 0;
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
-        this.x = 80; // TODO Calculate that on the screen-size or create a "Start"-object to do the Job.
-        this.y = 20;
+        this.x = point.x+3;
+        this.y = point.y+3;
     }
     
     public int getZIndex(){

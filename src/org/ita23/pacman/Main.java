@@ -33,14 +33,15 @@ public class Main {
      *  {@code GameLoop}, so they get useful.
      */
     private void addFigures(){
-        Pacman pacman = new Pacman();
-        GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
-        GameLoop.INSTANCE.addInputEvent(pacman);
         Map map = new Map( // Use real canvas-size for map-generation!
                 GameLoop.INSTANCE.getView().getWidth(),
                 GameLoop.INSTANCE.getView().getHeight()
         );
         GameLoop.INSTANCE.addRenderEvent(map, map.getZIndex());
+        // Add Pacman
+        Pacman pacman = new Pacman(map.getStartPoint());
+        GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
+        GameLoop.INSTANCE.addInputEvent(pacman);
     }
 
     /**
