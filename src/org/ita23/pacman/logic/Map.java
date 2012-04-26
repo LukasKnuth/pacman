@@ -46,10 +46,10 @@ public class Map implements RenderEvent{
             for (int y = 0; y < field[0].length; y++)
                 field[x][y] = new Chunk();
         // Add a ball: // TODO RANDOM!
-        field[1][3].addBall(1, 2);
-        field[2][5].addBlock(1,2);
+        field[1][3].addObject(Chunk.ChunkObject.BALL, 1, 2);
+        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
         // Set the point for the start:
-        field[8][3].setStartPoint(0,2); // TODO Better way without copying coordinates!
+        field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
                 ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3))));
     }
