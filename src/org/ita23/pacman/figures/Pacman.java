@@ -2,6 +2,7 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.InputEvent;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.logic.Chunk;
 import org.ita23.pacman.logic.Map;
 import org.ita23.pacman.logic.Point;
 
@@ -35,6 +36,9 @@ public class Pacman implements RenderEvent, InputEvent {
     /** The current Y-coordinate */
     private int y;
 
+    /** Counts the amount of pixels moved since the last direction-change */
+    private int pixel_moved_count;
+
     /** The current degrees of the mouth */
     private int mouth_degrees;
     /** Specifies if the mouth is closing or opening */
@@ -51,6 +55,8 @@ public class Pacman implements RenderEvent, InputEvent {
     }
     /** The current direction pacman looks */
     private FacingDirection current_direction;
+    /** The direction pacman should move next possible turn */
+    private FacingDirection next_direction;
 
     /**
      * Create a new Pacman-figure with an animated mouth.
@@ -59,6 +65,7 @@ public class Pacman implements RenderEvent, InputEvent {
         mouth_degrees = 0;
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
+        next_direction = current_direction;
         this.x = point.x+3;
         this.y = point.y+3;
     }
@@ -69,19 +76,29 @@ public class Pacman implements RenderEvent, InputEvent {
     
     @Override
     public void render(Graphics g) {
+        // Check if direction-change is allowed:
+        if (pixel_moved_count % (Chunk.CHUNK_SIZE / 3) == 0){
+            // Change direction if needed:
+            current_direction = next_direction;
+            pixel_moved_count = 0;
+        }
         // Move the character:
         switch (current_direction){
             case UP:
                 this.y -= MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
                 break;
             case RIGHT:
                 this.x += MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
                 break;
             case DOWN:
                 this.y += MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
                 break;
             case LEFT:
                 this.x -= MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
                 break;
         }
         // Draw the "ball"
@@ -128,12 +145,12 @@ public class Pacman implements RenderEvent, InputEvent {
     @Override
     public void keyboardInput(KeyEvent event, KeyEventType type) {
         if (event.getKeyCode() == KeyEvent.VK_UP)
-            current_direction = FacingDirection.UP;
+            next_direction = FacingDirection.UP;
         else if (event.getKeyCode() == KeyEvent.VK_DOWN)
-            current_direction = FacingDirection.DOWN;
+            next_direction = FacingDirection.DOWN;
         else if (event.getKeyCode() == KeyEvent.VK_LEFT)
-            current_direction = FacingDirection.LEFT;
+            next_direction = FacingDirection.LEFT;
         else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
-            current_direction = FacingDirection.RIGHT;
+            next_direction = FacingDirection.RIGHT;
     }
 }
