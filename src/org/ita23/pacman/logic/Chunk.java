@@ -8,7 +8,7 @@ package org.ita23.pacman.logic;
 public class Chunk {
 
     /** Number of objects on one site of a chunk */
-    private static final int OBJECTS_PER_CHUNK_LINE = 3;
+    public static final int OBJECTS_PER_CHUNK_LINE = 3;
 
     /** The site-length of a chunk in pixel */
     public static final int CHUNK_SIZE = 48;

@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * <ol>
  *     <li>{@code InputEvent}</li>
  *     <li>{@code AIEvent}</li>
+ *     <li>{@code CollusionEvent}</li>
  *     <li>{@code RenderEvent}</li>
  * </ol>
  * 
@@ -62,6 +63,11 @@ public enum GameLoop implements KeyListener{
     private List<AIEvent> aiEvents;
     /** All registered {@code RenderEvent}s */
     private List<RenderContainer> renderEvents;
+    /** All registered {@code CollusionEvent}s */
+    private List<CollusionEvent> collusionEvents;
+    
+    /** The {@code Map} the game takes place on */
+    private Map game_field;
 
     /**
      * Singleton. Private constructor!
@@ -70,6 +76,7 @@ public enum GameLoop implements KeyListener{
         inputEvents = new ArrayList<InputEvent>(4);
         aiEvents = new ArrayList<AIEvent>(6);
         renderEvents = new ArrayList<RenderContainer>(20);
+        collusionEvents = new ArrayList<CollusionEvent>(5);
         isRunning = false;
         game_loop_executor = Executors.newSingleThreadScheduledExecutor();
         canvas = new GameCanvas();
@@ -82,19 +89,26 @@ public enum GameLoop implements KeyListener{
     private Runnable game_loop = new Runnable() {
         @Override
         public void run() {
-            // Input events:
-            if (last_key_event != null && last_key_type != null) {
-                for (InputEvent event : inputEvents)
-                    event.keyboardInput(last_key_event, last_key_type);
-                // Clear
-                last_key_type = null;
-                last_key_event = null;
+            try {
+                // Input events:
+                if (last_key_event != null && last_key_type != null) {
+                    for (InputEvent event : inputEvents)
+                        event.keyboardInput(last_key_event, last_key_type);
+                    // Clear
+                    last_key_type = null;
+                    last_key_event = null;
+                }
+                // AI-events:
+                for (AIEvent event : aiEvents)
+                    event.think();
+                // Collusion-events:
+                for (CollusionEvent event : collusionEvents)
+                    event.detectCollusion(game_field.getCollusionTest());
+                // Render-events:
+                canvas.repaint();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            // AI-events:
-            for (AIEvent event : aiEvents)
-                event.think();
-            // Render-events:
-            canvas.repaint();
         }
     };
 
@@ -103,6 +117,9 @@ public enum GameLoop implements KeyListener{
      *  begin executing it.
      */
     private void createMainLoop(){
+        // Check if we have a Map:
+        if (this.game_field == null)
+            throw new IllegalStateException("The game can't start without a Map!");
         // Give the Canvas all Elements to paint:
         canvas.setRenderEvents(this.renderEvents);
         // Start the new game executor:
@@ -161,6 +178,27 @@ public enum GameLoop implements KeyListener{
         // Check if locked:
         if (!isLocked())
             this.inputEvents.add(event);
+    }
+
+    /**
+     * Add a new {@code CollusionEvent} to the schedule.
+     * This method <u>will not have any effect</u>, after the {@code startLoop()}-
+     *  method has already been called!
+     * @param event the new element to add.
+     */
+    public void addCollusionEvent(CollusionEvent event){
+        if (!isLocked())
+            this.collusionEvents.add(event);
+    }
+
+    /**
+     * Set the {@code Map}, on which the game is played.
+     * @param map the map to use.
+     * @see org.ita23.pacman.game.Map
+     */
+    public void setMap(Map map){
+        if (!isLocked())
+            this.game_field = map;
     }
 
     /**

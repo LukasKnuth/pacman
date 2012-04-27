@@ -1,16 +1,20 @@
 package org.ita23.pacman.logic;
 
+import org.ita23.pacman.game.CollusionTest;
+import org.ita23.pacman.game.Map;
 import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
 
 /**
- * Describes a Map on which the player can play the game.
+ * This is a {@code Map}-implementation, which devides the game-field
+ *  into multiple {@code Chunk}s.
  * @author Lukas Knuth
  * @author Fabain Bottler
  * @version 1.0
+ * @see org.ita23.pacman.logic.Chunk
  */
-public class Map implements RenderEvent{
+public class ChunkedMap implements Map, RenderEvent{
 
     /** The background-color for all elements */
     public static final Color BACKGROUND_COLOR = new Color(3,3,3);
@@ -34,7 +38,7 @@ public class Map implements RenderEvent{
      * @param width the width of the Map in pixel.
      * @param height the height of the Map in pixel.
      */
-    public Map(int width, int height){
+    public ChunkedMap(int width, int height){
         // Find the matching Chunk-count:
         int chunks_x = width / Chunk.CHUNK_SIZE;
         int chunks_y = height / Chunk.CHUNK_SIZE;
@@ -81,7 +85,7 @@ public class Map implements RenderEvent{
     public void render(Graphics g) {
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, w, h);
-        int object_spacer = Chunk.CHUNK_SIZE / 3;
+        int object_spacer = Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE;
         // Draw the chunks:
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++){
@@ -126,5 +130,42 @@ public class Map implements RenderEvent{
      */
     public Point getStartPoint(){
         return start_point;
+    }
+
+    /** The collusion-test object for the {@code ChunkedMap}. */
+    private CollusionTest collusion_test = new CollusionTest() {
+
+        @Override
+        public boolean checkAnyCollusion(Point you) {
+            int chunk_x = you.x / Chunk.CHUNK_SIZE;
+            int chunk_y = you.y / Chunk.CHUNK_SIZE;
+            int chunk_x_object = (you.x - chunk_x*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            int chunk_y_object = (you.y - chunk_y*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            if (field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object]
+                    == Chunk.ChunkObject.NOTHING)
+                return false;
+            return true;
+        }
+
+        @Override
+        public <T> boolean checkCollusion(T object, Point you) {
+            int chunk_x = you.x / Chunk.CHUNK_SIZE;
+            int chunk_y = you.y / Chunk.CHUNK_SIZE;
+            int chunk_x_object = (you.x - chunk_x*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            int chunk_y_object = (you.y - chunk_y*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            if (field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object]
+                    == object)
+                return true;
+            return false;
+        }
+    };
+
+    @Override
+    public CollusionTest getCollusionTest() {
+        return collusion_test;
     }
 }

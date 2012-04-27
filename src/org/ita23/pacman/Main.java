@@ -2,7 +2,7 @@ package org.ita23.pacman;
 
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
-import org.ita23.pacman.logic.Map;
+import org.ita23.pacman.logic.ChunkedMap;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -33,10 +33,11 @@ public class Main {
      *  {@code GameLoop}, so they get useful.
      */
     private void addFigures(){
-        Map map = new Map( // Use real canvas-size for map-generation!
+        ChunkedMap map = new ChunkedMap( // Use real canvas-size for map-generation!
                 GameLoop.INSTANCE.getView().getWidth(),
                 GameLoop.INSTANCE.getView().getHeight()
         );
+        GameLoop.INSTANCE.setMap(map);
         GameLoop.INSTANCE.addRenderEvent(map, map.getZIndex());
         // Add Pacman
         Pacman pacman = new Pacman(map.getStartPoint());
