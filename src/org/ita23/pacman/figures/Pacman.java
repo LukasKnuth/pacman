@@ -1,9 +1,11 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.game.CollusionEvent;
+import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.InputEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.Chunk;
-import org.ita23.pacman.logic.Map;
+import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.Point;
 
 import java.awt.*;
@@ -15,7 +17,7 @@ import java.awt.event.KeyEvent;
  * @author Fabain Bottler
  * @version 1.0
  */
-public class Pacman implements RenderEvent, InputEvent {
+public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 75;
@@ -43,7 +45,7 @@ public class Pacman implements RenderEvent, InputEvent {
     private int mouth_degrees;
     /** Specifies if the mouth is closing or opening */
     private boolean mouth_closing;
-    
+
     /** Possible directions that pacman can look */
     private enum FacingDirection{
         UP(0), DOWN(180), LEFT(90), RIGHT(270);
@@ -105,7 +107,7 @@ public class Pacman implements RenderEvent, InputEvent {
         g.setColor(BODY_COLOR);
         g.fillOval(this.x, this.y, 28, 28);
         // Draw the mouth:
-        g.setColor(Map.BACKGROUND_COLOR);
+        g.setColor(ChunkedMap.BACKGROUND_COLOR);
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
@@ -140,6 +142,13 @@ public class Pacman implements RenderEvent, InputEvent {
         int element_space = current_degrees + 180;
         int usable_space = 360 - element_space;
         return (usable_space / 2);
+    }
+    
+    @Override
+    public void detectCollusion(CollusionTest tester) {
+        Point p = new Point(this.x, this.y);
+        System.out.println("Collided with something: "+tester.checkAnyCollusion(p));
+        System.out.println("Collided with POINT: "+tester.checkCollusion(Chunk.ChunkObject.POINT, p));
     }
 
     @Override

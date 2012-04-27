@@ -43,6 +43,7 @@ public class Main {
         Pacman pacman = new Pacman(map.getStartPoint());
         GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
         GameLoop.INSTANCE.addInputEvent(pacman);
+        GameLoop.INSTANCE.addCollusionEvent(pacman);
     }
 
     /**
