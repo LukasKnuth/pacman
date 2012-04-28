@@ -49,6 +49,8 @@ public class ChunkedMap implements Map, RenderEvent{
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++)
                 field[x][y] = new Chunk();
+        // Add the level boundary:
+        addLevelBoundary();
         // Add some blocks:
         field[2][5].addObject(Chunk.ChunkObject.BLOCK, 0, 2);
         field[2][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
@@ -75,6 +77,28 @@ public class ChunkedMap implements Map, RenderEvent{
         field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
                 ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3))));
+    }
+
+    /**
+     * Adds the level-boundary's to the field.
+     */
+    private void addLevelBoundary(){
+        // Top-boundary:
+        for (int i = 0; i < field.length; i++)
+            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
+                field[i][0].addObject(Chunk.ChunkObject.BLOCK, z, 0);
+        // Bottom-boundary:
+        for (int i = 0; i < field.length; i++)
+            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
+                field[i][(field[0].length-1)].addObject(Chunk.ChunkObject.BLOCK, z, 2);
+        // Left-boundary:
+        for (int i = 0; i < field[0].length; i++)
+            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
+                field[0][i].addObject(Chunk.ChunkObject.BLOCK, 0, z);
+        // Left-boundary:
+        for (int i = 0; i < field[0].length; i++)
+            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
+                field[(field.length-1)][i].addObject(Chunk.ChunkObject.BLOCK, 2, z);
     }
 
     public int getZIndex(){
