@@ -159,50 +159,50 @@ public class ChunkedMap implements Map, RenderEvent{
     /** The collusion-test object for the {@code ChunkedMap}. */
     private CollusionTest collusion_test = new CollusionTest() {
         
-        private Chunk.ChunkObject getObject(Point you){
-            int chunk_x = you.x / Chunk.CHUNK_SIZE;
-            int chunk_y = you.y / Chunk.CHUNK_SIZE;
-            int chunk_x_object = (you.x - chunk_x*Chunk.CHUNK_SIZE)
+        private Chunk.ChunkObject getObject(int you_x, int you_y){
+            int chunk_x = you_x / Chunk.CHUNK_SIZE;
+            int chunk_y = you_y / Chunk.CHUNK_SIZE;
+            int chunk_x_object = (you_x - chunk_x*Chunk.CHUNK_SIZE)
                     / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
-            int chunk_y_object = (you.y - chunk_y*Chunk.CHUNK_SIZE)
+            int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
                     / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
             return field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object];
         }
 
         @Override
-        public boolean checkAnyCollusion(Point you) {
-            if (getObject(you) == Chunk.ChunkObject.NOTHING)
+        public boolean checkAnyCollusion(int you_x, int you_y) {
+            if (getObject(you_x, you_y) == Chunk.ChunkObject.NOTHING)
                 return false;
             return true;
         }
 
         @Override
-        public <T> boolean checkCollusion(T object, Point you) {
-            if (getObject(you) == object)
+        public <T> boolean checkCollusion(int you_x, int you_y, T object) {
+            if (getObject(you_x, you_y) == object)
                 return true;
             return false;
         }
 
         @Override
-        public <T> boolean checkNextCollusion(T object, Point you, NextDirection next) {
+        public <T> boolean checkNextCollusion(int you_x, int you_y, T object, NextDirection next) {
             Chunk.ChunkObject obj = null;
             // "jump" to the next point:
             switch (next){
                 case UP:
-                    obj = getObject(new Point(you.x,
-                            you.y-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE)));
+                    obj = getObject(you_x,
+                            you_y-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE));
                     break;
                 case DOWN:
-                    obj = getObject(new Point(you.x,
-                            you.y+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE)));
+                    obj = getObject(you_x,
+                            you_y+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE));
                     break;
                 case RIGHT:
-                    obj = getObject(new Point(you.x+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
-                            you.y));
+                    obj = getObject(you_x+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
+                            you_y);
                     break;
                 case LEFT:
-                    obj = getObject(new Point(you.x-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
-                            you.y));
+                    obj = getObject(you_x-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
+                            you_y);
                     break;
             }
             // Check the collusion:

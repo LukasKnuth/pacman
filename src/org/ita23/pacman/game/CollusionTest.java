@@ -1,7 +1,5 @@
 package org.ita23.pacman.game;
 
-import org.ita23.pacman.logic.Point;
-
 /**
  * This object will check if a given {@code Point} has collided with an object
  *  on the current {@code Map}.</p>
@@ -16,11 +14,12 @@ public interface CollusionTest {
      *  current {@code Map}-instance.</p>
      * If you need to know the kind of object it collided with too, use
      *  the {@code checkCollusion()}-method!
-     * @param you the figure which checks if it collided.
+     * @param you_x the X-position of the figure, checking for collusion.
+     * @param you_y the Y-position of the figure, checking for collusion.
      * @return whether if there was a collusion or not.
-     * @see CollusionTest#checkCollusion(Object, org.ita23.pacman.logic.Point)
+     * @see CollusionTest#checkCollusion(int, int, Object)
      */
-    public boolean checkAnyCollusion(Point you);
+    public boolean checkAnyCollusion(int you_x, int you_y);
 
     /**
      * This method will check if the object {@code you}, at it's given
@@ -28,19 +27,20 @@ public interface CollusionTest {
      *  on the current {@code Map}-instance.</p>
      * If you just want to know if there was any kind of collusion, you
      *  can also use the {@code checkAnyCollusion()}-method.
+     * @param you_x the X-position of the figure, checking for collusion.
+     * @param you_y the Y-position of the figure, checking for collusion.
      * @param object the object to to check for collusion with
      *           {@code you}.
-     * @param you the figure which checks if it collided.
      * @param <T> the type of object you want to check for collusion with
      *           {@code you}.
      * @return whether there was a collusion with the given object-type
      *  or not.
      */
-    public <T> boolean checkCollusion(T object, Point you);
+    public <T> boolean checkCollusion(int you_x, int you_y, T object);
 
     /**
      * Possible directions for the {@code checkNextCollusion()}-method.
-     * @see CollusionTest#checkNextCollusion(Object, org.ita23.pacman.logic.Point, org.ita23.pacman.game.CollusionTest.NextDirection) 
+     * @see CollusionTest#checkNextCollusion(int, int, Object, org.ita23.pacman.game.CollusionTest.NextDirection)
      */
     public enum NextDirection{
         UP, RIGHT, DOWN, LEFT
@@ -49,15 +49,16 @@ public interface CollusionTest {
     /**
      * Will check for a collusion with a specified type of object on the next
      *  possible collusion-event on the current {@code Map}-instance.
+     * @param you_x the X-position of the figure, checking for collusion.
+     * @param you_y the Y-position of the figure, checking for collusion.
      * @param object the object to to check for collusion with
      *           {@code you}.
-     * @param you the figure which checks if it collided.
      * @param next the direction to which the collusion should be checked.
      * @param <T> the type of object you want to check for collusion with
      *           {@code you}.
      * @return whether there was a collusion with the given object-type
      *  or not.
      */
-    public <T> boolean checkNextCollusion(T object, Point you, NextDirection next);
+    public <T> boolean checkNextCollusion(int you_x, int you_y, T object, NextDirection next);
 
 }

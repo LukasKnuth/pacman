@@ -154,7 +154,6 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     @Override
     public void detectCollusion(CollusionTest tester) {
         if (has_collided || pixel_moved_count % (Chunk.CHUNK_SIZE / 3) != 0) return;
-        Point p = new Point(this.x, this.y);
         // Find the "next" direction:
         CollusionTest.NextDirection next = null;
         switch (next_direction){ // TODO Easier way?
@@ -171,7 +170,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
                 next = CollusionTest.NextDirection.RIGHT;
         }
         // Check if we ran against a block (and therefore can't move):
-        if (tester.checkNextCollusion(Chunk.ChunkObject.BLOCK, p, next)){
+        if (tester.checkNextCollusion(this.x, this.y, Chunk.ChunkObject.BLOCK, next)){
             has_collided = true;
         }
     }
