@@ -1,13 +1,14 @@
 package org.ita23.pacman.logic;
 
 import org.ita23.pacman.game.CollusionTest;
+import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.game.Map;
 import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
 
 /**
- * This is a {@code Map}-implementation, which devides the game-field
+ * This is a {@code Map}-implementation, which divides the game-field
  *  into multiple {@code Chunk}s.
  * @author Lukas Knuth
  * @author Fabain Bottler
@@ -41,7 +42,7 @@ public class ChunkedMap implements Map, RenderEvent{
     public ChunkedMap(int width, int height){
         // Find the matching Chunk-count:
         int chunks_x = width / Chunk.CHUNK_SIZE;
-        int chunks_y = height / Chunk.CHUNK_SIZE;
+        int chunks_y = (height-GameState.MAP_SPACER) / Chunk.CHUNK_SIZE;
         w= width;
         h = height;
         // Create the field and initialize the chunks:
@@ -76,7 +77,7 @@ public class ChunkedMap implements Map, RenderEvent{
         // Set the point for the start:
         field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
-                ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3))));
+                ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3)))+GameState.MAP_SPACER);
     }
 
     /**
@@ -108,7 +109,7 @@ public class ChunkedMap implements Map, RenderEvent{
     @Override
     public void render(Graphics g) {
         g.setColor(BACKGROUND_COLOR);
-        g.fillRect(0, 0, w, h);
+        g.fillRect(0, 0, w+16, h);
         int object_spacer = Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE;
         // Draw the chunks:
         for (int x = 0; x < field.length; x++)
@@ -124,7 +125,8 @@ public class ChunkedMap implements Map, RenderEvent{
                                 g.setColor(PILLS_COLOR);
                                 g.fillRect(
                                         (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer),
+                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer)
+                                            + GameState.MAP_SPACER,
                                         4, 4
                                 );
                                 break;
@@ -132,7 +134,8 @@ public class ChunkedMap implements Map, RenderEvent{
                                 g.setColor(PILLS_COLOR);
                                 g.fillOval(
                                         (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-4),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-4),
+                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-4)
+                                            + GameState.MAP_SPACER,
                                         12, 12
                                 );
                                 break;
@@ -140,7 +143,8 @@ public class ChunkedMap implements Map, RenderEvent{
                                 g.setColor(BLOCK_COLOR);
                                 g.fillRect(
                                         (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-1),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-1),
+                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-1)
+                                            + GameState.MAP_SPACER,
                                         4, 4
                                 );
                         }
@@ -166,6 +170,9 @@ public class ChunkedMap implements Map, RenderEvent{
          * @return the {@code Chunk.ChunkObject} the figure is currently on.
          */
         private Chunk.ChunkObject getObject(int you_x, int you_y){
+            // Add the spacer from the game-state to the Y-coordinate:
+            you_y -= GameState.MAP_SPACER;
+            // Get the object and do the rest:
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
             int chunk_x_object = (you_x - chunk_x*Chunk.CHUNK_SIZE)
@@ -187,6 +194,8 @@ public class ChunkedMap implements Map, RenderEvent{
          */
         private Chunk.ChunkObject getAndReplaceObject(int you_x, int you_y,
                                 Chunk.ChunkObject match, Chunk.ChunkObject replace){
+            // Add the spacer from the game-state to the Y-coordinate:
+            you_y -= GameState.MAP_SPACER;
             // find the object:
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;

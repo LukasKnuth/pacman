@@ -176,7 +176,6 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
         } else if (tester.checkCollusion(this.x, this.y, Chunk.ChunkObject.BALL)){
             GameState.INSTANCE.addScore(50);
         }
-        System.out.println(GameState.INSTANCE.getScore());
     }
 
     @Override

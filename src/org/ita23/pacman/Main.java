@@ -2,6 +2,7 @@ package org.ita23.pacman;
 
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
+import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.logic.ChunkedMap;
 
 import javax.swing.*;
@@ -39,6 +40,8 @@ public class Main {
         );
         GameLoop.INSTANCE.setMap(map);
         GameLoop.INSTANCE.addRenderEvent(map, map.getZIndex());
+        // Add the game-state
+        GameLoop.INSTANCE.addRenderEvent(GameState.INSTANCE, 1);
         // Add Pacman
         Pacman pacman = new Pacman(map.getStartPoint());
         GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
@@ -60,7 +63,7 @@ public class Main {
                 System.exit(0);
             }
         });
-        f.setSize(660,820);
+        f.setSize(650, 820);
         f.add(GameLoop.INSTANCE.getView());
         f.setVisible(true);
         // Hook up the windows key-listener with the event-loops I/O system:
