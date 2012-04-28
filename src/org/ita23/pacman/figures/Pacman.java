@@ -40,6 +40,8 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
 
     /** Counts the amount of pixels moved since the last direction-change */
     private int pixel_moved_count;
+    /** Whether if Pacamn has collided with a block and therefore can't move */
+    private boolean has_collided;
 
     /** The current degrees of the mouth */
     private int mouth_degrees;
@@ -68,6 +70,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
         next_direction = current_direction;
+        has_collided = false;
         this.x = point.x+3;
         this.y = point.y+3;
     }
@@ -85,24 +88,25 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
             pixel_moved_count = 0;
         }
         // Move the character:
-        switch (current_direction){
-            case UP:
-                this.y -= MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
-                break;
-            case RIGHT:
-                this.x += MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
-                break;
-            case DOWN:
-                this.y += MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
-                break;
-            case LEFT:
-                this.x -= MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
-                break;
-        }
+        if (!has_collided)
+            switch (current_direction){
+                case UP:
+                    this.y -= MOVE_PER_PAINT;
+                    pixel_moved_count += MOVE_PER_PAINT;
+                    break;
+                case RIGHT:
+                    this.x += MOVE_PER_PAINT;
+                    pixel_moved_count += MOVE_PER_PAINT;
+                    break;
+                case DOWN:
+                    this.y += MOVE_PER_PAINT;
+                    pixel_moved_count += MOVE_PER_PAINT;
+                    break;
+                case LEFT:
+                    this.x -= MOVE_PER_PAINT;
+                    pixel_moved_count += MOVE_PER_PAINT;
+                    break;
+            }
         // Draw the "ball"
         g.setColor(BODY_COLOR);
         g.fillOval(this.x, this.y, 28, 28);
@@ -115,15 +119,18 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
-            mouth_degrees += MOUTH_SPEED;
+            if (!has_collided) // When standing, don't eat!
+                mouth_degrees += MOUTH_SPEED;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
             g.fillArc(this.x, this.y, 28, 28,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
-            mouth_degrees -= MOUTH_SPEED;
-            mouth_closing = true;
+            if (!has_collided){ // When standing, don't eat!
+                mouth_degrees -= MOUTH_SPEED;
+                mouth_closing = true;
+            }
         } else {
             // Mouth is closed. Open it again!
             mouth_closing = false;
@@ -146,13 +153,32 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     
     @Override
     public void detectCollusion(CollusionTest tester) {
+        if (has_collided || pixel_moved_count % (Chunk.CHUNK_SIZE / 3) != 0) return;
         Point p = new Point(this.x, this.y);
-        System.out.println("Collided with something: "+tester.checkAnyCollusion(p));
-        System.out.println("Collided with POINT: "+tester.checkCollusion(Chunk.ChunkObject.POINT, p));
+        // Find the "next" direction:
+        CollusionTest.NextDirection next = null;
+        switch (next_direction){ // TODO Easier way?
+            case DOWN:
+                next = CollusionTest.NextDirection.DOWN;
+                break;
+            case UP:
+                next = CollusionTest.NextDirection.UP;
+                break;
+            case LEFT:
+                next = CollusionTest.NextDirection.LEFT;
+                break;
+            case RIGHT:
+                next = CollusionTest.NextDirection.RIGHT;
+        }
+        // Check if we ran against a block (and therefore can't move):
+        if (tester.checkNextCollusion(Chunk.ChunkObject.BLOCK, p, next)){
+            has_collided = true;
+        }
     }
 
     @Override
     public void keyboardInput(KeyEvent event, KeyEventType type) {
+        has_collided = false;
         if (event.getKeyCode() == KeyEvent.VK_UP)
             next_direction = FacingDirection.UP;
         else if (event.getKeyCode() == KeyEvent.VK_DOWN)
