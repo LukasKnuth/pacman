@@ -1,9 +1,6 @@
 package org.ita23.pacman.figures;
 
-import org.ita23.pacman.game.CollusionEvent;
-import org.ita23.pacman.game.CollusionTest;
-import org.ita23.pacman.game.InputEvent;
-import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.game.*;
 import org.ita23.pacman.logic.Chunk;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.Point;
@@ -173,6 +170,13 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
         if (tester.checkNextCollusion(this.x, this.y, Chunk.ChunkObject.BLOCK, next)){
             has_collided = true;
         }
+        // Check if we ate something:
+        if (tester.checkCollusion(this.x, this.y, Chunk.ChunkObject.POINT)){
+            GameState.INSTANCE.addScore(10);
+        } else if (tester.checkCollusion(this.x, this.y, Chunk.ChunkObject.BALL)){
+            GameState.INSTANCE.addScore(50);
+        }
+        System.out.println(GameState.INSTANCE.getScore());
     }
 
     @Override

@@ -158,7 +158,13 @@ public class ChunkedMap implements Map, RenderEvent{
 
     /** The collusion-test object for the {@code ChunkedMap}. */
     private CollusionTest collusion_test = new CollusionTest() {
-        
+
+        /**
+         * Get the {@code Chunk.ChunkObject} the figure is currently on.
+         * @param you_x the X-coordinate of the figure.
+         * @param you_y the Y-coordinate of the figure.
+         * @return the {@code Chunk.ChunkObject} the figure is currently on.
+         */
         private Chunk.ChunkObject getObject(int you_x, int you_y){
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
@@ -167,6 +173,36 @@ public class ChunkedMap implements Map, RenderEvent{
             int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
                     / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
             return field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object];
+        }
+
+        /**
+         * Get the {@code Chunk.ChunkObject} the figure is currently on and replace it
+         *  with the given replacement, if it matches the given {@code Chunk.ChunkObject}.
+         * @param you_x the X-coordinate of the figure.
+         * @param you_y the Y-coordinate of the figure.
+         * @param match the Object-type we're searching for.
+         * @param replace the replacement for the object, if it equals {@code match}.
+         * @return the {@code Chunk.ChunkObject} the figure is currently on (before it
+         *  was eventually replaced!).
+         */
+        private Chunk.ChunkObject getAndReplaceObject(int you_x, int you_y,
+                                Chunk.ChunkObject match, Chunk.ChunkObject replace){
+            // find the object:
+            int chunk_x = you_x / Chunk.CHUNK_SIZE;
+            int chunk_y = you_y / Chunk.CHUNK_SIZE;
+            int chunk_x_object = (you_x - chunk_x*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
+                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            final Chunk.ChunkObject tmp = field[chunk_x][chunk_y].getObjects()
+                    [chunk_x_object][chunk_y_object];
+            // See if it matches:
+            if (tmp == match){
+                // It matches, replace and respond:
+                field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object] = replace;
+            }
+            // Return the found object:
+            return tmp;
         }
 
         @Override
@@ -178,7 +214,19 @@ public class ChunkedMap implements Map, RenderEvent{
 
         @Override
         public <T> boolean checkCollusion(int you_x, int you_y, T object) {
-            if (getObject(you_x, you_y) == object)
+            Chunk.ChunkObject found = null;
+            // When checking for points, also remove them:
+            if (object == Chunk.ChunkObject.POINT){
+                found = getAndReplaceObject(you_x, you_y, 
+                        Chunk.ChunkObject.POINT, Chunk.ChunkObject.NOTHING);
+            } else if (object == Chunk.ChunkObject.BALL){
+                found = getAndReplaceObject(you_x, you_y,
+                        Chunk.ChunkObject.BALL, Chunk.ChunkObject.NOTHING);
+            } else {
+                found = getObject(you_x, you_y);
+            }
+            // Check if the found object matches:
+            if (found != null && found == object)
                 return true;
             return false;
         }
