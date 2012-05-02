@@ -53,11 +53,34 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
         private FacingDirection(int degrees){
             this.degrees = degrees;
         }
+
+        /**
+         * Checks which {@code NextDirection} matches this current
+         *  {@code FacingDirection} and returns it.
+         * @return the matching {@code CollusionTest.NextDirection} for this
+         *  {@code FacingDirection}.
+         */
+        private CollusionTest.NextDirection convertToNextDirection(){
+            switch (this){
+                case DOWN:
+                    return CollusionTest.NextDirection.DOWN;
+                case UP:
+                    return CollusionTest.NextDirection.UP;
+                case LEFT:
+                    return CollusionTest.NextDirection.LEFT;
+                case RIGHT:
+                    return CollusionTest.NextDirection.RIGHT;
+                default:
+                    throw new IllegalStateException("Can't be '"+this.toString()+"'");
+            }
+        }
     }
     /** The current direction pacman looks */
     private FacingDirection current_direction;
     /** The direction pacman should move next possible turn */
     private FacingDirection next_direction;
+    /** Weather a direction-change is possible without running into a wall */
+    private boolean direction_change_possible;
 
     /**
      * Create a new Pacman-figure with an animated mouth.
@@ -67,6 +90,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
         next_direction = current_direction;
+        direction_change_possible = true;
         has_collided = false;
         this.x = point.x+3;
         this.y = point.y+3;
@@ -80,8 +104,9 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     public void render(Graphics g) {
         // Check if direction-change is allowed:
         if (pixel_moved_count % (Chunk.CHUNK_SIZE / 3) == 0){
-            // Change direction if needed:
-            current_direction = next_direction;
+            // Change direction if possible:
+            if (direction_change_possible)
+                current_direction = next_direction;
             pixel_moved_count = 0;
         }
         // Move the character:
@@ -150,25 +175,18 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     
     @Override
     public void detectCollusion(CollusionTest tester) {
-        if (has_collided || pixel_moved_count % (Chunk.CHUNK_SIZE / 3) != 0) return;
-        // Find the "next" direction:
-        CollusionTest.NextDirection next = null;
-        switch (next_direction){ // TODO Easier way?
-            case DOWN:
-                next = CollusionTest.NextDirection.DOWN;
-                break;
-            case UP:
-                next = CollusionTest.NextDirection.UP;
-                break;
-            case LEFT:
-                next = CollusionTest.NextDirection.LEFT;
-                break;
-            case RIGHT:
-                next = CollusionTest.NextDirection.RIGHT;
-        }
+        if (pixel_moved_count % (Chunk.CHUNK_SIZE / 3) != 0) return;
         // Check if we ran against a block (and therefore can't move):
-        if (tester.checkNextCollusion(this.x, this.y, Chunk.ChunkObject.BLOCK, next)){
+        if (tester.checkNextCollusion(this.x, this.y,
+                Chunk.ChunkObject.BLOCK, current_direction.convertToNextDirection())){
             has_collided = true;
+        }
+        if (tester.checkNextCollusion(this.x, this.y,
+                Chunk.ChunkObject.BLOCK, next_direction.convertToNextDirection())){
+            direction_change_possible = false;
+        } else {
+            direction_change_possible = true;
+            has_collided = false;
         }
         // Check if we ate something:
         if (tester.checkCollusion(this.x, this.y, Chunk.ChunkObject.POINT)){

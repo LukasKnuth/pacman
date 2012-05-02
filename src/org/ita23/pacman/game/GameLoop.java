@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  *  listener-implementation for the desired I/O interface.</p>
  * For example, to hook up the keyboard I/O with the game-loop, use
  *  something like this:
- * <code>frame.addKeyListener(GameLoop.INSTANCE);}</code>
+ * <code>frame.addKeyListener(GameLoop.INSTANCE);</code>
  * Where {@code frame} is for example a {@code JFrame}.
  *
  * @author Lukas Knuth
