@@ -103,7 +103,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     @Override
     public void render(Graphics g) {
         // Check if direction-change is allowed:
-        if (pixel_moved_count % (Chunk.CHUNK_SIZE / 3) == 0){
+        if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) == 0){
             // Change direction if possible:
             if (direction_change_possible)
                 current_direction = next_direction;
@@ -207,5 +207,21 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
             next_direction = FacingDirection.LEFT;
         else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
             next_direction = FacingDirection.RIGHT;
+    }
+
+    /**
+     * Get the current X-position of this {@code Pacman}-instance.
+     * @return the current X-position.
+     */
+    int getX(){
+        return this.x;
+    }
+
+    /**
+     * Get the current Y-position of this {@code Pacman}-instance.
+     * @return the current Y-position.
+     */
+    int getY(){
+        return this.y;
     }
 }
