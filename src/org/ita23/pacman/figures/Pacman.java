@@ -30,7 +30,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     private final static int ZINDEX = 1;
     
     /** The color of pacmans body */
-    private static final Color BODY_COLOR = new Color(255, 255, 87);
+    public static final Color BODY_COLOR = new Color(255, 255, 87);
 
     /** The current X-coordinate */
     private int x;
