@@ -1,5 +1,6 @@
 package org.ita23.pacman;
 
+import org.ita23.pacman.figures.Blinky;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.GameState;
@@ -47,6 +48,11 @@ public class Main {
         GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
         GameLoop.INSTANCE.addInputEvent(pacman);
         GameLoop.INSTANCE.addCollusionEvent(pacman);
+        // Add the ghosts:
+        Blinky red_ghost = new Blinky(pacman);
+        GameLoop.INSTANCE.addAIEvent(red_ghost);
+        GameLoop.INSTANCE.addCollusionEvent(red_ghost);
+        GameLoop.INSTANCE.addRenderEvent(red_ghost, 0);
     }
 
     /**
