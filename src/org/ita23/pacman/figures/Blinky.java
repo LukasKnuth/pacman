@@ -1,6 +1,7 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.CollusionTest;
+import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.logic.Chunk;
 
 import java.awt.*;
@@ -98,7 +99,11 @@ public class Blinky extends Ghost{
         if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) != 0) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
-            // TODO Party Hard!
+            GameState.INSTANCE.removeLive();
+            // TODO Reset the ghosts and pacman, play melody.
+            // Reset the ghosts position.
+            this.x = 3*Chunk.CHUNK_SIZE;
+            this.y = 5*Chunk.CHUNK_SIZE;
         }
     }
 
