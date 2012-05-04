@@ -24,6 +24,8 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     private final static int MOVE_PER_PAINT = 2; // TODO Slower when not eating!
     /** The speed indicating how fast the mouth moves. The higher, the faster! */
     private final static int MOUTH_SPEED = 6;
+    /** The diameter of pacman's body, e.g. his hitbox */
+    public final static int HITBOX = 28;
     
     private final static int ZINDEX = 1;
     
@@ -131,13 +133,13 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
             }
         // Draw the "ball"
         g.setColor(BODY_COLOR);
-        g.fillOval(this.x, this.y, 28, 28);
+        g.fillOval(this.x, this.y, HITBOX, HITBOX);
         // Draw the mouth:
         g.setColor(ChunkedMap.BACKGROUND_COLOR);
         // Animate the mouth:
         if (mouth_degrees < MOUTH_MAX && !mouth_closing){
             // Mouth is opening.
-            g.fillArc(this.x, this.y, 28, 28,
+            g.fillArc(this.x, this.y, HITBOX, HITBOX,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );
@@ -145,7 +147,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
                 mouth_degrees += MOUTH_SPEED;
         } else if (mouth_degrees > MOUTH_MIN) {
             // Mouth is closing
-            g.fillArc(this.x, this.y, 28, 28,
+            g.fillArc(this.x, this.y, HITBOX, HITBOX,
                     calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                     mouth_degrees
             );

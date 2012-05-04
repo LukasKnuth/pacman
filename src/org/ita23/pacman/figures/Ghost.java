@@ -13,6 +13,9 @@ import org.ita23.pacman.game.RenderEvent;
  * @version 1.0
  */
 abstract class Ghost implements AIEvent, RenderEvent, CollusionEvent {
+
+    /** The diameter of a ghost's body, e.g. his hitbox */
+    private static final int HITBOX = 28;
     
     /** The pacman-instance which is currently moving on the game-field. */
     private final Pacman player;
@@ -33,9 +36,16 @@ abstract class Ghost implements AIEvent, RenderEvent, CollusionEvent {
      * @param y the ghost's Y-position.
      * @return weather this ghost caught the player or not.
      */
+    // TODO Maybe make a blog-post about this...
     protected boolean gotPlayer(int x, int y){
-        // TODO Check if pacman was hit...
-        return false;
+        // Calculate the third piece of the triangle:
+        int triangle_x = (player.getX()+Pacman.HITBOX) - (x+Ghost.HITBOX);
+        int triangle_y = (player.getY()+Pacman.HITBOX) - (y+Ghost.HITBOX);
+        // Calculate the distance between player and ghost:
+        double distance = Math.sqrt((triangle_x*triangle_x)+(triangle_y*triangle_y));
+        // Check if we hit:
+        if (distance < (Pacman.HITBOX/2 + Ghost.HITBOX/2)) return true;
+        else return false;
     }
     
     /**
