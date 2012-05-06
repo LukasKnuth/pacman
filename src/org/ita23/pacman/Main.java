@@ -4,6 +4,8 @@ import org.ita23.pacman.figures.Blinky;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.GameState;
+import org.ita23.pacman.game.Sound;
+import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.logic.ChunkedMap;
 
 import javax.swing.*;
@@ -26,8 +28,19 @@ public class Main {
     private Main(){
         populateWindow();
         addFigures();
+        addSounds();
         // Start the game:
         GameLoop.INSTANCE.startLoop();
+        // TODO Add game-pause for the intro.
+        SoundManager.INSTANCE.play("intro");
+    }
+
+    /**
+     * Adds the games sounds to the {@code SoundManager}.
+     */
+    private void addSounds(){
+        SoundManager.INSTANCE.addSound(new Sound("intro",
+                Main.class.getResource("res/sound/intro.wav")));
     }
 
     /**
