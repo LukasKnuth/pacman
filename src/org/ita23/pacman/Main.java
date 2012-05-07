@@ -11,6 +11,8 @@ import org.ita23.pacman.logic.ChunkedMap;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The main entry-point for the Pacman game.
@@ -31,8 +33,14 @@ public class Main {
         addSounds();
         // Start the game:
         GameLoop.INSTANCE.startLoop();
-        // TODO Add game-pause for the intro.
-        SoundManager.INSTANCE.play("intro");
+        // Pause to play the intro:
+        GameState.INSTANCE.pause();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                GameState.INSTANCE.play();
+            }
+        }, SoundManager.INSTANCE.play("intro") * 1000);
     }
 
     /**
