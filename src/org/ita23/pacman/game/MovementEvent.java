@@ -1,8 +1,8 @@
 package org.ita23.pacman.game;
 
 /**
- * Describes an object which is part of an AI and therefore
- *  needs to act on it's own.
+ * Describes an object which will move.</p>
+ * When the game is paused/frozen, this event will not be called.
  * @author Lukas Knuth
  * @version 1.0
  */
@@ -12,5 +12,5 @@ public interface MovementEvent {
      * Called when the AI is to think about what step to do
      *  next.
      */
-    public void think();
+    public void move();
 }

@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  *  following list:
  * <ol>
  *     <li>{@code InputEvent}</li>
- *     <li>{@code AIEvent}</li>
  *     <li>{@code CollusionEvent}</li>
+ *     <li>{@code MovementEvent}</li>
  *     <li>{@code RenderEvent}</li>
  * </ol>
  * 
@@ -59,8 +59,8 @@ public enum GameLoop implements KeyListener{
     
     /** All registered {@code InputEvent}s */
     private List<InputEvent> inputEvents;
-    /** All registered {@code AIEvent}s */
-    private List<AIEvent> aiEvents;
+    /** All registered {@code MovementEvent}s */
+    private List<MovementEvent> movementEvents;
     /** All registered {@code RenderEvent}s */
     private List<RenderContainer> renderEvents;
     /** All registered {@code CollusionEvent}s */
@@ -74,7 +74,7 @@ public enum GameLoop implements KeyListener{
      */
     private GameLoop(){
         inputEvents = new ArrayList<InputEvent>(4);
-        aiEvents = new ArrayList<AIEvent>(6);
+        movementEvents = new ArrayList<MovementEvent>(6);
         renderEvents = new ArrayList<RenderContainer>(20);
         collusionEvents = new ArrayList<CollusionEvent>(5);
         isRunning = false;
@@ -90,20 +90,22 @@ public enum GameLoop implements KeyListener{
         @Override
         public void run() {
             try {
-                // Input events:
-                if (last_key_event != null && last_key_type != null) {
-                    for (InputEvent event : inputEvents)
-                        event.keyboardInput(last_key_event, last_key_type);
-                    // Clear
-                    last_key_type = null;
-                    last_key_event = null;
+                if (!GameState.INSTANCE.isFrozen() && !GameState.INSTANCE.isPaused()){
+                    // Input events:
+                    if (last_key_event != null && last_key_type != null) {
+                        for (InputEvent event : inputEvents)
+                            event.keyboardInput(last_key_event, last_key_type);
+                        // Clear
+                        last_key_type = null;
+                        last_key_event = null;
+                    }
+                    // Collusion-events:
+                    for (CollusionEvent event : collusionEvents)
+                        event.detectCollusion(game_field.getCollusionTest());
+                    // Movement-events:
+                    for (MovementEvent event : movementEvents)
+                        event.move();
                 }
-                // AI-events:
-                for (AIEvent event : aiEvents)
-                    event.think();
-                // Collusion-events:
-                for (CollusionEvent event : collusionEvents)
-                    event.detectCollusion(game_field.getCollusionTest());
                 // Render-events:
                 canvas.repaint();
             } catch (Exception e) {
@@ -142,15 +144,15 @@ public enum GameLoop implements KeyListener{
     }
 
     /**
-     * Add a new {@code AIEvent} to the schedule.</p>
+     * Add a new {@code MovementEvent} to the schedule.</p>
      * This method <u>will not have any effect</u>, after the {@code startLoop()}-
      *  method has already been called!
      * @param event the new element to add.
      */
-    public void addAIEvent(AIEvent event){
+    public void addMovementEvent(MovementEvent event){
         // Check if locked:
         if (!isLocked())
-            this.aiEvents.add(event);
+            this.movementEvents.add(event);
     }
 
     /**
