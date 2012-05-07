@@ -1,7 +1,7 @@
 package org.ita23.pacman.figures;
 
-import org.ita23.pacman.game.AIEvent;
 import org.ita23.pacman.game.CollusionEvent;
+import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
 
 /**
@@ -12,7 +12,7 @@ import org.ita23.pacman.game.RenderEvent;
  * @author Lukas Knuth
  * @version 1.0
  */
-abstract class Ghost implements AIEvent, RenderEvent, CollusionEvent {
+abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent {
 
     /** The diameter of a ghost's body, e.g. his hitbox */
     private static final int HITBOX = 28;

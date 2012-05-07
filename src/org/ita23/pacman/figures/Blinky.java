@@ -47,7 +47,7 @@ public class Blinky extends Ghost{
     }
 
     @Override
-    public void think() {
+    public void move() {
         // Check if we can change directions:
         if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) == 0){
             if (nextDirection_x != null && dir_count % 2 == 0){

@@ -14,7 +14,7 @@ import java.awt.event.KeyEvent;
  * @author Fabain Bottler
  * @version 1.0
  */
-public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
+public class Pacman implements RenderEvent, InputEvent, CollusionEvent, MovementEvent {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 75;
@@ -101,9 +101,9 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     public int getZIndex(){
         return ZINDEX;
     }
-    
+
     @Override
-    public void render(Graphics g) {
+    public void move() {
         // Check if direction-change is allowed:
         if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) == 0){
             // Change direction if possible:
@@ -131,6 +131,10 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
                     pixel_moved_count += MOVE_PER_PAINT;
                     break;
             }
+    }
+    
+    @Override
+    public void render(Graphics g) {
         // Draw the "ball"
         g.setColor(BODY_COLOR);
         g.fillOval(this.x, this.y, HITBOX, HITBOX);
@@ -177,7 +181,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent {
     
     @Override
     public void detectCollusion(CollusionTest tester) {
-        if (pixel_moved_count % (Chunk.CHUNK_SIZE / 3) != 0) return;
+        if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) != 0) return;
         // Check if we ran against a block (and therefore can't move):
         if (tester.checkNextCollusion(this.x, this.y,
                 Chunk.ChunkObject.BLOCK, current_direction.convertToNextDirection())){

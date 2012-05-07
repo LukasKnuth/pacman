@@ -55,15 +55,16 @@ public class Main {
         GameLoop.INSTANCE.setMap(map);
         GameLoop.INSTANCE.addRenderEvent(map, map.getZIndex());
         // Add the game-state
-        GameLoop.INSTANCE.addRenderEvent(GameState.INSTANCE, 1);
+        GameLoop.INSTANCE.addRenderEvent(GameState.INSTANCE, 0);
         // Add Pacman
         Pacman pacman = new Pacman(map.getStartPoint());
         GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
         GameLoop.INSTANCE.addInputEvent(pacman);
         GameLoop.INSTANCE.addCollusionEvent(pacman);
+        GameLoop.INSTANCE.addMovementEvent(pacman);
         // Add the ghosts:
         Blinky red_ghost = new Blinky(pacman);
-        GameLoop.INSTANCE.addAIEvent(red_ghost);
+        GameLoop.INSTANCE.addMovementEvent(red_ghost);
         GameLoop.INSTANCE.addCollusionEvent(red_ghost);
         GameLoop.INSTANCE.addRenderEvent(red_ghost, 0);
     }
