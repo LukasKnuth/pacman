@@ -6,7 +6,7 @@ package org.ita23.pacman.game;
  * @author Lukas Knuth
  * @version 1.0
  */
-public interface AIEvent {
+public interface MovementEvent {
 
     /**
      * Called when the AI is to think about what step to do
