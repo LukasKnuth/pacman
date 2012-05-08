@@ -91,6 +91,16 @@ public class Main {
                 System.exit(0);
             }
         });
+        f.addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                GameState.INSTANCE.play();
+            }
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                GameState.INSTANCE.pause();
+            }
+        });
         f.setSize(650, 820);
         f.add(GameLoop.INSTANCE.getView());
         f.setVisible(true);
