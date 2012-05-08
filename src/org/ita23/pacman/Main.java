@@ -23,11 +23,14 @@ public class Main {
 
     /** The window everything takes place on. */
     private JFrame f;
+    /** Prevent game-start when intro is playing */
+    private boolean first_launch;
 
     /**
      * Construct the main-aspects of the game.
      */
     private Main(){
+        first_launch = true;
         populateWindow();
         addFigures();
         addSounds();
@@ -39,6 +42,7 @@ public class Main {
             @Override
             public void run() {
                 GameState.INSTANCE.play();
+                first_launch = false;
             }
         }, SoundManager.INSTANCE.play("intro") * 1000);
     }
@@ -94,7 +98,8 @@ public class Main {
         f.addWindowFocusListener(new WindowAdapter() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                GameState.INSTANCE.play();
+                if (!first_launch)
+                    GameState.INSTANCE.play();
             }
             @Override
             public void windowLostFocus(WindowEvent e) {
