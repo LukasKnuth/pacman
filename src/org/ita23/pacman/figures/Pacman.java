@@ -88,7 +88,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
      * Create a new Pacman-figure with an animated mouth.
      */
     public Pacman(Point point){
-        mouth_degrees = 0;
+        mouth_degrees = 45;
         mouth_closing = false;
         current_direction = FacingDirection.LEFT;
         next_direction = current_direction;
@@ -131,6 +131,20 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
                     pixel_moved_count += MOVE_PER_PAINT;
                     break;
             }
+        // Animate the mouth:
+        if (mouth_degrees < MOUTH_MAX && !mouth_closing){
+            // Mouth is opening.
+            if (!has_collided) // When standing, don't eat!
+                mouth_degrees += MOUTH_SPEED;
+        } else if (mouth_degrees > MOUTH_MIN) {
+            if (!has_collided){ // When standing, don't eat!
+                mouth_degrees -= MOUTH_SPEED;
+                mouth_closing = true;
+            }
+        } else {
+            // Mouth is closed. Open it again!
+            mouth_closing = false;
+        }
     }
     
     @Override
@@ -140,29 +154,11 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         g.fillOval(this.x, this.y, HITBOX, HITBOX);
         // Draw the mouth:
         g.setColor(ChunkedMap.BACKGROUND_COLOR);
-        // Animate the mouth:
-        if (mouth_degrees < MOUTH_MAX && !mouth_closing){
-            // Mouth is opening.
-            g.fillArc(this.x, this.y, HITBOX, HITBOX,
-                    calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
-                    mouth_degrees
-            );
-            if (!has_collided) // When standing, don't eat!
-                mouth_degrees += MOUTH_SPEED;
-        } else if (mouth_degrees > MOUTH_MIN) {
-            // Mouth is closing
-            g.fillArc(this.x, this.y, HITBOX, HITBOX,
-                    calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
-                    mouth_degrees
-            );
-            if (!has_collided){ // When standing, don't eat!
-                mouth_degrees -= MOUTH_SPEED;
-                mouth_closing = true;
-            }
-        } else {
-            // Mouth is closed. Open it again!
-            mouth_closing = false;
-        }
+        // The mouth:
+        g.fillArc(this.x, this.y, HITBOX, HITBOX,
+                calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
+                mouth_degrees
+        );
     }
 
     /**
