@@ -15,7 +15,7 @@ public class Chunk {
     
     /** Possible objects on a chunk */
     public enum ChunkObject{
-        POINT, NOTHING, BLOCK, BALL, CHERRY, START
+        POINT, NOTHING, BLOCK, BALL, CHERRY, START, CAGE
     }
     /** The objects present on this chunk */
     private final ChunkObject[][] objects;
@@ -54,6 +54,16 @@ public class Chunk {
                     ("Coordinates must be between 0 and "+OBJECTS_PER_CHUNK_LINE+", got ("+x+"|"+y+")");
         // Add the ball:
         objects[x][y] = obj;
+    }
+
+    /**
+     * The cage the ghosts start from takes a whole chunk. Therefor, this
+     *  method should be invoked to show that this chunk is the ghost-cage.
+     */
+    public void setCageChunk(){
+        for (int x = 0; x < objects.length; x++)
+            for (int y = 0; y < objects[0].length; y++)
+                objects[x][y] = ChunkObject.CAGE;
     }
 
 }

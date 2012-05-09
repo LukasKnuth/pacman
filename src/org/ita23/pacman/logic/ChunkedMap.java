@@ -22,12 +22,14 @@ public class ChunkedMap implements Map, RenderEvent{
     /** The pills color */
     private static final Color PILLS_COLOR = new Color(255,255,171);
     /** The color of a Block-object */
-    private static final Color BLOCK_COLOR = new Color(87, 87, 255);
+    public static final Color BLOCK_COLOR = new Color(87, 87, 255);
 
     /** The game-field */
     private final Chunk[][] field;
     /** The start-point of the game */
     private final Point start_point;
+    /** The point the ghost-cage is located on */
+    private final Point cage_point;
 
     private  final static int ZINDEX=2;
 
@@ -78,6 +80,64 @@ public class ChunkedMap implements Map, RenderEvent{
         field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
                 ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3)))+GameState.MAP_SPACER);
+        // Add the cage for the ghosts:
+        int spacer = (Chunk.CHUNK_SIZE/Chunk.OBJECTS_PER_CHUNK_LINE/2);
+        cage_point = new Point((5*Chunk.CHUNK_SIZE)+spacer, (9*Chunk.CHUNK_SIZE+GameState.MAP_SPACER)+spacer);
+        addCagePoints(5, 9);
+    }
+
+    /**
+     * Adds the points for the cage to the map.
+     * @param x_chunk The X-chunk the cage begins on.
+     * @param y_chunk The Y-chunk the cage begins on.
+     */
+    private void addCagePoints(int x_chunk, int y_chunk){
+        int width = 3; // In Chunks!
+        int height = 2;
+        // Set the cage for the ghosts:
+        for (int x = x_chunk; x < (x_chunk+width); x++)
+            for (int y = y_chunk; y < (y_chunk+height); y++)
+                field[x][y].setCageChunk();
+        // No pills around the cage:
+        // Left
+        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 1);
+        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 1);
+        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        // Below
+        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
+        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
+        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
+        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        // Right
+        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 1);
+        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 1);
+        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        // Above:
+        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
+        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
+        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
+        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        // Corners:
+        field[x_chunk-1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
+        field[x_chunk+3][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
+        field[x_chunk-1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
+        field[x_chunk+3][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
     }
 
     /**
@@ -160,6 +220,15 @@ public class ChunkedMap implements Map, RenderEvent{
         return start_point;
     }
 
+    /**
+     * Get the upper left point of the ghost-cage.</p>
+     * The cage is always {@code Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE} big!
+     * @return the upper left point of the cage.
+     */
+    public Point getCagePoint(){
+        return cage_point;
+    }
+
     /** The collusion-test object for the {@code ChunkedMap}. */
     private CollusionTest collusion_test = new CollusionTest() {
 
@@ -179,6 +248,9 @@ public class ChunkedMap implements Map, RenderEvent{
                     / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
             int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
                     / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
+            // Treat the cage like blocks:
+            if (field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object] == Chunk.ChunkObject.CAGE)
+                return Chunk.ChunkObject.BLOCK;
             return field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object];
         }
 
