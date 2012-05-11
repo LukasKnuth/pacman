@@ -20,6 +20,8 @@ public enum GameState implements RenderEvent{
     public static final int MAP_SPACER = 40;
     /** The font used to write out the score */
     private static final Font SCORE_FONT = new Font("Arial", Font.BOLD, 18);
+    /** The font used to show if the game is paused or not */
+    private static final Font PAUSE_FONT = new Font("Arial", Font.ITALIC, 18);
 
     /** The score-points of the current game */
     private int score;
@@ -57,8 +59,9 @@ public enum GameState implements RenderEvent{
         }
         // Render the "pause"-message:
         if (isPaused){
-            g.setColor(Color.WHITE);
-            g.drawString("READY!", 200, 200); // TODO Center this!
+            g.setColor(Pacman.BODY_COLOR);
+            g.setFont(PAUSE_FONT);
+            g.drawString("READY!", 195, 232);
         }
     }
 
