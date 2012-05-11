@@ -46,14 +46,14 @@ public enum GameState implements RenderEvent{
         // Render the current score:
         g.setColor(Color.WHITE);
         g.setFont(SCORE_FONT);
-        g.drawString("SCORE", 40, 30);
-        g.drawString(score+"", 110, 30);
+        g.drawString("SCORE", 40, 35);
+        g.drawString(score+"", 110, 35);
         // Render the lives left:
         for (int i = 0; i < getLivesLeft(); i++){
             g.setColor(Pacman.BODY_COLOR);
-            g.fillOval((550+30*i), 20, 20, 20);
+            g.fillOval((400+30*i), 20, 20, 20);
             g.setColor(ChunkedMap.BACKGROUND_COLOR);
-            g.fillArc((550+30*i), 20, 20, 20, 75+90, 30);
+            g.fillArc((400+30*i), 20, 20, 20, 75+90, 30);
         }
         // Render the "pause"-message:
         if (isPaused){

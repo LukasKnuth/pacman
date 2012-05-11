@@ -33,8 +33,8 @@ public class ChunkedMap implements Map, RenderEvent{
 
     private  final static int ZINDEX=2;
 
-    private int w = 0;
-    private int h = 0;
+    private final int w;
+    private final int h;
 
     /**
      * Construct a Map with the given size.
@@ -42,48 +42,34 @@ public class ChunkedMap implements Map, RenderEvent{
      * @param height the height of the Map in pixel.
      */
     public ChunkedMap(int width, int height){
-        // Find the matching Chunk-count:
-        int chunks_x = width / Chunk.CHUNK_SIZE;
-        int chunks_y = (height-GameState.MAP_SPACER) / Chunk.CHUNK_SIZE;
+        // Store the field-sizes.
         w= width;
         h = height;
         // Create the field and initialize the chunks:
-        field = new Chunk[chunks_x][chunks_y];
+        field = new Chunk[10][10];
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++)
                 field[x][y] = new Chunk();
         // Add the level boundary:
         addLevelBoundary();
-        // Add some blocks:
-        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 0, 2);
-        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
-        field[2][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
-        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 0, 2);
-        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
-        field[1][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
-        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
-        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 1, 1);
-        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 0, 1);
-        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 1, 1);
-        field[2][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
-        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
-        field[1][6].addObject(Chunk.ChunkObject.BLOCK, 1, 2);
-        field[1][7].addObject(Chunk.ChunkObject.BLOCK, 1, 0);
-        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 0);
-        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 1);
-        field[0][6].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
-        field[0][5].addObject(Chunk.ChunkObject.BLOCK, 2, 2);
-        field[0][7].addObject(Chunk.ChunkObject.BLOCK, 2, 0);
-        // Add a ball: // TODO RANDOM!
-        field[1][3].addObject(Chunk.ChunkObject.BALL, 1, 2);
+        // Create the maze:
+        setupMaze();
         // Set the point for the start:
         field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
         start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
                 ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3)))+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
         int spacer = (Chunk.CHUNK_SIZE/Chunk.OBJECTS_PER_CHUNK_LINE/2);
-        cage_point = new Point((5*Chunk.CHUNK_SIZE)+spacer, (9*Chunk.CHUNK_SIZE+GameState.MAP_SPACER)+spacer);
-        addCagePoints(5, 9);
+        cage_point = new Point((2*Chunk.CHUNK_SIZE)+spacer, (2*Chunk.CHUNK_SIZE+GameState.MAP_SPACER)+spacer);
+        addCagePoints(2, 2);
+    }
+
+    /**
+     * This method will create all blocks and balls on the map, according
+     *  to the original maze used in the arcade-version.
+     */
+    private void setupMaze(){
+
     }
 
     /**
