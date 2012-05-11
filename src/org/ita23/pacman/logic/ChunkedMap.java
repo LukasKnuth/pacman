@@ -1,10 +1,12 @@
 package org.ita23.pacman.logic;
 
+import org.ita23.pacman.Main;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.game.Map;
 import org.ita23.pacman.game.RenderEvent;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -36,8 +38,11 @@ public class ChunkedMap implements Map, RenderEvent{
     private final Point start_point;
     /** The point the ghost-cage is located on */
     private final Point cage_point;
+    
+    /** The background-image for the maze */
+    private final Image background;
 
-    private  final static int ZINDEX=2;
+    private final static int ZINDEX=2;
 
     private final int w;
     private final int h;
@@ -60,6 +65,9 @@ public class ChunkedMap implements Map, RenderEvent{
         addLevelBoundary();
         // Create the maze:
         setupMaze();
+        // Load the maze-image:
+        ImageIcon bg_ic = new ImageIcon(Main.class.getResource("res/graphics/maze.png"));
+        background = bg_ic.getImage();
         // Set the point for the start:
         setChunk(13, 23, Chunk.START);
         start_point = new Point(13*Chunk.CHUNK_SIZE, 23*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
@@ -121,8 +129,10 @@ public class ChunkedMap implements Map, RenderEvent{
             setChunk(x, 9, Chunk.BLOCK);
         for (int x = 16; x <= 20; x++)
             setChunk(x, 9, Chunk.BLOCK);
-        setChunk(13, 9, Chunk.BLOCK);
-        setChunk(14, 9, Chunk.BLOCK);
+        for (int y = 9; y <= 10; y++){
+            setChunk(13, y, Chunk.BLOCK);
+            setChunk(14, y, Chunk.BLOCK);
+        }
         // The "jumper"s upper blocks:
         for (int y = 10; y <= 13; y++)
             for (int x = 0; x <= 5; x++)
@@ -292,6 +302,8 @@ public class ChunkedMap implements Map, RenderEvent{
     public void render(Graphics g) {
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, w+16, h);
+        g.drawImage(background, 7, GameState.MAP_SPACER+4,
+                field.length*Chunk.CHUNK_SIZE-4, field[0].length*Chunk.CHUNK_SIZE+2, null);
         int object_spacer = 10; // Pixels to be placed between the objects.
         // Draw the chunks:
         for (int x = 0; x < field.length; x++)
@@ -316,14 +328,6 @@ public class ChunkedMap implements Map, RenderEvent{
                                 12, 12
                         );
                         break;
-                    case BLOCK:
-                        g.setColor(BLOCK_COLOR);
-                        g.fillRect(
-                                x*Chunk.CHUNK_SIZE+object_spacer,
-                                y*Chunk.CHUNK_SIZE+object_spacer
-                                        + GameState.MAP_SPACER,
-                                4, 4
-                        );
                 }
             }
     }
