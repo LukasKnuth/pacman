@@ -110,7 +110,7 @@ public class Main {
                 GameState.INSTANCE.pause();
             }
         });
-        f.setSize(470, 580);
+        f.setSize(460, 580);
         f.add(GameLoop.INSTANCE.getView());
         f.setVisible(true);
         // Hook up the windows key-listener with the event-loops I/O system:
