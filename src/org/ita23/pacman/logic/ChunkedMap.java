@@ -13,7 +13,6 @@ import java.awt.*;
  * @author Lukas Knuth
  * @author Fabain Bottler
  * @version 1.0
- * @see org.ita23.pacman.logic.Chunk
  */
 public class ChunkedMap implements Map, RenderEvent{
 
@@ -24,8 +23,15 @@ public class ChunkedMap implements Map, RenderEvent{
     /** The color of a Block-object */
     public static final Color BLOCK_COLOR = new Color(87, 87, 255);
 
+    /** Possible objects on a chunk */
+    public enum Chunk{
+        POINT, NOTHING, BLOCK, BALL, CHERRY, START, CAGE;
+        
+        public static final int CHUNK_SIZE = 16;
+    }
     /** The game-field */
     private final Chunk[][] field;
+
     /** The start-point of the game */
     private final Point start_point;
     /** The point the ghost-cage is located on */
@@ -46,22 +52,20 @@ public class ChunkedMap implements Map, RenderEvent{
         w= width;
         h = height;
         // Create the field and initialize the chunks:
-        field = new Chunk[10][10];
+        field = new Chunk[28][31];
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++)
-                field[x][y] = new Chunk();
+                field[x][y] = Chunk.POINT;
         // Add the level boundary:
         addLevelBoundary();
         // Create the maze:
         setupMaze();
         // Set the point for the start:
-        field[8][3].addObject(Chunk.ChunkObject.START, 0, 2); // TODO Better way without copying coordinates!
-        start_point = new Point((8*Chunk.CHUNK_SIZE)+(1 * (Chunk.CHUNK_SIZE/3)),
-                ((3*Chunk.CHUNK_SIZE)+(2 * (Chunk.CHUNK_SIZE/3)))+GameState.MAP_SPACER);
+        setChunk(13, 20, Chunk.START);
+        start_point = new Point(13*Chunk.CHUNK_SIZE, 20*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
-        int spacer = (Chunk.CHUNK_SIZE/Chunk.OBJECTS_PER_CHUNK_LINE/2);
-        cage_point = new Point((2*Chunk.CHUNK_SIZE)+spacer, (2*Chunk.CHUNK_SIZE+GameState.MAP_SPACER)+spacer);
-        addCagePoints(2, 2);
+        cage_point = new Point(10*Chunk.CHUNK_SIZE, 12*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
+        addCagePoints(10, 12);
     }
 
     /**
@@ -78,74 +82,39 @@ public class ChunkedMap implements Map, RenderEvent{
      * @param y_chunk The Y-chunk the cage begins on.
      */
     private void addCagePoints(int x_chunk, int y_chunk){
-        int width = 3; // In Chunks!
-        int height = 2;
+        int width = 8; // In Chunks!
+        int height = 5;
         // Set the cage for the ghosts:
         for (int x = x_chunk; x < (x_chunk+width); x++)
             for (int y = y_chunk; y < (y_chunk+height); y++)
-                field[x][y].setCageChunk();
+                setChunk(x, y, Chunk.CAGE);
         // No pills around the cage:
-        // Left
-        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 1);
-        field[x_chunk-1][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 1);
-        field[x_chunk-1][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        // Below
-        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
-        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
-        field[x_chunk][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
-        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
-        field[x_chunk+1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
-        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 1, 0);
-        field[x_chunk+2][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        // Right
-        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
-        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 1);
-        field[x_chunk+3][y_chunk].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
-        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 1);
-        field[x_chunk+3][y_chunk+1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        // Above:
-        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
-        field[x_chunk][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
-        field[x_chunk+1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 1, 2);
-        field[x_chunk+2][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        // Corners:
-        field[x_chunk-1][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 2, 2);
-        field[x_chunk+3][y_chunk-1].addObject(Chunk.ChunkObject.NOTHING, 0, 2);
-        field[x_chunk-1][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 2, 0);
-        field[x_chunk+3][y_chunk+2].addObject(Chunk.ChunkObject.NOTHING, 0, 0);
+        // Top and bottom:
+        int[] y_rows = {y_chunk-1, y_chunk+height};
+        for (int y : y_rows)
+            for (int x = x_chunk-1; x < (x_chunk+width+1); x++)
+                setChunk(x, y, Chunk.NOTHING);
+        // Right and left:
+        int[] x_rows = {x_chunk-1, x_chunk+width};
+        for (int x : x_rows)
+            for (int y = y_chunk-1; y < (y_chunk+height+1); y++)
+                setChunk(x, y, Chunk.NOTHING);
     }
 
     /**
      * Adds the level-boundary's to the field.
      */
     private void addLevelBoundary(){
-        // Top-boundary:
-        for (int i = 0; i < field.length; i++)
-            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
-                field[i][0].addObject(Chunk.ChunkObject.BLOCK, z, 0);
-        // Bottom-boundary:
-        for (int i = 0; i < field.length; i++)
-            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
-                field[i][(field[0].length-1)].addObject(Chunk.ChunkObject.BLOCK, z, 2);
-        // Left-boundary:
-        for (int i = 0; i < field[0].length; i++)
-            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
-                field[0][i].addObject(Chunk.ChunkObject.BLOCK, 0, z);
-        // Left-boundary:
-        for (int i = 0; i < field[0].length; i++)
-            for (int z = 0; z < Chunk.OBJECTS_PER_CHUNK_LINE; z++)
-                field[(field.length-1)][i].addObject(Chunk.ChunkObject.BLOCK, 2, z);
+        // Top- and Bottom-boundary:
+        int[] y_rows = {0, field[0].length-1};
+        for (int y : y_rows)
+            for (int x = 0; x < field.length; x++)
+                setChunk(x, y, Chunk.BLOCK);
+        // Left- and Right-boundary:
+        int[] x_rows = {0, field.length-1};
+        for (int x : x_rows)
+            for (int y = 0; y < field[0].length; y++)
+                setChunk(x, y, Chunk.BLOCK);
     }
 
     public int getZIndex(){
@@ -156,46 +125,78 @@ public class ChunkedMap implements Map, RenderEvent{
     public void render(Graphics g) {
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, w+16, h);
-        int object_spacer = Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE;
+        int object_spacer = 10; // Pixels to be placed between the objects.
         // Draw the chunks:
         for (int x = 0; x < field.length; x++)
             for (int y = 0; y < field[0].length; y++){
-                // Draw the objects of that chunk:
-                Chunk.ChunkObject[][] objects = field[x][y].getObjects();
                 // Draw the objects
-                for (int i = 0; i < objects.length; i++)
-                    for (int z = 0; z < objects[0].length; z++){
-                        // Draw the Object:
-                        switch (objects[i][z]){
-                            case POINT:
-                                g.setColor(PILLS_COLOR);
-                                g.fillRect(
-                                        (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer)
-                                            + GameState.MAP_SPACER,
-                                        4, 4
-                                );
-                                break;
-                            case BALL:
-                                g.setColor(PILLS_COLOR);
-                                g.fillOval(
-                                        (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-4),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-4)
-                                            + GameState.MAP_SPACER,
-                                        12, 12
-                                );
-                                break;
-                            case BLOCK:
-                                g.setColor(BLOCK_COLOR);
-                                g.fillRect(
-                                        (x*Chunk.CHUNK_SIZE)+((i+1) * object_spacer-1),
-                                        (y*Chunk.CHUNK_SIZE)+((z+1) * object_spacer-1)
-                                            + GameState.MAP_SPACER,
-                                        4, 4
-                                );
-                        }
-                    }
+                switch (getChunk(x, y)){
+                    case POINT:
+                        g.setColor(PILLS_COLOR);
+                        g.fillRect(
+                                x*Chunk.CHUNK_SIZE+object_spacer,
+                                y*Chunk.CHUNK_SIZE+object_spacer
+                                    + GameState.MAP_SPACER,
+                                4, 4
+                        );
+                        break;
+                    case BALL:
+                        g.setColor(PILLS_COLOR);
+                        g.fillOval(
+                                x*Chunk.CHUNK_SIZE+object_spacer,
+                                y*Chunk.CHUNK_SIZE+object_spacer
+                                        + GameState.MAP_SPACER,
+                                12, 12
+                        );
+                        break;
+                    case BLOCK:
+                        g.setColor(BLOCK_COLOR);
+                        g.fillRect(
+                                x*Chunk.CHUNK_SIZE+object_spacer,
+                                y*Chunk.CHUNK_SIZE+object_spacer
+                                        + GameState.MAP_SPACER,
+                                4, 4
+                        );
+                }
             }
+    }
+
+    /**
+     * This method should be used to get the kind of object placed on the
+     *  given coordinates on the current {@code Map}.
+     * It will check the coordinates for validity and saver then directly
+     *  manipulating the {@code field}-array.
+     * @param x the X-Coordinate.
+     * @param y the Y-Coordinate.
+     * @return the {@code Chunk} on the specified point.
+     * @throws IllegalArgumentException if {@code x} or {@code y} are 
+     *  invalid coordinates.
+     */
+    private Chunk getChunk(int x, int y){
+        if (x < 0 || x >= field.length
+                || y < 0 || y >= field[0].length)
+            throw new IllegalArgumentException("Point is invalid: ("+x+"|"+y+")");
+        // Return the Chunk
+        return field[x][y];
+    }
+
+    /**
+     * This method should be used to add or remove any kind of object from
+     *  the {@code Map}!</p>
+     * It will check the coordinates for validity and saver then directly
+     *  manipulating the {@code field}-array.
+     * @param x the X-Coordinate.
+     * @param y the Y-Coordinate.
+     * @param object the object which should be set on those coordinates.
+     * @throws IllegalArgumentException if {@code x} or {@code y} are 
+     *  invalid coordinates.
+     */
+    private void setChunk(int x, int y, Chunk object){
+        if (x < 0 || x >= field.length
+                || y < 0 || y >= field[0].length)
+            throw new IllegalArgumentException("Point is invalid: ("+x+"|"+y+")");
+        // Set the chunk-object:
+        field[x][y] = object;
     }
 
     /**
@@ -219,54 +220,44 @@ public class ChunkedMap implements Map, RenderEvent{
     private CollusionTest collusion_test = new CollusionTest() {
 
         /**
-         * Get the {@code Chunk.ChunkObject} the figure is currently on.
+         * Get the {@code Chunk} the figure is currently on.
          * @param you_x the X-coordinate of the figure.
          * @param you_y the Y-coordinate of the figure.
-         * @return the {@code Chunk.ChunkObject} the figure is currently on.
+         * @return the {@code Chunk} the figure is currently on.
          */
-        private Chunk.ChunkObject getObject(int you_x, int you_y){
+        private Chunk getObject(int you_x, int you_y){
             // Add the spacer from the game-state to the Y-coordinate:
             you_y -= GameState.MAP_SPACER;
             // Get the object and do the rest:
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
-            int chunk_x_object = (you_x - chunk_x*Chunk.CHUNK_SIZE)
-                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
-            int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
-                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
             // Treat the cage like blocks:
-            if (field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object] == Chunk.ChunkObject.CAGE)
-                return Chunk.ChunkObject.BLOCK;
-            return field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object];
+            if (getChunk(chunk_x, chunk_y) == Chunk.CAGE)
+                return Chunk.BLOCK;
+            return getChunk(chunk_x, chunk_y);
         }
 
         /**
-         * Get the {@code Chunk.ChunkObject} the figure is currently on and replace it
-         *  with the given replacement, if it matches the given {@code Chunk.ChunkObject}.
+         * Get the {@code Chunk} the figure is currently on and replace it
+         *  with the given replacement, if it matches the given {@code Chunk}.
          * @param you_x the X-coordinate of the figure.
          * @param you_y the Y-coordinate of the figure.
          * @param match the Object-type we're searching for.
          * @param replace the replacement for the object, if it equals {@code match}.
-         * @return the {@code Chunk.ChunkObject} the figure is currently on (before it
+         * @return the {@code Chunk} the figure is currently on (before it
          *  was eventually replaced!).
          */
-        private Chunk.ChunkObject getAndReplaceObject(int you_x, int you_y,
-                                Chunk.ChunkObject match, Chunk.ChunkObject replace){
+        private Chunk getAndReplaceObject(int you_x, int you_y, Chunk match, Chunk replace){
             // Add the spacer from the game-state to the Y-coordinate:
             you_y -= GameState.MAP_SPACER;
-            // find the object:
+            // Get the object and do the rest:
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
-            int chunk_x_object = (you_x - chunk_x*Chunk.CHUNK_SIZE)
-                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
-            int chunk_y_object = (you_y - chunk_y*Chunk.CHUNK_SIZE)
-                    / (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE);
-            final Chunk.ChunkObject tmp = field[chunk_x][chunk_y].getObjects()
-                    [chunk_x_object][chunk_y_object];
+            Chunk tmp = getChunk(chunk_x, chunk_y);
             // See if it matches:
-            if (tmp == match){
+            if (getChunk(chunk_x, chunk_y) == match){
                 // It matches, replace and respond:
-                field[chunk_x][chunk_y].getObjects()[chunk_x_object][chunk_y_object] = replace;
+                setChunk(chunk_x, chunk_y, replace);
             }
             // Return the found object:
             return tmp;
@@ -274,21 +265,21 @@ public class ChunkedMap implements Map, RenderEvent{
 
         @Override
         public boolean checkAnyCollusion(int you_x, int you_y) {
-            if (getObject(you_x, you_y) == Chunk.ChunkObject.NOTHING)
+            if (getObject(you_x, you_y) == Chunk.NOTHING)
                 return false;
             return true;
         }
 
         @Override
         public <T> boolean checkCollusion(int you_x, int you_y, T object) {
-            Chunk.ChunkObject found = null;
+            Chunk found = null;
             // When checking for points, also remove them:
-            if (object == Chunk.ChunkObject.POINT){
+            if (object == Chunk.POINT){
                 found = getAndReplaceObject(you_x, you_y, 
-                        Chunk.ChunkObject.POINT, Chunk.ChunkObject.NOTHING);
-            } else if (object == Chunk.ChunkObject.BALL){
+                        Chunk.POINT, Chunk.NOTHING);
+            } else if (object == Chunk.BALL){
                 found = getAndReplaceObject(you_x, you_y,
-                        Chunk.ChunkObject.BALL, Chunk.ChunkObject.NOTHING);
+                        Chunk.BALL, Chunk.NOTHING);
             } else {
                 found = getObject(you_x, you_y);
             }
@@ -300,23 +291,23 @@ public class ChunkedMap implements Map, RenderEvent{
 
         @Override
         public <T> boolean checkNextCollusion(int you_x, int you_y, T object, NextDirection next) {
-            Chunk.ChunkObject obj = null;
+            Chunk obj = null;
             // "jump" to the next point:
             switch (next){
                 case UP:
                     obj = getObject(you_x,
-                            you_y-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE));
+                            you_y-Chunk.CHUNK_SIZE);
                     break;
                 case DOWN:
                     obj = getObject(you_x,
-                            you_y+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE));
+                            you_y+Chunk.CHUNK_SIZE);
                     break;
                 case RIGHT:
-                    obj = getObject(you_x+(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
+                    obj = getObject(you_x+Chunk.CHUNK_SIZE,
                             you_y);
                     break;
                 case LEFT:
-                    obj = getObject(you_x-(Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE),
+                    obj = getObject(you_x-Chunk.CHUNK_SIZE,
                             you_y);
                     break;
             }

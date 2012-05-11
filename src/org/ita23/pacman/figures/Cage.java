@@ -1,8 +1,8 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.RenderEvent;
-import org.ita23.pacman.logic.Chunk;
 import org.ita23.pacman.logic.ChunkedMap;
+import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
 
 import java.awt.*;
@@ -23,7 +23,7 @@ public class Cage implements RenderEvent{
     
     public Cage(Point p){
         this.p = p;
-        this.door = new Point(p.x + Chunk.CHUNK_SIZE,  p.y+EXTRA_SPACE);
+        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3,  p.y+EXTRA_SPACE);
     }
 
     @Override
@@ -34,12 +34,12 @@ public class Cage implements RenderEvent{
         g.setStroke(new BasicStroke(2.0f));
         g.setColor(ChunkedMap.BLOCK_COLOR);
         g.drawRect(p.x+EXTRA_SPACE, p.y+EXTRA_SPACE,
-                (Chunk.CHUNK_SIZE*3)-EXTRA_SPACE*2+2, (Chunk.CHUNK_SIZE*2)-EXTRA_SPACE*2+2);
+                (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2+6, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2+6);
         g.drawRect(p.x+EXTRA_SPACE+4, p.y+EXTRA_SPACE+4,
-                (Chunk.CHUNK_SIZE*3)-EXTRA_SPACE*2-6, (Chunk.CHUNK_SIZE*2)-EXTRA_SPACE*2-6);
+                (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2-2, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2-2);
         // Draw the door:
         g.setColor(Color.WHITE);
-        g.fillRect(door.x, door.y, Chunk.CHUNK_SIZE, 6);
+        g.fillRect(door.x, door.y-2, Chunk.CHUNK_SIZE*2, 8);
         // Reset the stroke:
         g.setStroke(old);
     }

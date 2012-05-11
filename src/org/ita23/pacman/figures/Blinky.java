@@ -2,7 +2,7 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.GameState;
-import org.ita23.pacman.logic.Chunk;
+import org.ita23.pacman.logic.ChunkedMap.Chunk;
 
 import java.awt.*;
 
@@ -49,7 +49,7 @@ public class Blinky extends Ghost{
     @Override
     public void move() {
         // Check if we can change directions:
-        if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) == 0){
+        if (pixel_moved_count % Chunk.CHUNK_SIZE == 0){
             if (nextDirection_x != null && dir_count % 2 == 0){
                 currentDirection = nextDirection_x;
                 nextDirection_x = null;
@@ -96,7 +96,7 @@ public class Blinky extends Ghost{
 
     @Override
     public void detectCollusion(CollusionTest tester) {
-        if (pixel_moved_count % (Chunk.CHUNK_SIZE / Chunk.OBJECTS_PER_CHUNK_LINE) != 0) return;
+        if (pixel_moved_count % Chunk.CHUNK_SIZE != 0) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
             GameState.INSTANCE.removeLive();
@@ -110,6 +110,6 @@ public class Blinky extends Ghost{
     @Override
     public void render(Graphics g) {
         g.setColor(Color.RED);
-        g.fillOval(this.x, this.y, 28, 28);
+        g.fillOval(this.x-3, this.y-3, 28, 28);
     }
 }
