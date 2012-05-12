@@ -43,6 +43,10 @@ public enum GameLoop implements KeyListener{
     
     /** Indicates if the game-loop is currently running */
     private boolean isRunning;
+    /** Weather if the game is currently frozen */
+    private boolean isFrozen;
+    /** Weather the game is currently paused */
+    private boolean isPaused;
 
     /** The executor-service running the main game-loop */
     private ScheduledExecutorService game_loop_executor;
@@ -78,6 +82,8 @@ public enum GameLoop implements KeyListener{
         renderEvents = new ArrayList<RenderContainer>(20);
         collusionEvents = new ArrayList<CollusionEvent>(5);
         isRunning = false;
+        isFrozen = false;
+        isPaused = false;
         game_loop_executor = Executors.newSingleThreadScheduledExecutor();
         canvas = new GameCanvas();
     }
@@ -90,7 +96,7 @@ public enum GameLoop implements KeyListener{
         @Override
         public void run() {
             try {
-                if (!GameState.INSTANCE.isFrozen() && !GameState.INSTANCE.isPaused()){
+                if (!isFrozen() && !isPaused()){
                     // Input events:
                     if (last_key_event != null && last_key_type != null) {
                         for (InputEvent event : inputEvents)
@@ -221,6 +227,62 @@ public enum GameLoop implements KeyListener{
         game_loop_handler.cancel(true);
         game_loop_executor.shutdown();
         isRunning = false;
+    }
+
+    /**
+     * This method will un-pause or un-freeze the game.</p>
+     * Calling this method when the game was not paused/frozen
+     *  will not have any effect.
+     * @see org.ita23.pacman.game.GameLoop#pause()
+     * @see org.ita23.pacman.game.GameLoop#freeze()
+     */
+    public void play(){
+        this.isFrozen = false;
+        this.isPaused = false;
+    }
+
+    /**
+     * This method will cause the game to freeze.</p>
+     * Calling this method will result in all characters not moving
+     *  anymore, still painting the game normally.</p>
+     * This method will not print any "pause"-message on screen and
+     *  should only be used to literally freeze the game.</p>
+     * Use the {@code play()}-method to un-freeze the game.
+     * @see org.ita23.pacman.game.GameLoop#pause()
+     * @see org.ita23.pacman.game.GameLoop#play()
+     */
+    public void freeze(){
+        this.isFrozen = true;
+    }
+
+    /**
+     * This method is used to pause the Game.</p>
+     * This will cause the game-characters (player character and AI
+     *  characters) to not move anymore, but the game will continue
+     *  to be painted. Also, pausing the game will show up a "paused"
+     *  message on-screen.</p>
+     * Use the {@code play()}-method to un-pause the game.
+     * @see org.ita23.pacman.game.GameLoop#freeze()
+     * @see org.ita23.pacman.game.GameLoop#play()
+     */
+    public void pause(){
+        this.isPaused = true;
+    }
+
+    /**
+     * Weather the game is currently paused or not.
+     * @return weather the game is currently paused.
+     */
+    public boolean isPaused(){
+        return this.isPaused;
+    }
+
+    /**
+     * Weather the game is currently frozen or not.
+     * @return weather the game is currently frozen.
+     */
+    public boolean isFrozen(){
+        return this.isFrozen;
     }
 
     /**

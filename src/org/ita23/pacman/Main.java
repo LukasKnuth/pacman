@@ -37,11 +37,11 @@ public class Main {
         // Start the game:
         GameLoop.INSTANCE.startLoop();
         // Pause to play the intro:
-        GameState.INSTANCE.pause();
+        GameLoop.INSTANCE.pause();
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                GameState.INSTANCE.play();
+                GameLoop.INSTANCE.play();
                 first_launch = false;
             }
         }, SoundManager.INSTANCE.play("intro") * 1000);
@@ -97,11 +97,11 @@ public class Main {
             @Override
             public void windowGainedFocus(WindowEvent e) {
                 if (!first_launch)
-                    GameState.INSTANCE.play();
+                    GameLoop.INSTANCE.play();
             }
             @Override
             public void windowLostFocus(WindowEvent e) {
-                GameState.INSTANCE.pause();
+                GameLoop.INSTANCE.pause();
             }
         });
         f.setSize(460, 580);

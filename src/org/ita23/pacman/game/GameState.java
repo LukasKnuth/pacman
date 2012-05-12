@@ -27,11 +27,6 @@ public enum GameState implements RenderEvent{
     private int score;
     /** The current count of lives <u>left</u> for Pacman */
     private int lives;
-    
-    /** Weather if the game is currently frozen */
-    private boolean isFrozen;
-    /** Weather the game is currently paused */
-    private boolean isPaused;
 
     /**
      * Singleton - Private constructor.
@@ -39,8 +34,6 @@ public enum GameState implements RenderEvent{
     private GameState(){
         this.score = 0;
         this.lives = 2;
-        isFrozen = false;
-        isPaused = false;
     }
 
     @Override
@@ -58,69 +51,11 @@ public enum GameState implements RenderEvent{
             g.fillArc((400+30*i), 20, 20, 20, 75+90, 30);
         }
         // Render the "pause"-message:
-        if (isPaused){
+        if (GameLoop.INSTANCE.isPaused()){
             g.setColor(Pacman.BODY_COLOR);
             g.setFont(PAUSE_FONT);
             g.drawString("READY!", 195, 332);
         }
-    }
-
-    /**
-     * This method will un-pause or un-freeze the game.</p>
-     * Calling this method when the game was not paused/frozen
-     *  will not have any effect.
-     * @see org.ita23.pacman.game.GameState#pause()
-     * @see org.ita23.pacman.game.GameState#freeze() 
-     */
-    public void play(){
-        this.isFrozen = false;
-        this.isPaused = false;
-    }
-
-    /**
-     * This method will cause the game to freeze.</p>
-     * Calling this method will result in all characters not moving
-     *  anymore, still painting the game normally.</p>
-     * This method will not print any "pause"-message on screen and
-     *  should only be used to literally freeze the game.</p>
-     * Use the {@code play()}-method to un-freeze the game.
-     * @see org.ita23.pacman.game.GameState#pause()
-     * @see org.ita23.pacman.game.GameState#play() 
-     */
-    public void freeze(){
-        this.isFrozen = true;
-    }
-
-    /**
-     * This method is used to pause the Game.</p>
-     * This will cause the game-characters (player character and AI
-     *  characters) to not move anymore, but the game will continue
-     *  to be painted. Also, pausing the game will show up a "paused"
-     *  message on-screen.</p>
-     * Use the {@code play()}-method to un-pause the game.
-     * @see org.ita23.pacman.game.GameState#freeze()
-     * @see org.ita23.pacman.game.GameState#play()
-     */
-    public void pause(){
-        this.isPaused = true;
-    }
-
-    /**
-     * Weather the game is currently paused or not.</p>
-     * This method should only be used by the {@code GameLoop}-class.
-     * @return weather the game is currently paused.
-     */
-    boolean isPaused(){
-        return this.isPaused;
-    }
-    
-    /**
-     * Weather the game is currently frozen or not.</p>
-     * This method should only be used by the {@code GameLoop}-class.
-     * @return weather the game is currently frozen.
-     */
-    boolean isFrozen(){
-        return this.isFrozen;
     }
 
     /**
