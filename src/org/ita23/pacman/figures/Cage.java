@@ -1,5 +1,6 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
@@ -18,12 +19,38 @@ public class Cage implements RenderEvent{
     private final Point p;
     /** The Point on which the door of the cage starts */
     private final Point door;
+    /** The point on which the ghosts start when they're out of the cage */
+    private final Point ghost_start;
+
     /** The extra space needed to make pacman fit next to the cage */
     private final static int EXTRA_SPACE = 10;
-    
-    public Cage(Point p){
+
+    /** The red ghost */
+    private final Ghost blinky;
+
+    /**
+     * Creates a new cage which holds the ghosts. 
+     * @param p the point on which the cage should start.
+     * @param player the current player-instance.
+     */
+    public Cage(Point p, Pacman player){
         this.p = p;
-        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3,  p.y+EXTRA_SPACE);
+        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3+4,  p.y+EXTRA_SPACE);
+        this.ghost_start = new Point(door.x+5, door.y-Chunk.CHUNK_SIZE-12);
+        // Create the ghosts:
+        blinky = new Blinky(player);
+        GameLoop.INSTANCE.addMovementEvent(blinky);
+        GameLoop.INSTANCE.addCollusionEvent(blinky);
+        GameLoop.INSTANCE.addRenderEvent(blinky, 0);
+        blinky.moveTo(ghost_start);
+    }
+
+    /**
+     * This method will reset all ghosts to their start-position. It is
+     *  used when the round is over or pacman was "caught".
+     */
+    private void reset(){
+        blinky.moveTo(ghost_start);
     }
 
     @Override

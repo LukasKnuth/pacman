@@ -3,6 +3,7 @@ package org.ita23.pacman.figures;
 import org.ita23.pacman.game.CollusionEvent;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.logic.Point;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -20,6 +21,13 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent {
     /** The pacman-instance which is currently moving on the game-field. */
     private final Pacman player;
 
+    /** The X-coordinate */
+    protected int x;
+    /** The Y-coordinate */
+    protected int y;
+    /** Weather this ghost is currently in the cage or not */
+    private boolean isCaged;
+
     /**
      * This will create a ghost with the basic implementation, which
      *  includes tracking the current player.
@@ -28,6 +36,35 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent {
      */
     protected Ghost(Pacman player){
         this.player = player;
+        this.isCaged = true;
+    }
+
+    /**
+     * This method will move this ghost to the given point. Can be used
+     *  to "reset" a ghost.
+     * @param p the point on which the ghost should be moved to.
+     * @see #isCaged
+     */
+    void moveTo(Point p){
+        this.x = p.x;
+        this.y = p.y;
+    }
+
+    /**
+     * Returns {@code true} if this ghost is currently in the cage.
+     * @return weather if this ghost currently is in the cage.
+     */
+    protected boolean isCaged(){
+        return this.isCaged;
+    }
+
+    /**
+     * Use this method to let this ghost-instance "out" or to set
+     *  him back into the cage.
+     * @param isCaged weather this ghost should be caged or not.
+     */
+    void setIsCaged(boolean isCaged){
+        this.isCaged = isCaged;
     }
 
     /**

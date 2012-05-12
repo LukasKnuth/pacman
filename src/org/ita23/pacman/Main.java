@@ -1,6 +1,5 @@
 package org.ita23.pacman;
 
-import org.ita23.pacman.figures.Blinky;
 import org.ita23.pacman.figures.Cage;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
@@ -75,14 +74,9 @@ public class Main {
         GameLoop.INSTANCE.addInputEvent(pacman);
         GameLoop.INSTANCE.addCollusionEvent(pacman);
         GameLoop.INSTANCE.addMovementEvent(pacman);
-        // Add the ghost-cage:
-        Cage cage = new Cage(map.getCagePoint());
+        // Add the ghost-cage (inlcuding the ghosts):
+        Cage cage = new Cage(map.getCagePoint(), pacman);
         GameLoop.INSTANCE.addRenderEvent(cage, 2);
-        // Add the ghosts:
-        Blinky red_ghost = new Blinky(pacman);
-        GameLoop.INSTANCE.addMovementEvent(red_ghost);
-        GameLoop.INSTANCE.addCollusionEvent(red_ghost);
-        GameLoop.INSTANCE.addRenderEvent(red_ghost, 0);
     }
 
     /**

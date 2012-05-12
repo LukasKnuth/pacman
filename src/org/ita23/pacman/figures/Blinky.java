@@ -12,12 +12,7 @@ import java.awt.*;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Blinky extends Ghost{
-
-    /** The X-coordinate */
-    private int x;
-    /** The Y-coordinate */
-    private int y;
+class Blinky extends Ghost{
 
     /** The direction this ghost is currently going. */
     private CollusionTest.NextDirection currentDirection;
@@ -38,8 +33,6 @@ public class Blinky extends Ghost{
      */
     public Blinky(Pacman player){
         super(player);
-        this.x = player.getX()+(3*Chunk.CHUNK_SIZE); // TODO Add "cage" as a point!
-        this.y = player.getY()+(5*Chunk.CHUNK_SIZE);
         currentDirection = CollusionTest.NextDirection.UP;
         nextDirection_x = null;
         nextDirection_y = null;
@@ -99,11 +92,8 @@ public class Blinky extends Ghost{
         if (pixel_moved_count % Chunk.CHUNK_SIZE != 0) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
+            // TODO Reset everything. Maybe make event-listener in GameState?
             GameState.INSTANCE.removeLive();
-            // TODO Reset the ghosts and pacman, play melody.
-            // Reset the ghosts position.
-            this.x = 3*Chunk.CHUNK_SIZE;
-            this.y = 5*Chunk.CHUNK_SIZE;
         }
     }
 
