@@ -5,10 +5,26 @@ import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The current state of the game is stored in this class. This includes the current
- *  points and lives.
+ *  points and lives.</p>
+ * The class offers multiple listeners, which will notify registered observers.
+ *  The following listeners are exposed:
+ * <ul>
+ *     <li>
+ *         The {@code FoodListener} will be notified, when any kind of food was eaten
+ *         by {@code Pacman}. This includes the normals "points", the bigger "balls"
+ *         (which will make the ghosts "eatable") and bonus fruits like chery's.
+ *     </li>
+ *     <li>
+ *         The {@code StateListener} will be notified if there was any kind of state-
+ *         change to the game. This includes a won round, a lost live or a completely
+ *         lost game (no more lives).
+ *     </li>
+ * </ul>
  * @author Lukas Knuth
  * @version 1.0
  */
@@ -28,6 +44,21 @@ public enum GameState implements RenderEvent {
     private int score;
     /** The current count of lives <u>left</u> for Pacman */
     private int lives;
+    
+    /** All possible kinds of food, pacman can consume */
+    public enum Food{
+        POINT(10), BALL(50), BONUS(200);
+        
+        private final int points;
+        private Food(int points){
+            this.points = points;
+        }
+    }
+    
+    /** The registered {@code StateListener}s */
+    private List<StateListener> stateListeners;
+    /** The registered {@code FoodListener}s */
+    private List<FoodListener> foodListeners;
 
     /**
      * Singleton - Private constructor.
@@ -35,6 +66,8 @@ public enum GameState implements RenderEvent {
     private GameState(){
         this.score = 0;
         this.lives = 2;
+        stateListeners = new ArrayList<StateListener>(2);
+        foodListeners = new ArrayList<FoodListener>(2);
     }
 
     @Override
@@ -65,7 +98,14 @@ public enum GameState implements RenderEvent {
      */
     public void removeLive(){
         this.lives --;
-        // TODO Stop the game from here or notify when no lives left??
+        // Notify the listeners:
+        if (this.lives == -1){
+            for (StateListener listener : stateListeners)
+                listener.stateChanged(StateListener.States.GAME_OVER);
+        } else {
+            for (StateListener listener : stateListeners)
+                listener.stateChanged(StateListener.States.LIVE_LOST);
+        }
     }
 
     /**
@@ -88,11 +128,31 @@ public enum GameState implements RenderEvent {
     }
 
     /**
-     * Adds the given points to the current score of the game.
-     * @param points the points to add.
+     * Adds the corresponding points to the current score, depending on
+     *  the kind of food that was eaten.
+     * @param consumed the kind of food pacman ate.
      */
-    public void addScore(int points){
-        this.score += points;
+    public void addScore(Food consumed){
+        this.score += consumed.points;
+        // Notify the listeners:
+        for (FoodListener listener : foodListeners)
+            listener.consumed(consumed);
+    }
+
+    /**
+     * Adds a new {@code StateListener} to the list of registered listeners.
+     * @param listener the new listener.
+     */
+    public void addStateListener(StateListener listener){
+        stateListeners.add(listener);
+    }
+
+    /**
+     * Adds a new {@code FoodListener} to the list of registered listeners.
+     * @param listener the new listener.
+     */
+    public void addFoodListener(FoodListener listener){
+        foodListeners.add(listener);
     }
 
 }

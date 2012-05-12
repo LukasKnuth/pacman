@@ -193,9 +193,9 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         }
         // Check if we ate something:
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.POINT)){
-            GameState.INSTANCE.addScore(10);
+            GameState.INSTANCE.addScore(GameState.Food.POINT);
         } else if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.BALL)){
-            GameState.INSTANCE.addScore(50);
+            GameState.INSTANCE.addScore(GameState.Food.BALL);
         }
     }
 
