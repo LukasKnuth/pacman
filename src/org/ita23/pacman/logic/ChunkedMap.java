@@ -2,7 +2,6 @@ package org.ita23.pacman.logic;
 
 import org.ita23.pacman.Main;
 import org.ita23.pacman.game.CollusionTest;
-import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.game.Map;
 import org.ita23.pacman.game.RenderEvent;
 

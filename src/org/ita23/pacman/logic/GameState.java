@@ -1,17 +1,18 @@
-package org.ita23.pacman.game;
+package org.ita23.pacman.logic;
 
 import org.ita23.pacman.figures.Pacman;
-import org.ita23.pacman.logic.ChunkedMap;
+import org.ita23.pacman.game.GameLoop;
+import org.ita23.pacman.game.RenderEvent;
 
 import java.awt.*;
 
 /**
- * This class describes the state of the game. This includes pausing the
- *  game as well as the current score.
+ * The current state of the game is stored in this class. This includes the current
+ *  points and lives.
  * @author Lukas Knuth
  * @version 1.0
  */
-public enum GameState implements RenderEvent{
+public enum GameState implements RenderEvent {
     
     /** The instance to work with */
     INSTANCE;

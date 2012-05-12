@@ -1,8 +1,8 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.CollusionTest;
-import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.logic.GameState;
 
 import java.awt.*;
 

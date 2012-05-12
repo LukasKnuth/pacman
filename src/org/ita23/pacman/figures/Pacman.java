@@ -2,6 +2,7 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.*;
 import org.ita23.pacman.logic.ChunkedMap;
+import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 
 import java.awt.*;

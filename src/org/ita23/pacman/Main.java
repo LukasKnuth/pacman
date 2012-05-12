@@ -3,10 +3,10 @@ package org.ita23.pacman;
 import org.ita23.pacman.figures.Cage;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
-import org.ita23.pacman.game.GameState;
 import org.ita23.pacman.game.Sound;
 import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.logic.ChunkedMap;
+import org.ita23.pacman.logic.GameState;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
