@@ -40,6 +40,11 @@ public enum GameState implements RenderEvent {
     /** The font used to show if the game is paused or not */
     private static final Font PAUSE_FONT = new Font("Arial", Font.BOLD | Font.ITALIC, 18);
 
+    /** The count of "eatable" items on the game-field */
+    private static final int EATABLE_ITEMS = 253;
+    /** The current count of eaten items */
+    private int food_eaten;
+
     /** The score-points of the current game */
     private int score;
     /** The current count of lives <u>left</u> for Pacman */
@@ -66,6 +71,7 @@ public enum GameState implements RenderEvent {
     private GameState(){
         this.score = 0;
         this.lives = 2;
+        this.food_eaten = 0;
         stateListeners = new ArrayList<StateListener>(2);
         foodListeners = new ArrayList<FoodListener>(2);
     }
@@ -134,6 +140,14 @@ public enum GameState implements RenderEvent {
      */
     public void addScore(Food consumed){
         this.score += consumed.points;
+        // Add to the counter:
+        if (consumed != Food.BONUS)
+            this.food_eaten++;
+        if (food_eaten == EATABLE_ITEMS){
+            for (StateListener listener : stateListeners)
+                listener.stateChanged(StateListener.States.ROUND_WON);
+            return;
+        }
         // Notify the listeners:
         for (FoodListener listener : foodListeners)
             listener.consumed(consumed);
