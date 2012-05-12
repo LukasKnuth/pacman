@@ -21,7 +21,7 @@ public enum GameState implements RenderEvent{
     /** The font used to write out the score */
     private static final Font SCORE_FONT = new Font("Arial", Font.BOLD, 18);
     /** The font used to show if the game is paused or not */
-    private static final Font PAUSE_FONT = new Font("Arial", Font.ITALIC, 18);
+    private static final Font PAUSE_FONT = new Font("Arial", Font.BOLD | Font.ITALIC, 18);
 
     /** The score-points of the current game */
     private int score;
@@ -61,7 +61,7 @@ public enum GameState implements RenderEvent{
         if (isPaused){
             g.setColor(Pacman.BODY_COLOR);
             g.setFont(PAUSE_FONT);
-            g.drawString("READY!", 195, 232);
+            g.drawString("READY!", 195, 332);
         }
     }
 
