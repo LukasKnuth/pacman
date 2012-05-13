@@ -2,6 +2,7 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.*;
 import org.ita23.pacman.logic.ChunkedMap;
+import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 
@@ -179,6 +180,15 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     @Override
     public void detectCollusion(CollusionTest tester) {
         if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE != 0) return;
+        // Check if we went into the "jumper":
+        if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
+            if (this.x <= Chunk.CHUNK_SIZE-3){ // Went into the left jumper, so go to the right:
+                this.x = Chunk.CHUNK_SIZE * 27;
+            } else {
+                this.x = Chunk.CHUNK_SIZE;
+            }
+            return;
+        }
         // Check if we ran against a block (and therefore can't move):
         if (tester.checkNextCollusion(this.x, this.y,
                 ChunkedMap.Chunk.BLOCK, current_direction.convertToNextDirection())){

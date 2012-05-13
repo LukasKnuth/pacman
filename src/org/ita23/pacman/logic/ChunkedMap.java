@@ -26,7 +26,7 @@ public class ChunkedMap implements Map, RenderEvent{
 
     /** Possible objects on a chunk */
     public enum Chunk{
-        POINT, NOTHING, BLOCK, BALL, CHERRY, START, CAGE;
+        POINT, NOTHING, BLOCK, BALL, CHERRY, START, CAGE, JUMPER;
         
         public static final int CHUNK_SIZE = 16;
     }
@@ -189,6 +189,9 @@ public class ChunkedMap implements Map, RenderEvent{
             setChunk(x, 14, Chunk.NOTHING);
         setChunk(20, 14, Chunk.NOTHING);
         setChunk(19, 14, Chunk.NOTHING);
+        // Add the actual "jumpers" on the end of the corridor:
+        setChunk(0, 14, Chunk.JUMPER);
+        setChunk(27, 14, Chunk.JUMPER);
         // The shorter blockers between cage and "jumper":
         for (int y = 15; y <= 19; y++)
             for (int x = 7; x <= 8; x++)
