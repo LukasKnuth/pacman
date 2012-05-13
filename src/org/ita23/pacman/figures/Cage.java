@@ -35,8 +35,8 @@ public class Cage implements RenderEvent{
      */
     public Cage(Point p, Pacman player){
         this.p = p;
-        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3+4,  p.y+EXTRA_SPACE);
-        this.ghost_start = new Point(door.x+5, door.y-Chunk.CHUNK_SIZE-12);
+        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3,  p.y);
+        this.ghost_start = new Point(door.x, door.y-Chunk.CHUNK_SIZE);
         // Create the ghosts:
         blinky = new Blinky(player);
         GameLoop.INSTANCE.addMovementEvent(blinky);
@@ -66,7 +66,7 @@ public class Cage implements RenderEvent{
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2-2, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2-2);
         // Draw the door:
         g.setColor(Color.WHITE);
-        g.fillRect(door.x, door.y-2, Chunk.CHUNK_SIZE*2, 8);
+        g.fillRect(door.x, door.y-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2, 8);
         // Reset the stroke:
         g.setStroke(old);
     }
