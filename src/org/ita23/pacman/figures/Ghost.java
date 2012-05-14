@@ -68,6 +68,20 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent {
     }
 
     /**
+     * Measures the distance between this ghost-instance and pacman.
+     * @param x the ghost's X-position.
+     * @param y the ghost's Y-position.
+     * @return the measured distance in pixel.
+     */
+    protected int measureDistance(int x, int y){
+        // Calculate the third piece of the triangle:
+        int triangle_x = player.getX() - x;
+        int triangle_y = player.getY() - y;
+        // Calculate the distance between player and ghost:
+        return (int) Math.sqrt((triangle_x*triangle_x)+(triangle_y*triangle_y));
+    }
+
+    /**
      * Checks if the ghost has caught the player.
      * @param x the ghost's X-position.
      * @param y the ghost's Y-position.
