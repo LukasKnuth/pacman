@@ -116,6 +116,7 @@ public enum GameLoop implements KeyListener{
                 canvas.repaint();
             } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         }
     };

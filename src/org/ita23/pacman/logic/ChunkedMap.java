@@ -381,8 +381,7 @@ public class ChunkedMap implements Map, RenderEvent{
     }
 
     /**
-     * Get the upper left point of the ghost-cage.</p>
-     * The cage is always {@code Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE} big!
+     * Get the upper left point of the ghost-cage.
      * @return the upper left point of the cage.
      */
     public Point getCagePoint(){
@@ -428,7 +427,7 @@ public class ChunkedMap implements Map, RenderEvent{
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
             Chunk tmp = getChunk(chunk_x, chunk_y);
             // See if it matches:
-            if (getChunk(chunk_x, chunk_y) == match){
+            if (tmp == match){
                 // It matches, replace and respond:
                 setChunk(chunk_x, chunk_y, replace);
             }
