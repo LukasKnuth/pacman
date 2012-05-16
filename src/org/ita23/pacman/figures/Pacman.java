@@ -7,6 +7,7 @@ import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 import org.ita23.pacman.logic.StateListener;
 
+import javax.sound.sampled.Clip;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
@@ -25,7 +26,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     /** The pixels-per-repaint that pacman moves */
     private final static int MOVE_PER_PAINT = 2; // TODO Slower when not eating!
     /** The speed indicating how fast the mouth moves. The higher, the faster! */
-    private final static int MOUTH_SPEED = 6;
+    private final static int MOUTH_SPEED = 10;
     /** The diameter of pacman's body, e.g. his hitbox */
     public final static int HITBOX = 28;
     
@@ -214,8 +215,11 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         // Check if we ate something:
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.POINT)){
             GameState.INSTANCE.addScore(GameState.Food.POINT);
+            SoundManager.INSTANCE.loop("eat", Clip.LOOP_CONTINUOUSLY);
         } else if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.BALL)){
             GameState.INSTANCE.addScore(GameState.Food.BALL);
+        } else {
+            SoundManager.INSTANCE.stop("eat");
         }
     }
 

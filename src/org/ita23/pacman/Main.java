@@ -57,6 +57,8 @@ public class Main {
                 Main.class.getResource("res/sound/dieing.wav")));
         SoundManager.INSTANCE.addSound(new Sound("round_over",
                 Main.class.getResource("res/sound/round_over.wav")));
+        SoundManager.INSTANCE.addSound(new Sound("eat",
+                Main.class.getResource("res/sound/eat.wav")));
     }
 
     /**
@@ -100,12 +102,15 @@ public class Main {
         f.addWindowFocusListener(new WindowAdapter() {
             @Override
             public void windowGainedFocus(WindowEvent e) {
-                if (!first_launch)
+                if (!first_launch){
                     GameLoop.INSTANCE.play();
+                    SoundManager.INSTANCE.unpauseAll();
+                }
             }
             @Override
             public void windowLostFocus(WindowEvent e) {
                 GameLoop.INSTANCE.pause();
+                SoundManager.INSTANCE.pauseAll();
             }
         });
         f.setSize(460, 580);
