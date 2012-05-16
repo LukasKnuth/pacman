@@ -44,7 +44,7 @@ public class Main {
                 GameLoop.INSTANCE.play();
                 first_launch = false;
             }
-        }, SoundManager.INSTANCE.play("intro") * 1000);
+        }, SoundManager.INSTANCE.play("intro"));
     }
 
     /**

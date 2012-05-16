@@ -76,7 +76,7 @@ public enum SoundManager {
      * When this method is called, any previously playback will be stopped and
      *  the sound will start from the beginning.
      * @param event_name the event-name of the desired sound.
-     * @return the length of the played sound in seconds or -1 if
+     * @return the length of the played sound in milliseconds or -1 if
      *  there was a problem reading the length.
      * @throws IllegalArgumentException if the specified {@code event_name}
      *  is not in the media-library.
@@ -92,7 +92,7 @@ public enum SoundManager {
         clip.stop();
         clip.setFramePosition(0);
         clip.start();
-        return (int) (clip.getMicrosecondLength()/1000000);
+        return (int) (clip.getMicrosecondLength()/1000);
     }
 
     /**
