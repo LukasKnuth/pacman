@@ -53,6 +53,8 @@ public class Main {
     private void addSounds(){
         SoundManager.INSTANCE.addSound(new Sound("intro",
                 Main.class.getResource("res/sound/intro.wav")));
+        SoundManager.INSTANCE.addSound(new Sound("dieing",
+                Main.class.getResource("res/sound/dieing.wav")));
     }
 
     /**

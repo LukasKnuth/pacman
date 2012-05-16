@@ -2,18 +2,23 @@ package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
+import org.ita23.pacman.logic.StateListener;
 
 import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The cage, in which three of the four ghosts start.
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Cage implements RenderEvent{
+public class Cage implements RenderEvent, StateListener{
     
     /** The upper-left point of the cage */
     private final Point p;
@@ -43,6 +48,8 @@ public class Cage implements RenderEvent{
         GameLoop.INSTANCE.addCollusionEvent(blinky);
         GameLoop.INSTANCE.addRenderEvent(blinky, 0);
         blinky.moveTo(ghost_start);
+        // Register self to game-state listener:
+        GameState.INSTANCE.addStateListener(this);
     }
 
     /**
@@ -69,5 +76,22 @@ public class Cage implements RenderEvent{
         g.fillRect(door.x, door.y-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2, 8);
         // Reset the stroke:
         g.setStroke(old);
+    }
+
+    @Override
+    public void stateChanged(States state) {
+        if (state == States.LIVE_LOST){
+            // Pause and play melody:
+            GameLoop.INSTANCE.freeze();
+            SoundManager.INSTANCE.play("dieing");
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    GameLoop.INSTANCE.play();
+                    // Reset the ghosts:
+                    blinky.moveTo(ghost_start);
+                }
+            }, 2 * 1000);
+        }
     }
 }

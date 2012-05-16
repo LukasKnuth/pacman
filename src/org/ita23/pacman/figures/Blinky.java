@@ -46,8 +46,11 @@ class Blinky extends Ghost{
         if (pixel_moved_count % Chunk.CHUNK_SIZE != 0) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
-            // TODO Reset everything. Maybe make event-listener in GameState?
             GameState.INSTANCE.removeLive();
+            // Reset the rest:
+            currentDirection = NextDirection.LEFT;
+            nextDirection = currentDirection;
+            possible_directions.clear();
             return;
         }
         // Check if we went into the "jumper":

@@ -5,6 +5,7 @@ import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
+import org.ita23.pacman.logic.StateListener;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -15,7 +16,7 @@ import java.awt.event.KeyEvent;
  * @author Fabain Bottler
  * @version 1.0
  */
-public class Pacman implements RenderEvent, InputEvent, CollusionEvent, MovementEvent {
+public class Pacman implements RenderEvent, InputEvent, CollusionEvent, MovementEvent, StateListener {
 
     /** The count of degrees needed to consider the moth "fully opened" */
     private final static int MOUTH_MAX = 75;
@@ -37,11 +38,15 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     private int x;
     /** The current Y-coordinate */
     private int y;
+    /** The start-point for pacman (used when resetting) */
+    private final Point start_point;
 
     /** Counts the amount of pixels moved since the last direction-change */
     private int pixel_moved_count;
     /** Whether if Pacamn has collided with a block and therefore can't move */
     private boolean has_collided;
+    /** This will be {@code true}, if a live was just lost and pacman is dieing */
+    private boolean isDieing;
 
     /** The current degrees of the mouth */
     private int mouth_degrees;
@@ -89,14 +94,10 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
      * Create a new Pacman-figure with an animated mouth.
      */
     public Pacman(Point point){
-        mouth_degrees = 45;
-        mouth_closing = false;
-        current_direction = FacingDirection.LEFT;
-        next_direction = current_direction;
-        direction_change_possible = true;
-        has_collided = false;
-        this.x = point.x;
-        this.y = point.y;
+        this.start_point = point;
+        reset();
+        // Register self to game-state listener:
+        GameState.INSTANCE.addStateListener(this);
     }
     
     public int getZIndex(){
@@ -150,7 +151,6 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     
     @Override
     public void render(Graphics g) {
-        // TODO Why not painted on right track when not doing the -3? Also Blinky!
         // Draw the "ball"
         g.setColor(BODY_COLOR);
         g.fillOval(this.x-3, this.y-3, HITBOX, HITBOX);
@@ -161,6 +161,16 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
                 calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                 mouth_degrees
         );
+        // Death-animation:
+        if (isDieing){
+            // TODO Add the "splash" at the end of the animation!
+            mouth_degrees += MOUTH_SPEED+2;
+            // Check if we're at the end of the animation:
+            if (mouth_degrees == 360){
+                // Reset pacman:
+                reset();
+            }
+        }
     }
 
     /**
@@ -210,6 +220,15 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     }
 
     @Override
+    public void stateChanged(States state) {
+        if (state == States.LIVE_LOST || state == States.ROUND_WON){
+            // Kick off the death-animation:
+            isDieing = true;
+            mouth_degrees = 0;
+        }
+    }
+
+    @Override
     public void keyboardInput(KeyEvent event, KeyEventType type) {
         has_collided = false;
         if (event.getKeyCode() == KeyEvent.VK_UP)
@@ -220,6 +239,23 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
             next_direction = FacingDirection.LEFT;
         else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
             next_direction = FacingDirection.RIGHT;
+    }
+
+    /**
+     * This will reset pacman to hist start-position, set his default
+     *  direction and mouth opening, etc.
+     */
+    private void reset(){
+        mouth_degrees = 45;
+        mouth_closing = false;
+        current_direction = FacingDirection.LEFT;
+        next_direction = current_direction;
+        direction_change_possible = true;
+        has_collided = false;
+        this.x = start_point.x;
+        this.y = start_point.y;
+        isDieing = false;
+        pixel_moved_count = 0;
     }
 
     /**
