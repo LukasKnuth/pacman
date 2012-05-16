@@ -55,6 +55,8 @@ public class Main {
                 Main.class.getResource("res/sound/intro.wav")));
         SoundManager.INSTANCE.addSound(new Sound("dieing",
                 Main.class.getResource("res/sound/dieing.wav")));
+        SoundManager.INSTANCE.addSound(new Sound("round_over",
+                Main.class.getResource("res/sound/round_over.wav")));
     }
 
     /**

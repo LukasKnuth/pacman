@@ -221,10 +221,13 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
 
     @Override
     public void stateChanged(States state) {
-        if (state == States.LIVE_LOST || state == States.ROUND_WON){
+        if (state == States.LIVE_LOST){
             // Kick off the death-animation:
             isDieing = true;
             mouth_degrees = 0;
+        } else if (state == States.ROUND_WON){
+            reset();
+            // TODO Wait for the melody to finish...
         }
     }
 

@@ -1,12 +1,11 @@
 package org.ita23.pacman.logic;
 
 import org.ita23.pacman.Main;
-import org.ita23.pacman.game.CollusionTest;
-import org.ita23.pacman.game.Map;
-import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.game.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.TimerTask;
 
 /**
  * This is a {@code Map}-implementation, which divides the game-field
@@ -15,7 +14,7 @@ import java.awt.*;
  * @author Fabain Bottler
  * @version 1.0
  */
-public class ChunkedMap implements Map, RenderEvent{
+public class ChunkedMap implements Map, RenderEvent, StateListener{
 
     /** The background-color for all elements */
     public static final Color BACKGROUND_COLOR = new Color(3,3,3);
@@ -57,22 +56,17 @@ public class ChunkedMap implements Map, RenderEvent{
         h = height;
         // Create the field and initialize the chunks:
         field = new Chunk[28][31];
-        for (int x = 0; x < field.length; x++)
-            for (int y = 0; y < field[0].length; y++)
-                field[x][y] = Chunk.POINT;
-        // Add the level boundary:
-        addLevelBoundary();
         // Create the maze:
         setupMaze();
         // Load the maze-image:
         ImageIcon bg_ic = new ImageIcon(Main.class.getResource("res/graphics/maze.png"));
         background = bg_ic.getImage();
         // Set the point for the start:
-        setChunk(13, 23, Chunk.START);
         start_point = new Point(13*Chunk.CHUNK_SIZE, 23*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
         cage_point = new Point(10*Chunk.CHUNK_SIZE, 12*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
-        addCagePoints(10, 12);
+        // Register self for the "round-end" event:
+        GameState.INSTANCE.addStateListener(this);
     }
 
     /**
@@ -80,6 +74,12 @@ public class ChunkedMap implements Map, RenderEvent{
      *  to the original maze used in the arcade-version.
      */
     private void setupMaze(){
+        // Initialize it:
+        for (int x = 0; x < field.length; x++)
+            for (int y = 0; y < field[0].length; y++)
+                field[x][y] = Chunk.POINT;
+        // Add the level boundary:
+        addLevelBoundary();
         // From top to the bottom:
         setChunk(13, 1, Chunk.BLOCK);
         setChunk(14, 1, Chunk.BLOCK);
@@ -253,6 +253,9 @@ public class ChunkedMap implements Map, RenderEvent{
         for (int y = 27; y <= 28; y++)
             for (int x = 16; x <= 25; x++)
                 setChunk(x, y, Chunk.BLOCK);
+        // Special points:
+        setChunk(13, 23, Chunk.START);
+        addCagePoints(10, 12);
     }
 
     /**
@@ -298,6 +301,24 @@ public class ChunkedMap implements Map, RenderEvent{
 
     public int getZIndex(){
         return ZINDEX;
+    }
+
+    @Override
+    public void stateChanged(States state) {
+        if (state == States.ROUND_WON){
+            // Pause and play melody:
+            GameLoop.INSTANCE.freeze();
+            SoundManager.INSTANCE.play("round_over");
+            new java.util.Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    GameLoop.INSTANCE.play();
+                    // Reset the balls and points:
+                    setupMaze();
+                    // TODO Blocks should blink when the game is won.
+                }
+            }, 5 * 1000);
+        }
     }
 
     @Override
@@ -449,7 +470,7 @@ public class ChunkedMap implements Map, RenderEvent{
             Chunk found = null;
             // When checking for points, also remove them:
             if (object == Chunk.POINT){
-                found = getAndReplaceObject(you_x, you_y, 
+                found = getAndReplaceObject(you_x, you_y,
                         Chunk.POINT, Chunk.NOTHING);
             } else if (object == Chunk.BALL){
                 found = getAndReplaceObject(you_x, you_y,

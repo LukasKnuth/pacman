@@ -92,6 +92,10 @@ public class Cage implements RenderEvent, StateListener{
                     blinky.moveTo(ghost_start);
                 }
             }, 2 * 1000);
+        } else if (state == States.ROUND_WON){
+            // Just reset the ghosts:
+            // TODO Wait a bit...
+            blinky.moveTo(ghost_start);
         }
     }
 }
