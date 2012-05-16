@@ -166,7 +166,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
             // TODO Add the "splash" at the end of the animation!
             mouth_degrees += MOUTH_SPEED+2;
             // Check if we're at the end of the animation:
-            if (mouth_degrees == 360){
+            if (mouth_degrees >= 360){
                 // Reset pacman:
                 reset();
             }
@@ -225,7 +225,7 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
             // Kick off the death-animation:
             isDieing = true;
             mouth_degrees = 0;
-        } else if (state == States.ROUND_WON){
+        } else if (state == States.ROUND_WON || state == States.GAME_OVER){
             reset();
             // TODO Wait for the melody to finish...
         }

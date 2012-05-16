@@ -7,6 +7,7 @@ import org.ita23.pacman.game.RenderEvent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 /**
  * The current state of the game is stored in this class. This includes the current
@@ -28,7 +29,7 @@ import java.util.List;
  * @author Lukas Knuth
  * @version 1.0
  */
-public enum GameState implements RenderEvent {
+public enum GameState implements RenderEvent, StateListener {
     
     /** The instance to work with */
     INSTANCE;
@@ -65,15 +66,41 @@ public enum GameState implements RenderEvent {
     /** The registered {@code FoodListener}s */
     private List<FoodListener> foodListeners;
 
+    /** Weather the game is currently over */
+    private boolean game_over;
+
     /**
      * Singleton - Private constructor.
      */
     private GameState(){
+        game_over = false;
         this.score = 0;
         this.lives = 2;
         this.food_eaten = 0;
         stateListeners = new ArrayList<StateListener>(2);
         foodListeners = new ArrayList<FoodListener>(2);
+        // Register to own listener:
+        addStateListener(this);
+    }
+
+    @Override
+    public void stateChanged(States state) {
+        if (state == States.GAME_OVER){
+            game_over = true;
+            GameLoop.INSTANCE.freeze();
+            // Reset points and lives:
+            new java.util.Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    // Reset everything:
+                    food_eaten = 0;
+                    score = 0;
+                    lives = 2;
+                    game_over = false;
+                    GameLoop.INSTANCE.play();
+                }
+            }, 2 * 1000);
+        }
     }
 
     @Override
@@ -95,6 +122,10 @@ public enum GameState implements RenderEvent {
             g.setColor(Pacman.BODY_COLOR);
             g.setFont(PAUSE_FONT);
             g.drawString("READY!", 195, 332);
+        } else if (game_over){
+            g.setColor(Pacman.BODY_COLOR);
+            g.setFont(PAUSE_FONT);
+            g.drawString("GAME OVER...", 165, 332);
         }
     }
 

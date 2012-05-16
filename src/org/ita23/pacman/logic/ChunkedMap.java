@@ -318,6 +318,17 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
                     // TODO Blocks should blink when the game is won.
                 }
             }, 5 * 1000);
+        } else if (state == States.GAME_OVER){
+            // Just reset the map after some time:
+            new java.util.Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    // Reset the balls and points:
+                    setupMaze();
+                    GameLoop.INSTANCE.play();
+                    // TODO Any sound?
+                }
+            }, 2 * 1000);
         }
     }
 
