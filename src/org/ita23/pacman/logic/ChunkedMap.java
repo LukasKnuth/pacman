@@ -338,17 +338,19 @@ public class ChunkedMap implements Map, RenderEvent{
      * This method should be used to get the kind of object placed on the
      *  given coordinates on the current {@code Map}.
      * It will check the coordinates for validity and saver then directly
-     *  manipulating the {@code field}-array.
+     *  manipulating the {@code field}-array.</p>
+     * <u>If the given coordinates are invalid</u> (out of the game-field),
+     *  this method will return a {@code Chunk.BLOCK}, instead of throwing any
+     *  exception!
      * @param x the X-Coordinate.
      * @param y the Y-Coordinate.
      * @return the {@code Chunk} on the specified point.
-     * @throws IllegalArgumentException if {@code x} or {@code y} are 
-     *  invalid coordinates.
      */
     private Chunk getChunk(int x, int y){
         if (x < 0 || x >= field.length
                 || y < 0 || y >= field[0].length)
-            throw new IllegalArgumentException("Point is invalid: ("+x+"|"+y+")");
+            //throw new IllegalArgumentException("Point is invalid: ("+x+"|"+y+")");
+                return Chunk.BLOCK;
         // Return the Chunk
         return field[x][y];
     }

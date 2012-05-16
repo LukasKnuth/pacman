@@ -50,7 +50,15 @@ class Blinky extends Ghost{
             GameState.INSTANCE.removeLive();
             return;
         }
-        // TODO Ghost needs to be able to use the "jumper"!
+        // Check if we went into the "jumper":
+        if (tester.checkCollusion(this.x, this.y, Chunk.JUMPER)){
+            if (this.x <= Chunk.CHUNK_SIZE-3){ // Went into the left jumper, so go to the right:
+                this.x = Chunk.CHUNK_SIZE * 27;
+            } else {
+                this.x = Chunk.CHUNK_SIZE;
+            }
+            return;
+        }
         // Check the next possible turns:
         int x_next = 0, y_next = 0;
         switch (currentDirection){
@@ -107,13 +115,11 @@ class Blinky extends Ghost{
                 case RIGHT:
                     current = measureDistance(x_next+Chunk.CHUNK_SIZE, y_next);
             }
-            System.out.println("For "+next+" got "+current);
             if (current <= shortest){
                 nextDirection = next;
                 shortest = current;
             }
         }
-        System.out.println("Decided to use "+nextDirection+"\n-------");
     }
 
     @Override
