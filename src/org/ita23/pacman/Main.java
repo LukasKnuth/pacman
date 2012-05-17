@@ -82,7 +82,7 @@ public class Main {
         GameLoop.INSTANCE.addInputEvent(pacman);
         GameLoop.INSTANCE.addCollusionEvent(pacman);
         GameLoop.INSTANCE.addMovementEvent(pacman);
-        // Add the ghost-cage (inlcuding the ghosts):
+        // Add the ghost-cage (including the ghosts):
         Cage cage = new Cage(map.getCagePoint(), pacman);
         GameLoop.INSTANCE.addRenderEvent(cage, 2);
     }

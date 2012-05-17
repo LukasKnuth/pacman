@@ -4,6 +4,7 @@ import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.CollusionTest.NextDirection;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
+import org.ita23.pacman.logic.Point;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,6 +17,9 @@ import java.util.List;
  * @version 1.0
  */
 class Blinky extends Ghost{
+
+    /** Blinky's home-corner in the top-right corner of the field */
+    private static final Point HOME_CORNER = new Point(Chunk.CHUNK_SIZE*26, 0);
 
     /** The direction this ghost is currently going. */
     private CollusionTest.NextDirection currentDirection;
@@ -35,15 +39,19 @@ class Blinky extends Ghost{
      */
     public Blinky(Pacman player){
         super(player);
-        currentDirection = NextDirection.LEFT;
+        currentDirection = NextDirection.RIGHT;
         nextDirection = currentDirection;
         possible_directions = new ArrayList<NextDirection>(4);
     }
 
     @Override
+    protected Point getHomeCorner() {
+        return HOME_CORNER;
+    }
+
+    @Override
     public void detectCollusion(CollusionTest tester) {
-        // @see http://home.comcast.net/~jpittman2/pacman/pacmandossier.html
-        if (pixel_moved_count % Chunk.CHUNK_SIZE != 0) return;
+        if (pixel_moved_count % Chunk.CHUNK_SIZE != 0 && !isCaged()) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
             GameState.INSTANCE.removeLive();
@@ -127,6 +135,10 @@ class Blinky extends Ghost{
 
     @Override
     public void move() {
+        if (isCaged()){
+            // TODO Move up and down in the cage
+            return;
+        }
         // Move the character:
         switch (currentDirection){
             case UP:

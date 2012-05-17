@@ -1,6 +1,7 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.GameLoop;
+import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.logic.ChunkedMap;
@@ -18,7 +19,7 @@ import java.util.TimerTask;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Cage implements RenderEvent, StateListener{
+public class Cage implements RenderEvent, StateListener, MovementEvent{
     
     /** The upper-left point of the cage */
     private final Point p;
@@ -50,6 +51,15 @@ public class Cage implements RenderEvent, StateListener{
         blinky.moveTo(ghost_start);
         // Register self to game-state listener:
         GameState.INSTANCE.addStateListener(this);
+        GameLoop.INSTANCE.addMovementEvent(this);
+    }
+
+    /**
+     * This method should be called to indicate, that the intro has finished
+     *  and the ghosts shell now start to chase pacman.
+     */
+    private void start(){
+        blinky.start(ghost_start);
     }
 
     /**
@@ -57,7 +67,7 @@ public class Cage implements RenderEvent, StateListener{
      *  used when the round is over or pacman was "caught".
      */
     private void reset(){
-        blinky.moveTo(ghost_start);
+        blinky.stop(ghost_start);
     }
 
     @Override
@@ -87,14 +97,20 @@ public class Cage implements RenderEvent, StateListener{
                 @Override
                 public void run() {
                     // Reset the ghosts:
-                    blinky.moveTo(ghost_start);
+                    reset();
                     GameLoop.INSTANCE.play();
                 }
             }, SoundManager.INSTANCE.play("dieing"));
         } else if (state == States.ROUND_WON || state == States.GAME_OVER){
             // Just reset the ghosts:
-            // TODO Wait a bit...
-            blinky.moveTo(ghost_start);
+            reset();
+        }
+    }
+
+    @Override
+    public void move() {
+        if (blinky.isCaged()){
+            start();
         }
     }
 }
