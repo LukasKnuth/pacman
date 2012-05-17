@@ -14,7 +14,7 @@ import java.util.TimerTask;
  * @author Fabain Bottler
  * @version 1.0
  */
-public class ChunkedMap implements Map, RenderEvent, StateListener{
+public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener{
 
     /** The background-color for all elements */
     public static final Color BACKGROUND_COLOR = new Color(3,3,3);
@@ -25,7 +25,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
 
     /** Possible objects on a chunk */
     public enum Chunk{
-        POINT, NOTHING, BLOCK, BALL, CHERRY, START, CAGE, JUMPER;
+        POINT, NOTHING, BLOCK, BALL, FRUIT, START, CAGE, JUMPER;
         
         public static final int CHUNK_SIZE = 16;
     }
@@ -39,6 +39,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
     
     /** The background-image for the maze */
     private final Image background;
+    /** The image of a chery, used as a bonus fruit */
+    private final Image cherry;
 
     private final static int ZINDEX=2;
 
@@ -59,14 +61,15 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
         // Create the maze:
         setupMaze();
         // Load the maze-image:
-        ImageIcon bg_ic = new ImageIcon(Main.class.getResource("res/graphics/maze.png"));
-        background = bg_ic.getImage();
+        background = new ImageIcon(Main.class.getResource("res/graphics/maze.png")).getImage();
+        cherry = new ImageIcon(Main.class.getResource("res/graphics/cherry.png")).getImage();
         // Set the point for the start:
         start_point = new Point(13*Chunk.CHUNK_SIZE, 23*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
         cage_point = new Point(10*Chunk.CHUNK_SIZE, 12*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Register self for the "round-end" event:
         GameState.INSTANCE.addStateListener(this);
+        GameState.INSTANCE.addFoodListener(this);
     }
 
     /**
@@ -303,6 +306,27 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
         return ZINDEX;
     }
 
+    /** Keeps track of how many regular food-units pacman ate */
+    private int food_counter = 0;
+    @Override
+    public void consumed(GameState.Food food) {
+        if (food == GameState.Food.BALL || food == GameState.Food.POINT){
+            food_counter++;
+        }
+        if (food_counter == 70 || food_counter == 170){
+            setChunk(13, 17, Chunk.FRUIT);
+            new java.util.Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    // Remove the cherry:
+                    setChunk(13, 17, Chunk.NOTHING);
+                }
+            }, 10*1000);
+            // TODO The points for the fruit should depend on the current level.
+            // TODO There are more fruits then only the cherrys!
+        }
+    }
+
     @Override
     public void stateChanged(States state) {
         if (state == States.ROUND_WON){
@@ -314,6 +338,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
                     GameLoop.INSTANCE.play();
                     // Reset the balls and points:
                     setupMaze();
+                    food_counter = 0;
                     // TODO Blocks should blink when the game is won.
                 }
             }, SoundManager.INSTANCE.play("round_over"));
@@ -324,6 +349,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
                 public void run() {
                     // Reset the balls and points:
                     setupMaze();
+                    food_counter = 0;
                     GameLoop.INSTANCE.play();
                     // TODO Any sound?
                 }
@@ -361,6 +387,12 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
                                 12, 12
                         );
                         break;
+                    case FRUIT:
+                        g.drawImage(cherry,
+                                x*Chunk.CHUNK_SIZE+object_spacer-4,
+                                y*Chunk.CHUNK_SIZE+object_spacer-4
+                                    + GameState.MAP_SPACER,
+                        null);
                 }
             }
     }
@@ -378,10 +410,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
      * @return the {@code Chunk} on the specified point.
      */
     private Chunk getChunk(int x, int y){
-        if (x < 0 || x >= field.length
-                || y < 0 || y >= field[0].length)
-            //throw new IllegalArgumentException("Point is invalid: ("+x+"|"+y+")");
-                return Chunk.BLOCK;
+        if (x < 0 || x >= field.length || y < 0 || y >= field[0].length)
+            return Chunk.BLOCK;
         // Return the Chunk
         return field[x][y];
     }
@@ -485,6 +515,9 @@ public class ChunkedMap implements Map, RenderEvent, StateListener{
             } else if (object == Chunk.BALL){
                 found = getAndReplaceObject(you_x, you_y,
                         Chunk.BALL, Chunk.NOTHING);
+            } else if (object == Chunk.FRUIT){
+                found = getAndReplaceObject(you_x, you_y,
+                        Chunk.FRUIT, Chunk.NOTHING);
             } else {
                 found = getObject(you_x, you_y);
             }

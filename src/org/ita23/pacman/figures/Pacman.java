@@ -213,11 +213,14 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
             has_collided = false;
         }
         // Check if we ate something:
-        if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.POINT)){
+        if (tester.checkCollusion(this.x, this.y, Chunk.POINT)){
             GameState.INSTANCE.addScore(GameState.Food.POINT);
             SoundManager.INSTANCE.loop("eat", Clip.LOOP_CONTINUOUSLY);
-        } else if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.BALL)){
+        } else if (tester.checkCollusion(this.x, this.y, Chunk.BALL)){
             GameState.INSTANCE.addScore(GameState.Food.BALL);
+        } else if (tester.checkCollusion(this.x, this.y, Chunk.FRUIT)){
+            GameState.INSTANCE.addScore(GameState.Food.BONUS);
+            SoundManager.INSTANCE.play("eat_fruit");
         } else {
             SoundManager.INSTANCE.stop("eat");
         }

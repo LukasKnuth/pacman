@@ -53,7 +53,7 @@ public enum GameState implements RenderEvent, StateListener {
     
     /** All possible kinds of food, pacman can consume */
     public enum Food{
-        POINT(10), BALL(50), BONUS(200);
+        POINT(10), BALL(50), BONUS(100);
         
         private final int points;
         private Food(int points){
