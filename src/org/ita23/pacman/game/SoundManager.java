@@ -101,7 +101,8 @@ public enum SoundManager {
      *  specifying the {@code loop_cycles}, you can either give a number
      *  {@code > 0} to specify how often the sound should be looped, or a number of
      *  {@code <= 0} to make it loop "forever".</p>
-     * To stop a sound which is continuously looping, use the {@code stop()}-method.
+     * To stop a sound which is continuously looping, use the {@code stop()}-method.</p>
+     * If a sound is already looping, calling this method will not have any effect!
      * @param event_name the event-name of the desired sound.
      * @param loop_cycles how often the sound should be looped. Give {@code > 0} to
      *  loop it for n-times or {@code <= 0} to loop forever.
@@ -113,6 +114,7 @@ public enum SoundManager {
         // Check if the sound is in the library:
         if (!sounds.containsKey(event_name))
             throw new IllegalArgumentException("There is no sound for '"+event_name+"'");
+        if (sounds.get(event_name).getLoopCycles() != 0) return;
         // Loop it:
         Clip clip = sounds.get(event_name).getAudioClip();
         if (loop_cycles <= 0){

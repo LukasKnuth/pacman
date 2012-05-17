@@ -214,8 +214,8 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         }
         // Check if we ate something:
         if (tester.checkCollusion(this.x, this.y, Chunk.POINT)){
-            GameState.INSTANCE.addScore(GameState.Food.POINT);
             SoundManager.INSTANCE.loop("eat", Clip.LOOP_CONTINUOUSLY);
+            GameState.INSTANCE.addScore(GameState.Food.POINT);
         } else if (tester.checkCollusion(this.x, this.y, Chunk.BALL)){
             GameState.INSTANCE.addScore(GameState.Food.BALL);
         } else if (tester.checkCollusion(this.x, this.y, Chunk.FRUIT)){
@@ -228,6 +228,9 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
 
     @Override
     public void stateChanged(States state) {
+        // Stop the eating sound!
+        SoundManager.INSTANCE.stop("eat");
+        // Handle the specific cases:
         if (state == States.LIVE_LOST){
             // Kick off the death-animation:
             isDieing = true;
