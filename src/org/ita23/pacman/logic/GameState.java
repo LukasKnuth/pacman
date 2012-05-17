@@ -100,6 +100,9 @@ public enum GameState implements RenderEvent, StateListener {
                     GameLoop.INSTANCE.play();
                 }
             }, 2 * 1000);
+        } else if (state == States.ROUND_WON){
+            // Reset the food:
+            food_eaten = 0;
         }
     }
 
