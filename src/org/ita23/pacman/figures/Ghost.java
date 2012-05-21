@@ -122,11 +122,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
     @Override
     public void stateChanged(States state){
-        if (state == States.ROUND_WON || state == States.LIVE_LOST){
-            // Reset the timers for the mode-changes:
-            mode_timer.cancel();
-            mode_timer = new Timer();
-        }
+        // Reset the timers for the mode-changes:
+        mode_timer.cancel();
+        mode_timer = new Timer();
     }
 
     /**
