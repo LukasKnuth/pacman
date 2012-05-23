@@ -50,6 +50,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private Mode current_mode;
     /** The timer used to change the modes after given intervals */
     private Timer mode_timer;
+    /** The timer used to change back to the previous mode when frighted */
+    private Timer freighted_timer;
     /** The time-stamp from when the {@code mode_timer} was last set */
     private long mode_timer_stamp;
     /** The time that has elapsed since the {@code mode_timer} has started */
@@ -119,7 +121,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             current_mode = Mode.RETURNING;
             isEatable = false;
             isEaten = true;
-            // TODO Check when he's home and make him normal again.
         } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
             GameState.INSTANCE.removeLive();
             // Reset the rest:
@@ -127,9 +128,18 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             nextDirection = currentDirection;
             possible_directions.clear();
             return;
+        } else if (current_mode == Mode.RETURNING && isHome(x, y)){
+            // Back home, change back:
+            freighted_timer.cancel();
+            isEaten = false;
+            isEatable = false;
+            unpauseModeTimer();
+            current_mode = Mode.CHASE;
+            // TODO Ghost has to go "into" the cage (and get slower inside).
         }
         // Check if we went into the "jumper":
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
+            // TODO In the jumper, ghosts get slower!
             if (this.x <= ChunkedMap.Chunk.CHUNK_SIZE-3){ // Went into the left jumper, so go to the right:
                 this.x = ChunkedMap.Chunk.CHUNK_SIZE * 27;
             } else {
@@ -205,14 +215,15 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         if (food == GameState.Food.BALL){
             isEatable = true;
             // Reset to the previous mode after five seconds:
-            new Timer().schedule(new ModeChangeTask(current_mode){
+            freighted_timer = new Timer();
+            freighted_timer.schedule(new ModeChangeTask(current_mode) {
                 @Override
-                public void run(){
+                public void run() {
                     super.run();
                     unpauseModeTimer();
                     isEatable = false;
                 }
-            }, 5*1000);
+            }, 5 * 1000);
             // Set the current mode to frightened:
             current_mode = Mode.FRIGHTENED;
             // Pause all currently running timers:
@@ -409,6 +420,25 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     }
 
     /**
+     * Checks if the previously eaten ghost has reached the cage to be reset
+     *  to normal.
+     * @param x the ghosts x-coordinate.
+     * @param y the ghosts y-coordinate.
+     * @return weather if the ghost has yet reached the cage or not.
+     */
+    // TODO Doesn't always work...
+    private boolean isHome(int x, int y){
+        // Calculate the third piece of the triangle:
+        int a_site = start_point.getX() - (x+Ghost.HITBOX);
+        int b_site = start_point.getY() - (y+Ghost.HITBOX);
+        // Calculate the distance between player and ghost:
+        double distance = Math.sqrt((a_site*a_site)+(b_site*b_site));
+        // Check if we hit:
+        if (distance < (Ghost.HITBOX+1)) return true;
+        else return false;
+    }
+
+    /**
      * Returns {@code true} if this ghost is currently in the cage.
      * @return weather if this ghost currently is in the cage.
      */
@@ -423,7 +453,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      * @param y the ghost's Y-position.
      * @return the measured distance in pixel.
      */
-    protected int measureDistance(int x, int y){
+    private int measureDistance(int x, int y){
         int target_x = 0, target_y = 0;
         switch (current_mode){
             case SCATTER:
@@ -457,12 +487,12 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      * @return weather this ghost caught the player or not.
      */
     // TODO Maybe make a blog-post about this...
-    protected boolean gotPlayer(int x, int y){
+    private boolean gotPlayer(int x, int y){
         // Calculate the third piece of the triangle:
-        int triangle_x = (player.getX()+Pacman.HITBOX) - (x+Ghost.HITBOX);
-        int triangle_y = (player.getY()+Pacman.HITBOX) - (y+Ghost.HITBOX);
+        int a_site = (player.getX()+Pacman.HITBOX) - (x+Ghost.HITBOX);
+        int b_site = (player.getY()+Pacman.HITBOX) - (y+Ghost.HITBOX);
         // Calculate the distance between player and ghost:
-        double distance = Math.sqrt((triangle_x*triangle_x)+(triangle_y*triangle_y));
+        double distance = Math.sqrt((a_site*a_site)+(b_site*b_site));
         // Check if we hit:
         if (distance < (Pacman.HITBOX/2 + Ghost.HITBOX/2)) return true;
         else return false;
