@@ -51,6 +51,8 @@ class Blinky extends Ghost{
 
     @Override
     public void detectCollusion(CollusionTest tester) {
+        // Check if we were eaten:
+        super.detectCollusion(tester);
         if (pixel_moved_count % Chunk.CHUNK_SIZE != 0 && !isCaged()) return;
         // Check if we got pacman:
         if (gotPlayer(x, y)){
@@ -135,6 +137,7 @@ class Blinky extends Ghost{
 
     @Override
     public void move() {
+        super.move();
         if (isCaged()){
             // TODO Move up and down in the cage
             return;
@@ -164,9 +167,29 @@ class Blinky extends Ghost{
         }
     }
 
+    /** This counter is used to make the ghost blink when in frightened mode */
+    private int blink_count = 0;
     @Override
     public void render(Graphics g) {
-        g.setColor(Color.RED);
-        g.fillOval(this.x-3, this.y-3, 28, 28);
+        if (isEatable()){
+            blink_count++;
+            if (blink_count < 16){
+                g.setColor(Color.BLUE);
+            } else if (blink_count < 32){
+                g.setColor(Color.WHITE);
+            } else blink_count = 0;
+            g.fillOval(this.x-3, this.y-3, 28, 28);
+        } else if (isEaten()){
+            g.setColor(Color.BLUE);
+            g.fillOval(this.x-6, this.y-3, 12, 12);
+            g.fillOval(this.x+6, this.y-3, 12, 12);
+            g.setColor(Color.WHITE);
+            g.fillOval(this.x-3, this.y, 6, 6);
+            g.fillOval(this.x+9, this.y, 6, 6);
+            // TODO Use an image of the eyes...
+        } else {
+            g.setColor(Color.RED);
+            g.fillOval(this.x-3, this.y-3, 28, 28);
+        }
     }
 }
