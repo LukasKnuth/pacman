@@ -265,8 +265,8 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         next_direction = current_direction;
         direction_change_possible = true;
         has_collided = false;
-        this.x = start_point.x;
-        this.y = start_point.y;
+        this.x = start_point.getX();
+        this.y = start_point.getY();
         isDieing = false;
         pixel_moved_count = 0;
     }

@@ -6,9 +6,7 @@ import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.*;
 
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -60,6 +58,20 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     /** The last {@code Point}, given to the {@code start()}-method */
     private Point start_point;
 
+    /** The direction this ghost is currently going. */
+    private CollusionTest.NextDirection currentDirection;
+    /** The direction the ghost will go on his next move */
+    private CollusionTest.NextDirection nextDirection;
+
+    /** The amount of pixels this ghost moves per repaint */
+    private final static int MOVE_PER_PAINT = 2;
+    /** Counts the amount of pixels moved since the last direction-change */
+    private int pixel_moved_count;
+
+    /** All directions determined to be possible for the next step */
+    private final List<CollusionTest.NextDirection> possible_directions;
+
+
     /**
      * This will create a ghost with the basic implementation, which
      *  includes tracking the current player.
@@ -67,39 +79,125 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      *  playing the game.
      */
     protected Ghost(Pacman player){
+        // Initialize global stuff:
         this.player = player;
         random = new Random();
         isCaged = true;
         isEaten = false;
         isEatable = false;
         current_mode = Mode.SCATTER;
+        currentDirection = CollusionTest.NextDirection.RIGHT;
+        nextDirection = currentDirection;
+        possible_directions = new ArrayList<CollusionTest.NextDirection>(4);
+        // Timer stuff:
         mode_timer = new Timer();
         time_elapsed = -1;
+        // Register to the listeners:
         GameState.INSTANCE.addStateListener(this);
         GameState.INSTANCE.addFoodListener(this);
     }
 
+    /**
+     * This method is used for the implementation of the different ghost-behaviors in
+     *  "chase"-mode.</p>
+     * It should return the currently targeted chunk, depending on Pacmans current position,
+     *  which in turns will end in a different approach for every ghost.</p>
+     * For an explanation of the different approaches, see "The Pac-Man Dossier", as linked
+     *  below.
+     * @param player holds the position of the current player.
+     * @return the targeted chunk as a {@code Point}-object.
+     * @see <a href="http://home.comcast.net/~jpittman2/pacman/pacmandossier.html#Chapter_4">
+     *     The Pac-Man Dossiere - Chapter 4 - "Meet the Ghosts"</a>
+     */
+    protected abstract Point getTargetChunk(Pacman player);
+
     @Override
     public void detectCollusion(CollusionTest tester) {
+        if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE != 0 && !isCaged()) return;
         // Check if pacman ate this ghost:
-        if (current_mode == Mode.FRIGHTENED){
-            if (gotPlayer(x, y)){
-                current_mode = Mode.RETURNING;
-                isEatable = false;
-                isEaten = true;
+        if (current_mode == Mode.FRIGHTENED && gotPlayer(x, y)){
+            current_mode = Mode.RETURNING;
+            isEatable = false;
+            isEaten = true;
+            // TODO Check when he's home and make him normal again.
+        } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
+            GameState.INSTANCE.removeLive();
+            // Reset the rest:
+            currentDirection = CollusionTest.NextDirection.LEFT;
+            nextDirection = currentDirection;
+            possible_directions.clear();
+            return;
+        }
+        // Check if we went into the "jumper":
+        if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
+            if (this.x <= ChunkedMap.Chunk.CHUNK_SIZE-3){ // Went into the left jumper, so go to the right:
+                this.x = ChunkedMap.Chunk.CHUNK_SIZE * 27;
+            } else {
+                this.x = ChunkedMap.Chunk.CHUNK_SIZE;
+            }
+            return;
+        }
+        // Check the next possible turns:
+        int x_next = 0, y_next = 0;
+        switch (currentDirection){
+            case UP:
+                y_next = this.y- ChunkedMap.Chunk.CHUNK_SIZE;
+                x_next = this.x;
+                break;
+            case LEFT:
+                y_next = this.y;
+                x_next = this.x- ChunkedMap.Chunk.CHUNK_SIZE;
+                break;
+            case DOWN:
+                y_next = this.y+ ChunkedMap.Chunk.CHUNK_SIZE;
+                x_next = this.x;
+                break;
+            case RIGHT:
+                y_next = this.y;
+                x_next = this.x+ ChunkedMap.Chunk.CHUNK_SIZE;
+        }
+        // Find the possible directions:
+        possible_directions.clear();
+        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.RIGHT)){
+            // Exclude the opposite direction:
+            if (currentDirection != CollusionTest.NextDirection.LEFT)
+                possible_directions.add(CollusionTest.NextDirection.RIGHT);
+        }
+        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.DOWN)){
+            if (currentDirection != CollusionTest.NextDirection.UP)
+                possible_directions.add(CollusionTest.NextDirection.DOWN);
+        }
+        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.LEFT)){
+            if (currentDirection != CollusionTest.NextDirection.RIGHT)
+                possible_directions.add(CollusionTest.NextDirection.LEFT);
+        }
+        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.UP)){
+            if (currentDirection != CollusionTest.NextDirection.DOWN)
+                possible_directions.add(CollusionTest.NextDirection.UP);
+        }
+        // Check for pacman:
+        int shortest = Integer.MAX_VALUE;
+        int current = 0;
+        for (CollusionTest.NextDirection next : possible_directions){
+            // X - and Y from the "next"-point ++ direction!
+            switch (next){
+                case UP:
+                    current = measureDistance(x_next, y_next- ChunkedMap.Chunk.CHUNK_SIZE);
+                    break;
+                case LEFT:
+                    current = measureDistance(x_next- ChunkedMap.Chunk.CHUNK_SIZE, y_next);
+                    break;
+                case DOWN:
+                    current = measureDistance(x_next, y_next+ ChunkedMap.Chunk.CHUNK_SIZE);
+                    break;
+                case RIGHT:
+                    current = measureDistance(x_next+ ChunkedMap.Chunk.CHUNK_SIZE, y_next);
+            }
+            if (current <= shortest){
+                nextDirection = next;
+                shortest = current;
             }
         }
-        /*
-        Problem is, that the collusion-detection gives true for pacman eating the ghost
-         and the other way around. Bad... Therefor, we'll need to move most of the
-         "blinky"-code in here and put it in the else to the previous if-statement.
-        What the ghosts will each need to customize is:
-         * The home-corner
-         * Their target-chunk (in chase mode)
-         * The way they are drawn
-        So, make methods (abstract) for that kind of stuff and move all the code which
-         is the same for everyone in here. And do it quick...
-         */
     }
 
     @Override
@@ -125,10 +223,37 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
     @Override
     public void move() {
+        if (isCaged()){
+            // TODO Move up and down in the cage
+            return;
+        }
         // Randomly generate a target for every new "step".
         if (current_mode == Mode.FRIGHTENED){
             rand_x = random.nextInt(28) * ChunkedMap.Chunk.CHUNK_SIZE;
             rand_y = random.nextInt(31) * ChunkedMap.Chunk.CHUNK_SIZE;
+        }
+        // Move the character:
+        switch (currentDirection){
+            case UP:
+                this.y -= MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
+                break;
+            case RIGHT:
+                this.x += MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
+                break;
+            case DOWN:
+                this.y += MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
+                break;
+            case LEFT:
+                this.x -= MOVE_PER_PAINT;
+                pixel_moved_count += MOVE_PER_PAINT;
+        }
+        // Check if we can change directions:
+        if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE == 0){
+            currentDirection = nextDirection;
+            pixel_moved_count = 0;
         }
     }
 
@@ -226,8 +351,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     public void start(Point start){
         this.start_point = start;
         isCaged = false;
-        this.x = start.x;
-        this.y = start.y;
+        this.x = start.getX();
+        this.y = start.getY();
         // Set the mode:
         current_mode = Mode.SCATTER;
         int timer = 0;
@@ -248,8 +373,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      * @see #isCaged
      */
     void moveTo(Point p){
-        this.x = p.x;
-        this.y = p.y;
+        this.x = p.getX();
+        this.y = p.getY();
     }
 
     /**
@@ -279,8 +404,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      */
     public void stop(Point cage_pos){
         isCaged = true;
-        this.x = cage_pos.x;
-        this.y = cage_pos.y;
+        this.x = cage_pos.getX();
+        this.y = cage_pos.getY();
     }
 
     /**
@@ -302,20 +427,21 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         int target_x = 0, target_y = 0;
         switch (current_mode){
             case SCATTER:
-                target_x = getHomeCorner().x;
-                target_y = getHomeCorner().y;
+                target_x = getHomeCorner().getX();
+                target_y = getHomeCorner().getY();
                 break;
             case CHASE:
-                target_x = player.getX();
-                target_y = player.getY();
+                Point point = getTargetChunk(player);
+                target_x = point.getX();
+                target_y = point.getY();
                 break;
             case FRIGHTENED:
                 target_x = rand_x;
                 target_y = rand_y;
                 break;
             case RETURNING:
-                target_x = start_point.x;
-                target_y = start_point.y;
+                target_x = start_point.getX();
+                target_y = start_point.getY();
         }
         // Calculate the third piece of the triangle:
         int triangle_x = target_x - x;

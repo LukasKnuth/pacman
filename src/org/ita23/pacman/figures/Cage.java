@@ -41,8 +41,8 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
      */
     public Cage(Point p, Pacman player){
         this.p = p;
-        this.door = new Point(p.x + Chunk.CHUNK_SIZE*3,  p.y);
-        this.ghost_start = new Point(door.x, door.y-Chunk.CHUNK_SIZE);
+        this.door = new Point(p.getX() + Chunk.CHUNK_SIZE*3,  p.getY());
+        this.ghost_start = new Point(door.getX(), door.getY()-Chunk.CHUNK_SIZE);
         // Create the ghosts:
         blinky = new Blinky(player);
         GameLoop.INSTANCE.addMovementEvent(blinky);
@@ -77,13 +77,13 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
         // Draw the boundary's:
         g.setStroke(new BasicStroke(2.0f));
         g.setColor(ChunkedMap.BLOCK_COLOR);
-        g.drawRect(p.x+EXTRA_SPACE, p.y+EXTRA_SPACE,
+        g.drawRect(p.getX()+EXTRA_SPACE, p.getY()+EXTRA_SPACE,
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2+6, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2+6);
-        g.drawRect(p.x+EXTRA_SPACE+4, p.y+EXTRA_SPACE+4,
+        g.drawRect(p.getX()+EXTRA_SPACE+4, p.getY()+EXTRA_SPACE+4,
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2-2, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2-2);
         // Draw the door:
         g.setColor(Color.WHITE);
-        g.fillRect(door.x, door.y-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2, 8);
+        g.fillRect(door.getX(), door.getY()-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2, 8);
         // Reset the stroke:
         g.setStroke(old);
     }
