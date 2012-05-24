@@ -2,6 +2,7 @@ package org.ita23.pacman.game;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import java.net.URL;
 
 /**
@@ -12,7 +13,7 @@ import java.net.URL;
 public class Sound {
 
     /** The audio-stream to read the sound from */
-    private final Clip audio;
+    private Clip audio;
     /** The given event-name to trigger this sound */
     private final String event;
     /** How often this sound should be looped. */
@@ -28,10 +29,12 @@ public class Sound {
      * @see org.ita23.pacman.game.SoundManager#addSound(Sound)
      */
     public Sound(String event, URL sound_res){
+        this.event = event;
         try {
             audio = AudioSystem.getClip();
             audio.open(AudioSystem.getAudioInputStream(sound_res));
-            this.event = event;
+        } catch (LineUnavailableException e){
+            System.err.println("Something is blocking the audio line.");
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
