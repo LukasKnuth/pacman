@@ -145,8 +145,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             } else {
                 this.x = ChunkedMap.Chunk.CHUNK_SIZE;
             }
-            return;
         }
+        // Check if next direction was already overwritten
+        if (nextDirection != null) return;
         // Check the next possible turns:
         int x_next = 0, y_next = 0;
         switch (currentDirection){
@@ -226,6 +227,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             }, 5 * 1000);
             // Set the current mode to frightened:
             current_mode = Mode.FRIGHTENED;
+            // Force the direction-change:
+            nextDirection = currentDirection.opposite();
             // Pause all currently running timers:
             pauseModeTimer();
             // TODO Get slower when in frightened mode.
@@ -263,7 +266,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         }
         // Check if we can change directions:
         if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE == 0){
-            currentDirection = nextDirection;
+            if (nextDirection != null) currentDirection = nextDirection;
+            nextDirection = null;
             pixel_moved_count = 0;
         }
     }
@@ -520,6 +524,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
         @Override
         public void run() {
+            // Force the direction-change:
+            nextDirection = currentDirection.opposite();
+            // Change the mode:
             System.out.println("Mode change to " + mode);
             current_mode = mode;
         }

@@ -43,7 +43,26 @@ public interface CollusionTest {
      * @see CollusionTest#checkNextCollusion(int, int, Object, org.ita23.pacman.game.CollusionTest.NextDirection)
      */
     public enum NextDirection{
-        UP, RIGHT, DOWN, LEFT
+        UP, RIGHT, DOWN, LEFT;
+
+        /**
+         * This will return the opposite direction of this direction.
+         * @return the opposite direction.
+         */
+        public NextDirection opposite(){
+            switch (this){
+                case DOWN:
+                    return UP;
+                case RIGHT:
+                    return LEFT;
+                case LEFT:
+                    return RIGHT;
+                case UP:
+                    return DOWN;
+                default:
+                    throw new IllegalStateException("No opposite of "+this+" available");
+            }
+        }
     }
 
     /**
