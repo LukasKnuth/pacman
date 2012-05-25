@@ -125,7 +125,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
             GameState.INSTANCE.removeLive();
             // Reset the rest:
-            currentDirection = CollusionTest.NextDirection.LEFT;
+            currentDirection = CollusionTest.NextDirection.UP;
             nextDirection = currentDirection;
             possible_directions.clear();
             return;
@@ -216,13 +216,24 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         }
     }
 
+    /** The last mode before changing to {@code Mode.FRIGHTENED} */
+    private Mode last_mode;
     @Override
     public void consumed(GameState.Food food){
         if (food == GameState.Food.BALL){
+            if (current_mode != Mode.FRIGHTENED){
+                last_mode = current_mode;
+                // Force the direction-change:
+                nextDirection = currentDirection.opposite();
+                // Pause all currently running timers:
+                pauseModeTimer();
+            } else if (current_mode == Mode.FRIGHTENED) {
+                freighted_timer.cancel();
+            }
             isEatable = true;
             // Reset to the previous mode after five seconds:
             freighted_timer = new Timer();
-            freighted_timer.schedule(new ModeChangeTask(current_mode) {
+            freighted_timer.schedule(new ModeChangeTask(last_mode) {
                 @Override
                 public void run() {
                     super.run();
@@ -232,10 +243,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             }, 5 * 1000);
             // Set the current mode to frightened:
             current_mode = Mode.FRIGHTENED;
-            // Force the direction-change:
-            nextDirection = currentDirection.opposite();
-            // Pause all currently running timers:
-            pauseModeTimer();
             // TODO Get slower when in frightened mode.
         }
     }
