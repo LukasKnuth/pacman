@@ -42,13 +42,13 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
     public Cage(Point p, Pacman player){
         this.p = p;
         this.door = new Point(p.getX() + Chunk.CHUNK_SIZE*3,  p.getY());
-        this.ghost_start = new Point(door.getX(), door.getY()-Chunk.CHUNK_SIZE);
+        this.ghost_start = new Point(door.getX(), door.getY()+Chunk.CHUNK_SIZE);
         // Create the ghosts:
         blinky = new Blinky(player);
         GameLoop.INSTANCE.addMovementEvent(blinky);
         GameLoop.INSTANCE.addCollusionEvent(blinky);
         GameLoop.INSTANCE.addRenderEvent(blinky, 0);
-        blinky.moveTo(ghost_start);
+        blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
         // Register self to game-state listener:
         GameState.INSTANCE.addStateListener(this);
         GameLoop.INSTANCE.addMovementEvent(this);
@@ -60,6 +60,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
      */
     private void start(){
         blinky.start(ghost_start);
+        blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
     }
 
     /**

@@ -25,7 +25,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
 
     /** Possible objects on a chunk */
     public enum Chunk{
-        POINT, NOTHING, BLOCK, BALL, FRUIT, START, CAGE, JUMPER;
+        POINT, NOTHING, BLOCK, BALL, FRUIT, START, CAGE_DOOR, JUMPER;
         
         public static final int CHUNK_SIZE = 16;
     }
@@ -272,7 +272,9 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
         // Set the cage for the ghosts:
         for (int x = x_chunk; x < (x_chunk+width); x++)
             for (int y = y_chunk; y < (y_chunk+height); y++)
-                setChunk(x, y, Chunk.CAGE);
+                setChunk(x, y, Chunk.BLOCK);
+        // Add the cage door:
+        setChunk(x_chunk+(width/2), y_chunk, Chunk.CAGE_DOOR);
         // No pills around the cage:
         // Top and bottom:
         int[] y_rows = {y_chunk-1, y_chunk+height};
@@ -468,8 +470,6 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
             int chunk_x = you_x / Chunk.CHUNK_SIZE;
             int chunk_y = you_y / Chunk.CHUNK_SIZE;
             // Treat the cage like blocks:
-            if (getChunk(chunk_x, chunk_y) == Chunk.CAGE)
-                return Chunk.BLOCK;
             return getChunk(chunk_x, chunk_y);
         }
 

@@ -202,11 +202,15 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         }
         // Check if we ran against a block (and therefore can't move):
         if (tester.checkNextCollusion(this.x, this.y,
-                ChunkedMap.Chunk.BLOCK, current_direction.convertToNextDirection())){
+                Chunk.BLOCK, current_direction.convertToNextDirection())
+            || tester.checkNextCollusion(this.x, this.y,
+                Chunk.CAGE_DOOR, current_direction.convertToNextDirection())){
             has_collided = true;
         }
         if (tester.checkNextCollusion(this.x, this.y,
-                ChunkedMap.Chunk.BLOCK, next_direction.convertToNextDirection())){
+                Chunk.BLOCK, next_direction.convertToNextDirection())
+            || tester.checkNextCollusion(this.x, this.y,
+                Chunk.CAGE_DOOR, next_direction.convertToNextDirection())){
             direction_change_possible = false;
         } else {
             direction_change_possible = true;

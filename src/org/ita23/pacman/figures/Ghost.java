@@ -5,6 +5,7 @@ import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.*;
+import org.ita23.pacman.logic.ChunkedMap.Chunk;
 
 import java.util.*;
 
@@ -88,7 +89,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         isEaten = false;
         isEatable = false;
         current_mode = Mode.SCATTER;
-        currentDirection = CollusionTest.NextDirection.RIGHT;
+        currentDirection = CollusionTest.NextDirection.UP;
         nextDirection = currentDirection;
         possible_directions = new ArrayList<CollusionTest.NextDirection>(4);
         // Timer stuff:
@@ -128,14 +129,14 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             nextDirection = currentDirection;
             possible_directions.clear();
             return;
-        } else if (current_mode == Mode.RETURNING && isHome(x, y)){
+        } else if (current_mode == Mode.RETURNING && tester.checkCollusion(x, y, ChunkedMap.Chunk.CAGE_DOOR)){
             // Back home, change back:
             freighted_timer.cancel();
             isEaten = false;
             isEatable = false;
             unpauseModeTimer();
             current_mode = Mode.CHASE;
-            // TODO Ghost has to go "into" the cage (and get slower inside).
+            nextDirection = currentDirection.opposite();
         }
         // Check if we went into the "jumper":
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
@@ -169,20 +170,24 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         }
         // Find the possible directions:
         possible_directions.clear();
-        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.RIGHT)){
+        if (!tester.checkNextCollusion(x_next, y_next, Chunk.BLOCK, CollusionTest.NextDirection.RIGHT)){
             // Exclude the opposite direction:
             if (currentDirection != CollusionTest.NextDirection.LEFT)
                 possible_directions.add(CollusionTest.NextDirection.RIGHT);
         }
-        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.DOWN)){
+        if (!tester.checkNextCollusion(x_next, y_next, Chunk.BLOCK, CollusionTest.NextDirection.DOWN)){
+            // When returning, going through the door is okay:
             if (currentDirection != CollusionTest.NextDirection.UP)
-                possible_directions.add(CollusionTest.NextDirection.DOWN);
+                if (tester.checkNextCollusion(x_next, y_next, Chunk.CAGE_DOOR, CollusionTest.NextDirection.DOWN)
+                        && current_mode != Mode.RETURNING){
+                    // Using the cage-door when not in RETURNING-mode is not allowed!
+                } else possible_directions.add(CollusionTest.NextDirection.DOWN);
         }
-        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.LEFT)){
+        if (!tester.checkNextCollusion(x_next, y_next, Chunk.BLOCK, CollusionTest.NextDirection.LEFT)){
             if (currentDirection != CollusionTest.NextDirection.RIGHT)
                 possible_directions.add(CollusionTest.NextDirection.LEFT);
         }
-        if (!tester.checkNextCollusion(x_next, y_next, ChunkedMap.Chunk.BLOCK, CollusionTest.NextDirection.UP)){
+        if (!tester.checkNextCollusion(x_next, y_next, Chunk.BLOCK, CollusionTest.NextDirection.UP)){
             if (currentDirection != CollusionTest.NextDirection.DOWN)
                 possible_directions.add(CollusionTest.NextDirection.UP);
         }
@@ -421,25 +426,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         isCaged = true;
         this.x = cage_pos.getX();
         this.y = cage_pos.getY();
-    }
-
-    /**
-     * Checks if the previously eaten ghost has reached the cage to be reset
-     *  to normal.
-     * @param x the ghosts x-coordinate.
-     * @param y the ghosts y-coordinate.
-     * @return weather if the ghost has yet reached the cage or not.
-     */
-    // TODO Doesn't always work...
-    private boolean isHome(int x, int y){
-        // Calculate the third piece of the triangle:
-        int a_site = start_point.getX() - (x+Ghost.HITBOX);
-        int b_site = start_point.getY() - (y+Ghost.HITBOX);
-        // Calculate the distance between player and ghost:
-        double distance = Math.sqrt((a_site*a_site)+(b_site*b_site));
-        // Check if we hit:
-        if (distance < (Ghost.HITBOX+1)) return true;
-        else return false;
     }
 
     /**
