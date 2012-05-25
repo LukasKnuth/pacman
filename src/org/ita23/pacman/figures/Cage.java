@@ -93,6 +93,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
         if (state == States.LIVE_LOST){
             // Pause and play melody:
             GameLoop.INSTANCE.freeze();
+            SoundManager.INSTANCE.play("dieing");
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -100,7 +101,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
                     reset();
                     GameLoop.INSTANCE.play();
                 }
-            }, SoundManager.INSTANCE.play("dieing"));
+            }, 2000);
         } else if (state == States.ROUND_WON || state == States.GAME_OVER){
             // Just reset the ghosts:
             reset();

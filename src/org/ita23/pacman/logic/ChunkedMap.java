@@ -332,6 +332,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
         if (state == States.ROUND_WON){
             // Pause and play melody:
             GameLoop.INSTANCE.freeze();
+            SoundManager.INSTANCE.play("round_over");
             new java.util.Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -341,7 +342,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
                     food_counter = 0;
                     // TODO Blocks should blink when the game is won.
                 }
-            }, SoundManager.INSTANCE.play("round_over"));
+            }, 5000);
         } else if (state == States.GAME_OVER){
             // Just reset the map after some time:
             new java.util.Timer().schedule(new TimerTask() {

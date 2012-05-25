@@ -38,13 +38,14 @@ public class Main {
         GameLoop.INSTANCE.startLoop();
         // Pause to play the intro:
         GameLoop.INSTANCE.pause();
+        SoundManager.INSTANCE.play("intro");
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 GameLoop.INSTANCE.play();
                 first_launch = false;
             }
-        }, SoundManager.INSTANCE.play("intro"));
+        }, 4000);
     }
 
     /**
