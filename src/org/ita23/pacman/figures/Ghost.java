@@ -42,6 +42,20 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private boolean isEaten;
     /** Weather this ghost is eatable or not (pacman ate a energizer) */
     private boolean isEatable;
+    
+    /** The possible speed-modes a ghost can be in */
+    private enum Speed{
+        NORMAL(MOVE_PER_PAINT), SLOW(MOVE_PER_PAINT/2), FAST(MOVE_PER_PAINT*2);
+        
+        private final int pixel_per_move;
+        private Speed(int ppm){
+            this.pixel_per_move = ppm;
+        }
+    }
+    /** The current speed-mode this ghost is in */
+    private Speed current_speed;
+    /** The next speed-mode this ghost will be in */
+    private Speed next_speed;
 
     /** The possible modes a ghost can be in */
     private enum Mode{
@@ -88,6 +102,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         isCaged = true;
         isEaten = false;
         isEatable = false;
+        current_speed = Speed.NORMAL;
+        next_speed = current_speed;
         current_mode = Mode.SCATTER;
         currentDirection = CollusionTest.NextDirection.UP;
         nextDirection = currentDirection;
@@ -120,6 +136,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Check if pacman ate this ghost:
         if (current_mode == Mode.FRIGHTENED && gotPlayer(x, y)){
             current_mode = Mode.RETURNING;
+            next_speed = Speed.FAST;
             isEatable = false;
             isEaten = true;
         } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
@@ -128,7 +145,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             currentDirection = CollusionTest.NextDirection.UP;
             nextDirection = currentDirection;
             possible_directions.clear();
-            return;
+            next_speed = Speed.NORMAL;
         } else if (current_mode == Mode.RETURNING && tester.checkCollusion(x, y, ChunkedMap.Chunk.CAGE_DOOR)){
             // Back home, change back:
             freighted_timer.cancel();
@@ -137,10 +154,17 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             unpauseModeTimer();
             current_mode = Mode.CHASE;
             nextDirection = currentDirection.opposite();
+            next_speed = Speed.NORMAL;
         }
         // Check if we went into the "jumper":
+        if ((this.y - GameState.MAP_SPACER) / Chunk.CHUNK_SIZE == 14 &&
+                (this.x <= Chunk.CHUNK_SIZE*4 || this.x >= Chunk.CHUNK_SIZE*24)){
+            // In the jumper, slow it down:
+            next_speed = Speed.SLOW;
+        } else if (current_mode != Mode.FRIGHTENED && current_mode != Mode.RETURNING) {
+            next_speed = Speed.NORMAL;
+        }
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
-            // TODO In the jumper, ghosts get slower!
             if (this.x <= ChunkedMap.Chunk.CHUNK_SIZE-3){ // Went into the left jumper, so go to the right:
                 this.x = ChunkedMap.Chunk.CHUNK_SIZE * 27;
             } else {
@@ -225,6 +249,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 last_mode = current_mode;
                 // Force the direction-change:
                 nextDirection = currentDirection.opposite();
+                // Slow down the ghost:
+                next_speed = Speed.SLOW;
                 // Pause all currently running timers:
                 pauseModeTimer();
             } else if (current_mode == Mode.FRIGHTENED) {
@@ -236,14 +262,16 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             freighted_timer.schedule(new ModeChangeTask(last_mode) {
                 @Override
                 public void run() {
+                    if (current_mode == Mode.RETURNING) return;
                     super.run();
+                    isEaten = false;
+                    next_speed = Speed.NORMAL;
                     unpauseModeTimer();
                     isEatable = false;
                 }
             }, 5 * 1000);
             // Set the current mode to frightened:
             current_mode = Mode.FRIGHTENED;
-            // TODO Get slower when in frightened mode.
         }
     }
 
@@ -261,25 +289,28 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Move the character:
         switch (currentDirection){
             case UP:
-                this.y -= MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
+                this.y -= current_speed.pixel_per_move;
+                pixel_moved_count += current_speed.pixel_per_move;
                 break;
             case RIGHT:
-                this.x += MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
+                this.x += current_speed.pixel_per_move;
+                pixel_moved_count += current_speed.pixel_per_move;
                 break;
             case DOWN:
-                this.y += MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
+                this.y += current_speed.pixel_per_move;
+                pixel_moved_count += current_speed.pixel_per_move;
                 break;
             case LEFT:
-                this.x -= MOVE_PER_PAINT;
-                pixel_moved_count += MOVE_PER_PAINT;
+                this.x -= current_speed.pixel_per_move;
+                pixel_moved_count += current_speed.pixel_per_move;
         }
-        // Check if we can change directions:
+        // Check if we can change directions and speed:
         if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE == 0){
+            // Change direction:
             if (nextDirection != null) currentDirection = nextDirection;
             nextDirection = null;
+            // Change speed:
+            current_speed = next_speed;
             pixel_moved_count = 0;
         }
     }
@@ -422,6 +453,10 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Reset the timers for the mode-changes:
         mode_timer.cancel();
         mode_timer = new Timer();
+        // Reset the frightening mode:
+        if (freighted_timer != null) freighted_timer.cancel();
+        isEatable = false;
+        isEaten = false;
     }
 
     /**
