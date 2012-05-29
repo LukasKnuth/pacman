@@ -19,12 +19,45 @@ class Blinky extends Ghost{
     /** A cached {@code Point}-instance for performance purposes */
     private Point target;
 
+    /** The images for this ghost, looking to the left */
+    private final Image[] ghost_left;
+    /** The images for this ghost, looking to the right */
+    private final Image[] ghost_right;
+    /** The images for this ghost, looking up */
+    private final Image[] ghost_up;
+    /** The images for this ghost, looking down */
+    private final Image[] ghost_down;
+
+    /** The variable used to switch between the two possible images of a direction */
+    private int image_count;
+    /** This counter is used to make the ghost blink at the end of frightened mode */
+    private int blink_count;
+
     /**
      * Create a new instance of the red ghost.
      */
     public Blinky(Pacman player){
         super(player);
         target = new Point(0, 0);
+        image_count = 0;
+        blink_count = 0;
+        // Load the images:
+        ghost_down = new Image[]{
+            loadImageResource("blinky/blinky_down_1.png"),
+            loadImageResource("blinky/blinky_down_2.png")
+        };
+        ghost_left = new Image[]{
+            loadImageResource("blinky/blinky_left_1.png"),
+            loadImageResource("blinky/blinky_left_2.png")
+        };
+        ghost_up = new Image[]{
+            loadImageResource("blinky/blinky_up_1.png"),
+            loadImageResource("blinky/blinky_up_2.png")
+        };
+        ghost_right = new Image[]{
+            loadImageResource("blinky/blinky_right_1.png"),
+            loadImageResource("blinky/blinky_right_2.png")
+        };
     }
 
     @Override
@@ -39,29 +72,46 @@ class Blinky extends Ghost{
         return HOME_CORNER;
     }
 
-    /** This counter is used to make the ghost blink when in frightened mode */
-    private int blink_count = 0;
     @Override
     public void render(Graphics g) {
+        // Calculate the current image-index
+        int image_index = 0;
+        image_count++;
+        if (image_count < 4) image_index = 0;
+        else if (image_count < 8) image_index = 1;
+        else image_count = 0;
+        // Paint:
         if (isEatable()){
-            blink_count++;
-            if (blink_count < 16){
-                g.setColor(Color.BLUE);
-            } else if (blink_count < 32){
-                g.setColor(Color.WHITE);
-            } else blink_count = 0;
-            g.fillOval(this.x-3, this.y-3, 28, 28);
+            g.drawImage(frightened[image_index], this.x, this.y, null);
+            // TODO Implement the blinking at the end of the period.
         } else if (isEaten()){
-            g.setColor(Color.BLUE);
-            g.fillOval(this.x-6, this.y-3, 12, 12);
-            g.fillOval(this.x+6, this.y-3, 12, 12);
-            g.setColor(Color.WHITE);
-            g.fillOval(this.x-3, this.y, 6, 6);
-            g.fillOval(this.x+9, this.y, 6, 6);
-            // TODO Use an image of the eyes...
+            switch (getNextDirection()){
+                case UP:
+                    g.drawImage(dead_up, this.x, this.y, null);
+                    break;
+                case DOWN:
+                    g.drawImage(dead_down, this.x, this.y, null);
+                    break;
+                case LEFT:
+                    g.drawImage(dead_left, this.x, this.y, null);
+                    break;
+                case RIGHT:
+                    g.drawImage(dead_right, this.x, this.y, null);
+            }
         } else {
-            g.setColor(Color.RED);
-            g.fillOval(this.x-3, this.y-3, 28, 28);
+            switch (getNextDirection()){
+                case UP:
+                    g.drawImage(ghost_up[image_index], this.x, this.y, null);
+                    break;
+                case DOWN:
+                    g.drawImage(ghost_down[image_index], this.x, this.y, null);
+                    break;
+                case LEFT:
+                    g.drawImage(ghost_left[image_index], this.x, this.y, null);
+                    break;
+                case RIGHT:
+                    g.drawImage(ghost_right[image_index], this.x, this.y, null);
+            }
         }
     }
 }

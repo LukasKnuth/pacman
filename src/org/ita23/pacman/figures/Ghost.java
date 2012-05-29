@@ -1,13 +1,20 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.Main;
 import org.ita23.pacman.game.CollusionEvent;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.logic.*;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.logic.Point;
 
+import javax.swing.*;
+import java.awt.*;
+import java.net.URL;
 import java.util.*;
+import java.util.List;
+import java.util.Timer;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -79,15 +86,26 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private CollusionTest.NextDirection currentDirection;
     /** The direction the ghost will go on his next move */
     private CollusionTest.NextDirection nextDirection;
+    /** All directions determined to be possible for the next step */
+    private final List<CollusionTest.NextDirection> possible_directions;
 
     /** The amount of pixels this ghost moves per repaint */
     private final static int MOVE_PER_PAINT = 2;
     /** Counts the amount of pixels moved since the last direction-change */
     private int pixel_moved_count;
-
-    /** All directions determined to be possible for the next step */
-    private final List<CollusionTest.NextDirection> possible_directions;
-
+    
+    /** The ghost-images to use, when the ghost is blinking. */
+    protected final Image[] blinking;
+    /** The ghost-images to use, when the ghost is currently in frightened mode */
+    protected final Image[] frightened;
+    /** The images to use for a returning, dead ghost - direction right */
+    protected final Image dead_right;
+    /** The images to use for a returning, dead ghost - direction down */
+    protected final Image dead_down;
+    /** The images to use for a returning, dead ghost - direction left */
+    protected final Image dead_left;
+    /** The images to use for a returning, dead ghost - direction up */
+    protected final Image dead_up;
 
     /**
      * This will create a ghost with the basic implementation, which
@@ -114,6 +132,19 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Register to the listeners:
         GameState.INSTANCE.addStateListener(this);
         GameState.INSTANCE.addFoodListener(this);
+        // Load the general ghost-images:
+        blinking = new Image[]{
+                loadImageResource("ghosts_general/blinking_1.png"),
+                loadImageResource("ghosts_general/blinking_2.png")
+        };
+        frightened = new Image[]{
+                loadImageResource("ghosts_general/frightened_1.png"),
+                loadImageResource("ghosts_general/frightened_2.png")
+        };
+        dead_down = loadImageResource("ghosts_general/dead_down.png");
+        dead_up = loadImageResource("ghosts_general/dead_up.png");
+        dead_left = loadImageResource("ghosts_general/dead_left.png");
+        dead_right = loadImageResource("ghosts_general/dead_right.png");
     }
 
     /**
@@ -383,6 +414,38 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      */
     protected boolean isEaten(){
         return this.isEaten;
+    }
+
+    /**
+     * This will try to load an image-resource from the {@code /res/graphics}-
+     *  package and returns the created {@code Image}.</p>
+     * To load the file {@code /res/graphics/asd/test_image.png}, you would
+     *  have to specify this methods {@code path}-argument as follows:
+     *  {@code asd/test_image.png}, <b>without</b> a leading slash!.</p>
+     * If the resource could not be found inside the {@code /res/graphics}- or
+     *  any specified sub-package, this method will throw a
+     *  {@code IllegalArgumentException}.
+     * @param path the path to the image-resource you want to load.
+     * @return the created image from the specified path.
+     * @throws IllegalArgumentException if the specified resource could not be
+     *  found.
+     */
+    protected Image loadImageResource(String path){
+        URL url = Main.class.getResource("res/graphics/"+path);
+        if (url != null) return new ImageIcon(url).getImage();
+        else throw new IllegalArgumentException("The resource in the package '" +
+                "/res/graphics/"+path+"' could not be found.");
+    }
+
+    /**
+     * Returns the next direction this ghost will turn to.</p>
+     * This information should be used to determine which of the images to use for
+     *  painting purposes.
+     * @return the next direction this ghost will turn to.
+     */
+    protected CollusionTest.NextDirection getNextDirection(){
+        if (nextDirection != null) return nextDirection;
+        else return currentDirection;
     }
 
     /**
