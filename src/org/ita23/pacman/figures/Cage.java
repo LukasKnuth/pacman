@@ -69,6 +69,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
      */
     private void reset(){
         blinky.stop(ghost_start);
+        blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
     }
 
     @Override
