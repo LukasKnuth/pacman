@@ -1,5 +1,6 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
 
@@ -8,6 +9,10 @@ import java.awt.*;
 /**
  * Blinky is the red ghost AI, which will start "out of the box" at the beginning
  *  of the game.
+ * For a detailed description of his behaviour, check out
+ * <a href="http://home.comcast.net/~jpittman2/pacman/pacmandossier.html#CH4_Blinky">
+ *   Chapter 4 of "The Pac-Man Dossier" - Blinky
+ * </a>
  * @author Lukas Knuth
  * @version 1.0
  */
@@ -28,19 +33,12 @@ class Blinky extends Ghost{
     /** The images for this ghost, looking down */
     private final Image[] ghost_down;
 
-    /** The variable used to switch between the two possible images of a direction */
-    private int image_count;
-    /** This counter is used to make the ghost blink at the end of frightened mode */
-    private int blink_count;
-
     /**
      * Create a new instance of the red ghost.
      */
     public Blinky(Pacman player){
         super(player);
         target = new Point(0, 0);
-        image_count = 0;
-        blink_count = 0;
         // Load the images:
         ghost_down = new Image[]{
             loadImageResource("blinky/blinky_down_1.png"),
@@ -68,58 +66,25 @@ class Blinky extends Ghost{
     }
 
     @Override
+    protected Image getGhostImage(CollusionTest.NextDirection direction, int image_index) {
+        switch (direction){
+            case UP:
+                return ghost_up[image_index];
+            case DOWN:
+                return ghost_down[image_index];
+            case LEFT:
+                return ghost_left[image_index];
+            case RIGHT:
+                return ghost_right[image_index];
+            default:
+                throw new IllegalArgumentException("The direction can't be "+direction);
+        }
+    }
+
+    @Override
     protected Point getHomeCorner() {
         return HOME_CORNER;
     }
 
-    @Override
-    public void render(Graphics g) {
-        // Calculate the current image-index
-        int image_index = 0;
-        image_count++;
-        if (image_count < 4) image_index = 0;
-        else if (image_count < 8) image_index = 1;
-        else image_count = 0;
-        // Paint:
-        if (isEatable()){
-            if (isBlinking()){
-                // Simulate the blinking:
-                blink_count++;
-                if (blink_count < 8){
-                    g.drawImage(frightened[image_index], this.x, this.y, null);
-                } else if (blink_count < 16){
-                    g.drawImage(blinking[image_index], this.x, this.y, null);
-                } else blink_count = 0;
-            } // Otherwise just draw the frightened image.
-            else g.drawImage(frightened[image_index], this.x, this.y, null);
-        } else if (isEaten()){
-            switch (getNextDirection()){
-                case UP:
-                    g.drawImage(dead_up, this.x, this.y, null);
-                    break;
-                case DOWN:
-                    g.drawImage(dead_down, this.x, this.y, null);
-                    break;
-                case LEFT:
-                    g.drawImage(dead_left, this.x, this.y, null);
-                    break;
-                case RIGHT:
-                    g.drawImage(dead_right, this.x, this.y, null);
-            }
-        } else {
-            switch (getNextDirection()){
-                case UP:
-                    g.drawImage(ghost_up[image_index], this.x, this.y, null);
-                    break;
-                case DOWN:
-                    g.drawImage(ghost_down[image_index], this.x, this.y, null);
-                    break;
-                case LEFT:
-                    g.drawImage(ghost_left[image_index], this.x, this.y, null);
-                    break;
-                case RIGHT:
-                    g.drawImage(ghost_right[image_index], this.x, this.y, null);
-            }
-        }
-    }
+
 }

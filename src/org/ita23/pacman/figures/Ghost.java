@@ -353,6 +353,50 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         }
     }
 
+    /** The variable used to switch between the two possible images of a direction */
+    private int image_count;
+    /** This counter is used to make the ghost blink at the end of frightened mode */
+    private int blink_count;
+    @Override
+    public void render(Graphics g) {
+        // Calculate the current image-index
+        int image_index = 0;
+        image_count++;
+        if (image_count < 4) image_index = 0;
+        else if (image_count < 8) image_index = 1;
+        else image_count = 0;
+        // Paint:
+        if (isEatable()){
+            if (isBlinking()){
+                // Simulate the blinking:
+                blink_count++;
+                if (blink_count < 8){
+                    g.drawImage(frightened[image_index], this.x, this.y, null);
+                } else if (blink_count < 16){
+                    g.drawImage(blinking[image_index], this.x, this.y, null);
+                } else blink_count = 0;
+            } // Otherwise just draw the frightened image.
+            else g.drawImage(frightened[image_index], this.x, this.y, null);
+        } else if (isEaten()){
+            switch (getNextDirection()){
+                case UP:
+                    g.drawImage(dead_up, this.x, this.y, null);
+                    break;
+                case DOWN:
+                    g.drawImage(dead_down, this.x, this.y, null);
+                    break;
+                case LEFT:
+                    g.drawImage(dead_left, this.x, this.y, null);
+                    break;
+                case RIGHT:
+                    g.drawImage(dead_right, this.x, this.y, null);
+            }
+        } else {
+            // Draw the ghost how he normally looks:
+            g.drawImage(getGhostImage(getNextDirection(), image_index), this.x, this.y, null);
+        }
+    }
+
     /**
      * This method will continue the previously paused mode-changes.</p>
      * Calling this method without calling the {@code pauseModeTimer()}-
@@ -466,6 +510,17 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         if (nextDirection != null) return nextDirection;
         else return currentDirection;
     }
+
+    /**
+     * This method should return the {@code Image} of a ghost, looking at the given direction
+     *  with his given image-index the the image array.</p>
+     * The latter one is used to simulate the flicker, when the ghosts move through the maze.
+     * @param direction the direction the ghost is currently looking at.
+     * @param image_index the index of the image in the image-array, used to simulate the
+     *  flicker. The index will either be 0 or 1.
+     * @return the {@code Image} of the ghost with the given criteria.
+     */
+    protected abstract Image getGhostImage(CollusionTest.NextDirection direction, int image_index);
 
     /**
      * This method returns the home-corner for this ghost instance.</p>
