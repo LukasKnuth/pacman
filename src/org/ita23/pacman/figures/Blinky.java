@@ -82,8 +82,16 @@ class Blinky extends Ghost{
         else image_count = 0;
         // Paint:
         if (isEatable()){
-            g.drawImage(frightened[image_index], this.x, this.y, null);
-            // TODO Implement the blinking at the end of the period.
+            if (isBlinking()){
+                // Simulate the blinking:
+                blink_count++;
+                if (blink_count < 8){
+                    g.drawImage(frightened[image_index], this.x, this.y, null);
+                } else if (blink_count < 16){
+                    g.drawImage(blinking[image_index], this.x, this.y, null);
+                } else blink_count = 0;
+            } // Otherwise just draw the frightened image.
+            else g.drawImage(frightened[image_index], this.x, this.y, null);
         } else if (isEaten()){
             switch (getNextDirection()){
                 case UP:

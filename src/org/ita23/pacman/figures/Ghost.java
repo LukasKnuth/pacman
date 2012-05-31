@@ -66,7 +66,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
     /** The possible modes a ghost can be in */
     private enum Mode{
-        CHASE, SCATTER, FRIGHTENED, RETURNING
+        CHASE, SCATTER, FRIGHTENED, RETURNING, BLINKING
     }
     /** The current mode this ghost instance is in */
     private Mode current_mode;
@@ -165,7 +165,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     public void detectCollusion(CollusionTest tester) {
         if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE != 0 && !isCaged()) return;
         // Check if pacman ate this ghost:
-        if (current_mode == Mode.FRIGHTENED && gotPlayer(x, y)){
+        if ((current_mode == Mode.FRIGHTENED || current_mode == Mode.BLINKING) && gotPlayer(x, y)){
             current_mode = Mode.RETURNING;
             next_speed = Speed.FAST;
             isEatable = false;
@@ -192,7 +192,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 (this.x <= Chunk.CHUNK_SIZE*4 || this.x >= Chunk.CHUNK_SIZE*24)){
             // In the jumper, slow it down:
             next_speed = Speed.SLOW;
-        } else if (current_mode != Mode.FRIGHTENED && current_mode != Mode.RETURNING) {
+        } else if ((current_mode != Mode.FRIGHTENED && current_mode != Mode.BLINKING) && current_mode != Mode.RETURNING) {
             next_speed = Speed.NORMAL;
         }
         if (tester.checkCollusion(this.x, this.y, ChunkedMap.Chunk.JUMPER)){
@@ -276,7 +276,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     @Override
     public void consumed(GameState.Food food){
         if (food == GameState.Food.BALL){
-            if (current_mode != Mode.FRIGHTENED){
+            if (current_mode != Mode.FRIGHTENED && current_mode != Mode.BLINKING){
                 last_mode = current_mode;
                 // Force the direction-change:
                 nextDirection = currentDirection.opposite();
@@ -284,12 +284,19 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 next_speed = Speed.SLOW;
                 // Pause all currently running timers:
                 pauseModeTimer();
-            } else if (current_mode == Mode.FRIGHTENED) {
+            } else if (current_mode == Mode.FRIGHTENED || current_mode == Mode.BLINKING) {
                 freighted_timer.cancel();
             }
             isEatable = true;
             // Reset to the previous mode after five seconds:
             freighted_timer = new Timer();
+            freighted_timer.schedule(new ModeChangeTask(Mode.BLINKING){
+                @Override
+                public void run() {
+                    // No direction-reverse!
+                    current_mode = this.mode;
+                }
+            }, 3 * 1000);
             freighted_timer.schedule(new ModeChangeTask(last_mode) {
                 @Override
                 public void run() {
@@ -313,7 +320,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             return;
         }
         // Randomly generate a target for every new "step".
-        if (current_mode == Mode.FRIGHTENED){
+        if (current_mode == Mode.FRIGHTENED || current_mode == Mode.BLINKING){
             rand_x = random.nextInt(28) * ChunkedMap.Chunk.CHUNK_SIZE;
             rand_y = random.nextInt(31) * ChunkedMap.Chunk.CHUNK_SIZE;
         }
@@ -393,6 +400,18 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Not yet paused, pause:
         time_elapsed = (int) ((System.currentTimeMillis() - mode_timer_stamp) / 1000);
         mode_timer.cancel();
+    }
+
+    /**
+     * The BLINKING-mode is activated at the end of the FRIGHTENED-mode. The blinking
+     *  of the ghosts is used to visualize, that the FRIGHTENED-mode is almost over.</p>
+     * This method should be used by the different {@code Ghost}-implementations to
+     *  show the ghost "blinking".
+     * @return weather the FRIGHTENED-mode period is about to end and the ghost should blink.
+     * @see #frightened
+     */
+    protected boolean isBlinking(){
+        return (current_mode == Mode.BLINKING);
     }
 
     /**
@@ -560,6 +579,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 target_x = point.getX();
                 target_y = point.getY();
                 break;
+            case BLINKING:
             case FRIGHTENED:
                 target_x = rand_x;
                 target_y = rand_y;
@@ -602,7 +622,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      */
     private class ModeChangeTask extends TimerTask {
 
-        private final Mode mode;
+        protected final Mode mode;
 
         /**
          * Creates a new {@code TimerTask}, which will only change the
