@@ -290,4 +290,12 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     int getY(){
         return this.y;
     }
+
+    /**
+     * The direction Pacman is currently facing.
+     * @return Pacman's current facing-direction.
+     */
+    CollusionTest.NextDirection getCurrentDirection(){
+        return this.current_direction.convertToNextDirection();
+    }
 }

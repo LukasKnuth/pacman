@@ -31,8 +31,13 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
     /** The extra space needed to make pacman fit next to the cage */
     private final static int EXTRA_SPACE = 10;
 
+    /** The timer which releases the ghosts one by one from their cage */
+    private Timer release_timer;
+
     /** The red ghost */
     private final Ghost blinky;
+    /** The pink ghost */
+    private final Ghost pinky;
 
     /**
      * Creates a new cage which holds the ghosts. 
@@ -49,6 +54,12 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
         GameLoop.INSTANCE.addCollusionEvent(blinky);
         GameLoop.INSTANCE.addRenderEvent(blinky, 0);
         blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
+        // Add Pinky:
+        pinky = new Pinky(player);
+        GameLoop.INSTANCE.addMovementEvent(pinky);
+        GameLoop.INSTANCE.addCollusionEvent(pinky);
+        GameLoop.INSTANCE.addRenderEvent(pinky, 0);
+        pinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()+Chunk.CHUNK_SIZE));
         // Register self to game-state listener:
         GameState.INSTANCE.addStateListener(this);
         GameLoop.INSTANCE.addMovementEvent(this);
@@ -59,8 +70,21 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
      *  and the ghosts shell now start to chase pacman.
      */
     private void start(){
+        // Blinky:
         blinky.start(ghost_start);
         blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
+        // Pinky:
+        pinky.stop(new Point(ghost_start.getX(), ghost_start.getY()+Chunk.CHUNK_SIZE));
+        // Set the timer:
+        release_timer = new Timer();
+        release_timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Releasing Pinky!");
+                pinky.start(ghost_start);
+            }
+        }, 2*1000);
+        // TODO Also implement the point-counter!
     }
 
     /**
@@ -68,8 +92,14 @@ public class Cage implements RenderEvent, StateListener, MovementEvent{
      *  used when the round is over or pacman was "caught".
      */
     private void reset(){
+        // Blinky:
         blinky.stop(ghost_start);
         blinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()-(2*Chunk.CHUNK_SIZE)));
+        // Pinky:
+        pinky.stop(new Point(ghost_start.getX(), ghost_start.getY()+Chunk.CHUNK_SIZE));
+        // Stop the timer:
+        System.out.println("Stopping the release-timer!");
+        release_timer.cancel();
     }
 
     @Override
