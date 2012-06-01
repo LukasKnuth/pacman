@@ -5,16 +5,18 @@ import org.ita23.pacman.game.CollusionEvent;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
-import org.ita23.pacman.logic.*;
+import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
+import org.ita23.pacman.logic.StateListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
+import java.util.Random;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -24,7 +26,7 @@ import java.util.Timer;
  * @author Lukas Knuth
  * @version 1.0
  */
-abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, StateListener, FoodListener {
+abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, StateListener {
 
     /** The diameter of a ghost's body, e.g. his hitbox */
     private static final int HITBOX = 28;
@@ -65,19 +67,11 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private Speed next_speed;
 
     /** The possible modes a ghost can be in */
-    private enum Mode{
+    public enum Mode{
         CHASE, SCATTER, FRIGHTENED, RETURNING, BLINKING
     }
     /** The current mode this ghost instance is in */
     private Mode current_mode;
-    /** The timer used to change the modes after given intervals */
-    private Timer mode_timer;
-    /** The timer used to change back to the previous mode when frighted */
-    private Timer freighted_timer;
-    /** The time-stamp from when the {@code mode_timer} was last set */
-    private long mode_timer_stamp;
-    /** The time that has elapsed since the {@code mode_timer} has started */
-    private int time_elapsed;
 
     /** The last {@code Point}, given to the {@code start()}-method */
     private Point start_point;
@@ -126,12 +120,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         currentDirection = CollusionTest.NextDirection.UP;
         nextDirection = currentDirection;
         possible_directions = new ArrayList<CollusionTest.NextDirection>(4);
-        // Timer stuff:
-        mode_timer = new Timer();
-        time_elapsed = -1;
         // Register to the listeners:
         GameState.INSTANCE.addStateListener(this);
-        GameState.INSTANCE.addFoodListener(this);
         // Load the general ghost-images:
         blinking = new Image[]{
                 loadImageResource("ghosts_general/blinking_1.png"),
@@ -179,11 +169,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             next_speed = Speed.NORMAL;
         } else if (current_mode == Mode.RETURNING && tester.checkCollusion(x, y, ChunkedMap.Chunk.CAGE_DOOR)){
             // Back home, change back:
-            freighted_timer.cancel();
             isEaten = false;
             isEatable = false;
-            unpauseModeTimer();
-            current_mode = Mode.CHASE;
+            current_mode = next_mode;
             nextDirection = currentDirection.opposite();
             next_speed = Speed.NORMAL;
         }
@@ -268,48 +256,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 nextDirection = next;
                 shortest = current;
             }
-        }
-    }
-
-    /** The last mode before changing to {@code Mode.FRIGHTENED} */
-    private Mode last_mode;
-    @Override
-    public void consumed(GameState.Food food){
-        if (food == GameState.Food.BALL){
-            if (current_mode != Mode.FRIGHTENED && current_mode != Mode.BLINKING){
-                last_mode = current_mode;
-                // Force the direction-change:
-                nextDirection = currentDirection.opposite();
-                // Slow down the ghost:
-                next_speed = Speed.SLOW;
-                // Pause all currently running timers:
-                pauseModeTimer();
-            } else if (current_mode == Mode.FRIGHTENED || current_mode == Mode.BLINKING) {
-                freighted_timer.cancel();
-            }
-            isEatable = true;
-            // Reset to the previous mode after five seconds:
-            freighted_timer = new Timer();
-            freighted_timer.schedule(new ModeChangeTask(Mode.BLINKING){
-                @Override
-                public void run() {
-                    // No direction-reverse!
-                    current_mode = this.mode;
-                }
-            }, 3 * 1000);
-            freighted_timer.schedule(new ModeChangeTask(last_mode) {
-                @Override
-                public void run() {
-                    if (current_mode == Mode.RETURNING) return;
-                    super.run();
-                    isEaten = false;
-                    next_speed = Speed.NORMAL;
-                    unpauseModeTimer();
-                    isEatable = false;
-                }
-            }, 5 * 1000);
-            // Set the current mode to frightened:
-            current_mode = Mode.FRIGHTENED;
         }
     }
 
@@ -398,52 +344,49 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     }
 
     /**
-     * This method will continue the previously paused mode-changes.</p>
-     * Calling this method without calling the {@code pauseModeTimer()}-
-     *  method before will not have any effect.
-     * @see #pauseModeTimer()
+     * This will force this ghost-instance to turn around at the next possible point in
+     *  time.</p>
+     * This method should only be used by the {@code Cage}-class, when changing modes!
      */
-    private void unpauseModeTimer(){
-        // Check if it was previously paused:
-        if (time_elapsed == -1) return;
-        // It is paused so restart where we left:
-        mode_timer = new Timer();
-        int timer = 0;
-        if (time_elapsed < (timer+=7))
-            scheduleModeChange(Mode.CHASE, timer-time_elapsed);
-        if (time_elapsed < (timer+=20))
-            scheduleModeChange(Mode.SCATTER, timer-time_elapsed);
-        if (time_elapsed < (timer+=7))
-            scheduleModeChange(Mode.CHASE, timer-time_elapsed);
-        if (time_elapsed < (timer+=20))
-            scheduleModeChange(Mode.SCATTER, timer-time_elapsed);
-        if (time_elapsed < (timer+=5))
-            scheduleModeChange(Mode.CHASE, timer-time_elapsed);
-        if (time_elapsed < (timer+=20))
-            scheduleModeChange(Mode.SCATTER, timer-time_elapsed);
-        if (time_elapsed < (timer+=5))
-            scheduleModeChange(Mode.CHASE, timer-time_elapsed);
-        // Renew the time-stamp:
-        mode_timer_stamp = System.currentTimeMillis()-(time_elapsed*1000);
-        time_elapsed = -1;
+    protected void forceDirectionChange(){
+        this.nextDirection = currentDirection.opposite();
     }
 
     /**
-     * This method will effectively pause all currently scheduled mode-changes (which
-     *  where made with the {@code scheduleModeChange()}-method).</p>
-     * Multiple calls to this method will have no effect as long as the mode-timer
-     *  has not been continued yet.</p>
-     * To continue the scheduled mode-changes, use the {@code unpauseModeTimer()}-
-     *  method.
-     * @see #scheduleModeChange(org.ita23.pacman.figures.Ghost.Mode, int)
-     * @see #unpauseModeTimer()
+     * Returns the individual mode this ghost is currently in. This might not match with
+     *  the current global mode, for example when this ghost has been eaten in frightened-
+     *  mode and is now returning to the cage.
+     * @return the current mode of this ghost-instance.
      */
-    private void pauseModeTimer(){
-        // Check if already paused:
-        if (time_elapsed != -1) return;
-        // Not yet paused, pause:
-        time_elapsed = (int) ((System.currentTimeMillis() - mode_timer_stamp) / 1000);
-        mode_timer.cancel();
+    protected Mode getIndividualMode(){
+        return this.current_mode;
+    }
+
+    private Mode next_mode;
+    /**
+     * This will set the current mode for this ghost-instance.</p>
+     * This method should only be used by the {@code Cage}-class!
+     * @param mode the new mode to set this ghost to.
+     */
+    protected void setCurrentMode(Mode mode){
+        if (current_mode == Mode.RETURNING){
+            // When currently returning, just store the next mode and leave.
+            next_mode = mode;
+            return;
+        }
+        // Reset everything when returning from FRIGHTENED/BLINKING:
+        if (mode != Mode.FRIGHTENED && mode != Mode.BLINKING){
+            isEaten = false;
+            isEatable = false;
+            next_speed = Speed.NORMAL;
+        } else if (mode == Mode.FRIGHTENED) { // When just entering FRIGHTENED/BLINKING mode:
+            // Slow down the ghost:
+            next_speed = Speed.SLOW;
+            isEatable = true;
+        }
+        // Set the new mode:
+        this.current_mode = mode;
+        this.next_mode = mode;
     }
 
     /**
@@ -550,15 +493,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         this.y = start.getY();
         // Set the mode:
         current_mode = Mode.SCATTER;
-        int timer = 0;
-        scheduleModeChange(Mode.CHASE, timer+=7);
-        scheduleModeChange(Mode.SCATTER, timer+=20);
-        scheduleModeChange(Mode.CHASE, timer+=7);
-        scheduleModeChange(Mode.SCATTER, timer+=20);
-        scheduleModeChange(Mode.CHASE, timer+=5);
-        scheduleModeChange(Mode.SCATTER, timer+=20);
-        scheduleModeChange(Mode.CHASE, timer+=5);
-        mode_timer_stamp = System.currentTimeMillis();
     }
 
     /**
@@ -572,26 +506,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         this.y = p.getY();
     }
 
-    /**
-     * Schedules a mode-change for execution after the given amount of time.
-     * @param mode the mode the shell be set after the timeout.
-     * @param time_sec the time to wait in seconds.
-     */
-    private void scheduleModeChange(final Mode mode, int time_sec){
-        // Check parameters:
-        if (time_sec <= 0)
-            throw new IllegalArgumentException("Time can't be <= 0");
-        // Schedule the timer:
-        mode_timer.schedule(new ModeChangeTask(mode), time_sec * 1000);
-    }
-
     @Override
     public void stateChanged(States state){
-        // Reset the timers for the mode-changes:
-        mode_timer.cancel();
-        mode_timer = new Timer();
-        // Reset the frightening mode:
-        if (freighted_timer != null) freighted_timer.cancel();
+        // Reset the eating thing:
         isEatable = false;
         isEaten = false;
     }
@@ -666,35 +583,5 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Check if we hit:
         if (distance < (Pacman.HITBOX/2 + Ghost.HITBOX/2)) return true;
         else return false;
-    }
-
-    /**
-     * A custom {@code TimerTask}, which will change the current {@code Mode} of
-     *  this ghost instance.</p>
-     * It can be scheduled by using it with the a {@code Timer} or by using the
-     *  {@code scheduleModeChange()}-method. The latter should be preferred.
-     * @see Ghost#scheduleModeChange(org.ita23.pacman.figures.Ghost.Mode, int)
-     */
-    private class ModeChangeTask extends TimerTask {
-
-        protected final Mode mode;
-
-        /**
-         * Creates a new {@code TimerTask}, which will only change the
-         *  {@code current_mode}-field to the given {@code mode}-argument.
-         * @param mode the new mode.
-         */
-        public ModeChangeTask(Mode mode){
-            this.mode = mode;
-        }
-
-        @Override
-        public void run() {
-            // Force the direction-change:
-            nextDirection = currentDirection.opposite();
-            // Change the mode:
-            System.out.println("Mode change to " + mode);
-            current_mode = mode;
-        }
     }
 }
