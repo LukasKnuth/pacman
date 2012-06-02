@@ -55,6 +55,8 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
     private static final String PINKY = "pinky";
     /** The key for the orange ghost */
     private static final String CLYDE = "clyde";
+    /** The key for the blue ghost */
+    private static final String INKY = "inky";
     
     /**
      * Creates a new cage which holds the ghosts. 
@@ -83,6 +85,15 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         GameLoop.INSTANCE.addRenderEvent(pinky, 0);
         pinky.moveTo(new Point(ghost_start.getX()+8, ghost_start.getY()+Chunk.CHUNK_SIZE));
         ghosts.put(PINKY, pinky);
+        // Add Inky:
+        Ghost inky = new Inky(player, (Blinky)blinky);
+        GameLoop.INSTANCE.addMovementEvent(inky);
+        GameLoop.INSTANCE.addCollusionEvent(inky);
+        GameLoop.INSTANCE.addRenderEvent(inky, 0);
+        inky.moveTo(
+                new Point(ghost_start.getX()-Chunk.CHUNK_SIZE*2+8, ghost_start.getY() + Chunk.CHUNK_SIZE)
+        );
+        ghosts.put(INKY, inky);
         // Add Clyde:
         Ghost clyde = new Clyde(player);
         GameLoop.INSTANCE.addMovementEvent(clyde);
@@ -108,6 +119,10 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         ghosts.get(BLINKY).moveTo(new Point(ghost_start.getX(), ghost_start.getY() - (2 * Chunk.CHUNK_SIZE)));
         // Pinky:
         ghosts.get(PINKY).stop(new Point(ghost_start.getX()+8, ghost_start.getY() + Chunk.CHUNK_SIZE));
+        // Inky:
+        ghosts.get(INKY).stop(
+                new Point(ghost_start.getX()-Chunk.CHUNK_SIZE*2+8, ghost_start.getY() + Chunk.CHUNK_SIZE)
+        );
         // Clyde:
         ghosts.get(CLYDE).stop(
                 new Point(ghost_start.getX()+Chunk.CHUNK_SIZE*2+8, ghost_start.getY() + Chunk.CHUNK_SIZE)
@@ -120,6 +135,12 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
                 ghosts.get(PINKY).start(ghost_start);
             }
         }, 2*1000);
+        release_timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ghosts.get(INKY).start(ghost_start);
+            }
+        }, 3*1000);
         release_timer.schedule(new TimerTask() {
             @Override
             public void run() {
