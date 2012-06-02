@@ -183,11 +183,6 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         if (food == GameState.Food.BALL){
             if (global_mode != Mode.FRIGHTENED && global_mode != Mode.BLINKING){
                 last_mode = global_mode;
-                // Force the direction-change:
-                for (Ghost g : ghosts.values())
-                    g.forceDirectionChange();
-                // Pause all currently running timers:
-                pauseModeTimer();
             } else if (global_mode == Mode.FRIGHTENED || global_mode == Mode.BLINKING) {
                 freighted_timer.cancel();
             }
@@ -214,9 +209,14 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
                     unpauseModeTimer();
                 }
             }, 5 * 1000);
+            // Pause all currently running timers:
+            pauseModeTimer();
             // Set the current mode to frightened:
             for (Ghost g : ghosts.values())
                 g.setCurrentMode(Mode.FRIGHTENED);
+            // Force the direction-change:
+            for (Ghost g : ghosts.values())
+                g.forceDirectionChange();
         }
     }
 
