@@ -53,6 +53,8 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
     private static final String BLINKY = "blinky";
     /** The key for the pink ghost */
     private static final String PINKY = "pinky";
+    /** The key for the orange ghost */
+    private static final String CLYDE = "clyde";
     
     /**
      * Creates a new cage which holds the ghosts. 
@@ -81,6 +83,15 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         GameLoop.INSTANCE.addRenderEvent(pinky, 0);
         pinky.moveTo(new Point(ghost_start.getX()+8, ghost_start.getY()+Chunk.CHUNK_SIZE));
         ghosts.put(PINKY, pinky);
+        // Add Clyde:
+        Ghost clyde = new Clyde(player);
+        GameLoop.INSTANCE.addMovementEvent(clyde);
+        GameLoop.INSTANCE.addCollusionEvent(clyde);
+        GameLoop.INSTANCE.addRenderEvent(clyde, 0);
+        clyde.moveTo(
+                new Point(ghost_start.getX()+Chunk.CHUNK_SIZE*2+8, ghost_start.getY() + Chunk.CHUNK_SIZE)
+        );
+        ghosts.put(CLYDE, clyde);
         // Register self to game-state listener:
         GameState.INSTANCE.addStateListener(this);
         GameLoop.INSTANCE.addMovementEvent(this);
@@ -97,6 +108,10 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         ghosts.get(BLINKY).moveTo(new Point(ghost_start.getX(), ghost_start.getY() - (2 * Chunk.CHUNK_SIZE)));
         // Pinky:
         ghosts.get(PINKY).stop(new Point(ghost_start.getX()+8, ghost_start.getY() + Chunk.CHUNK_SIZE));
+        // Clyde:
+        ghosts.get(CLYDE).stop(
+                new Point(ghost_start.getX()+Chunk.CHUNK_SIZE*2+8, ghost_start.getY() + Chunk.CHUNK_SIZE)
+        );
         // Set the timer:
         release_timer = new Timer();
         release_timer.schedule(new TimerTask() {
@@ -105,6 +120,12 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
                 ghosts.get(PINKY).start(ghost_start);
             }
         }, 2*1000);
+        release_timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ghosts.get(CLYDE).start(ghost_start);
+            }
+        }, 5*1000);
         // TODO Also implement the point-counter!
         // Schedule the mode-changes:
         global_mode = Mode.SCATTER;
@@ -126,6 +147,9 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
     private void reset(){
         // Stop the timer:
         release_timer.cancel();
+        // Just stop the ghosts (original positions are used in start())
+        for (Ghost g : ghosts.values())
+            g.stop(ghost_start);
     }
 
     @Override
