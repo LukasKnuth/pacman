@@ -522,6 +522,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         isCaged = true;
         this.x = cage_pos.getX();
         this.y = cage_pos.getY();
+        pixel_moved_count = 0;
+        currentDirection = CollusionTest.NextDirection.UP;
     }
 
     /**
