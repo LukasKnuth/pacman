@@ -262,8 +262,10 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     @Override
     public void move() {
         if (isCaged()){
-            // TODO Move up and down in the cage
-            return;
+            if (this.y > (14*Chunk.CHUNK_SIZE + GameState.MAP_SPACER +2))
+                nextDirection = CollusionTest.NextDirection.UP;
+            else if (this.y < (13*Chunk.CHUNK_SIZE + GameState.MAP_SPACER +6))
+                nextDirection = CollusionTest.NextDirection.DOWN;
         }
         // Randomly generate a target for every new "step".
         if (current_mode == Mode.FRIGHTENED || current_mode == Mode.BLINKING){
@@ -493,6 +495,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         this.y = start.getY();
         // Set the mode:
         current_mode = Mode.SCATTER;
+        // Set the direction:
+        nextDirection = CollusionTest.NextDirection.UP;
+        pixel_moved_count = 0;
     }
 
     /**
