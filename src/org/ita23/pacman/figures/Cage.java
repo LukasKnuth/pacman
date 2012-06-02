@@ -79,7 +79,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         GameLoop.INSTANCE.addMovementEvent(pinky);
         GameLoop.INSTANCE.addCollusionEvent(pinky);
         GameLoop.INSTANCE.addRenderEvent(pinky, 0);
-        pinky.moveTo(new Point(ghost_start.getX(), ghost_start.getY()+Chunk.CHUNK_SIZE));
+        pinky.moveTo(new Point(ghost_start.getX()+8, ghost_start.getY()+Chunk.CHUNK_SIZE));
         ghosts.put(PINKY, pinky);
         // Register self to game-state listener:
         GameState.INSTANCE.addStateListener(this);
@@ -96,7 +96,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         ghosts.get(BLINKY).start(ghost_start);
         ghosts.get(BLINKY).moveTo(new Point(ghost_start.getX(), ghost_start.getY() - (2 * Chunk.CHUNK_SIZE)));
         // Pinky:
-        ghosts.get(PINKY).stop(new Point(ghost_start.getX(), ghost_start.getY() + Chunk.CHUNK_SIZE));
+        ghosts.get(PINKY).stop(new Point(ghost_start.getX()+8, ghost_start.getY() + Chunk.CHUNK_SIZE));
         // Set the timer:
         release_timer = new Timer();
         release_timer.schedule(new TimerTask() {
@@ -124,11 +124,6 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
      *  used when the round is over or pacman was "caught".
      */
     private void reset(){
-        // Blinky:
-        ghosts.get(BLINKY).stop(ghost_start);
-        ghosts.get(BLINKY).moveTo(new Point(ghost_start.getX(), ghost_start.getY() - (2 * Chunk.CHUNK_SIZE)));
-        // Pinky:
-        ghosts.get(PINKY).stop(new Point(ghost_start.getX(), ghost_start.getY() + Chunk.CHUNK_SIZE));
         // Stop the timer:
         release_timer.cancel();
     }
@@ -146,7 +141,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2-2, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2-2);
         // Draw the door:
         g.setColor(Color.WHITE);
-        g.fillRect(door.getX(), door.getY()-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2, 8);
+        g.fillRect(door.getX()+2, door.getY()-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2+2, 8);
         // Reset the stroke:
         g.setStroke(old);
     }
