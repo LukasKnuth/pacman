@@ -168,6 +168,18 @@ public enum GameState implements RenderEvent, StateListener {
     }
 
     /**
+     * This method should be used, if a ghost was eaten.
+     * @param combo a number between 0 and 4, indicating how many ghosts
+     *  where eaten, during this frightened-period.
+     */
+    public void addKill(int combo){
+        // Check validity:
+        if (combo < 1 || combo > 4) return;
+        // Add the points:
+        this.score += combo * 400;
+    }
+
+    /**
      * Adds the corresponding points to the current score, depending on
      *  the kind of food that was eaten.
      * @param consumed the kind of food pacman ate.

@@ -101,6 +101,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     /** The images to use for a returning, dead ghost - direction up */
     protected final Image dead_up;
 
+    /** Counts how many ghosts have been eaten during this FRIGHTENED-mode period */
+    protected static int kill_combo = 0;
+
     /**
      * This will create a ghost with the basic implementation, which
      *  includes tracking the current player.
@@ -160,6 +163,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             next_speed = Speed.FAST;
             isEatable = false;
             isEaten = true;
+            kill_combo++;
+            GameState.INSTANCE.addKill(kill_combo);
         } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
             GameState.INSTANCE.removeLive();
             // Reset the rest:
@@ -385,6 +390,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             // Slow down the ghost:
             next_speed = Speed.SLOW;
             isEatable = true;
+            kill_combo = 0;
         }
         // Set the new mode:
         this.current_mode = mode;
