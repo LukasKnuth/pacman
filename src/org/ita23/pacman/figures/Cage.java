@@ -221,6 +221,9 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
     @Override
     public void consumed(GameState.Food food){
         if (food == GameState.Food.BALL){
+            // Pause all currently running timers:
+            pauseModeTimer();
+            // Check if energizer was already eaten and therefore only extend period:
             if (global_mode != Mode.FRIGHTENED && global_mode != Mode.BLINKING){
                 last_mode = global_mode;
             } else if (global_mode == Mode.FRIGHTENED || global_mode == Mode.BLINKING) {
@@ -249,8 +252,6 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
                     unpauseModeTimer();
                 }
             }, 5 * 1000);
-            // Pause all currently running timers:
-            pauseModeTimer();
             // Set the current mode to frightened:
             for (Ghost g : ghosts.values())
                 g.setCurrentMode(Mode.FRIGHTENED);
