@@ -29,7 +29,7 @@ import java.util.Timer;
 abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, StateListener {
 
     /** The diameter of a ghost's body, e.g. his hitbox */
-    private static final int HITBOX = 28;
+    private static final int HITBOX = 22;
     
     /** The pacman-instance which is currently moving on the game-field. */
     private final Pacman player;
@@ -612,8 +612,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     // TODO Maybe make a blog-post about this...
     private boolean gotPlayer(int x, int y){
         // Calculate the third piece of the triangle:
-        int a_site = (player.getX()+Pacman.HITBOX) - (x+Ghost.HITBOX);
-        int b_site = (player.getY()+Pacman.HITBOX) - (y+Ghost.HITBOX);
+        int a_site = (player.getX()+Pacman.HITBOX/2) - (x+Ghost.HITBOX/2);
+        int b_site = (player.getY()+Pacman.HITBOX/2) - (y+Ghost.HITBOX/2);
         // Calculate the distance between player and ghost:
         double distance = Math.sqrt((a_site*a_site)+(b_site*b_site));
         // Check if we hit:
