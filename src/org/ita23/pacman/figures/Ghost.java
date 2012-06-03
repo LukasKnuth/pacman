@@ -30,10 +30,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
     /** The diameter of a ghost's body, e.g. his hitbox */
     private static final int HITBOX = 28;
-    /** The color to use, when added points should be shown on the game-field */
-    public static final Color BONUS_POINTS_COLOR = new Color(54, 149, 131);
-    /** The font to use, when added points should be shown on the game-field */
-    public static final Font BONUS_POINTS_FONT = new Font("Arial", Font.BOLD, 12);
     
     /** The pacman-instance which is currently moving on the game-field. */
     private final Pacman player;
@@ -352,8 +348,8 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         } else if (isEaten()){
             // if we've just been eaten, show the points!
             if (kill_bonus != 0){
-                g.setColor(BONUS_POINTS_COLOR);
-                g.setFont(BONUS_POINTS_FONT);
+                g.setColor(GameState.BONUS_POINTS_COLOR);
+                g.setFont(GameState.BONUS_POINTS_FONT);
                 g.drawString(kill_bonus +"", kill_location.getX(), kill_location.getY()+8);
             }
             // Show the ghosts eyes:

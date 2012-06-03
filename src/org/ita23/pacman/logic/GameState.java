@@ -7,6 +7,7 @@ import org.ita23.pacman.game.RenderEvent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -40,6 +41,10 @@ public enum GameState implements RenderEvent, StateListener {
     private static final Font SCORE_FONT = new Font("Arial", Font.BOLD, 18);
     /** The font used to show if the game is paused or not */
     private static final Font PAUSE_FONT = new Font("Arial", Font.BOLD | Font.ITALIC, 18);
+    /** The color to use, when added points should be shown on the game-field */
+    public static final Color BONUS_POINTS_COLOR = new Color(54, 149, 131);
+    /** The font to use, when added points should be shown on the game-field */
+    public static final Font BONUS_POINTS_FONT = new Font("Arial", Font.BOLD, 12);
 
     /** The count of "eatable" items on the game-field */
     private static final int EATABLE_ITEMS = 253;
@@ -50,6 +55,8 @@ public enum GameState implements RenderEvent, StateListener {
     private int score;
     /** The current count of lives <u>left</u> for Pacman */
     private int lives;
+    /** The points the last eaten bonus was worth. Will be reset after being shown on-screen! */
+    private int last_bonus_points;
     
     /** All possible kinds of food, pacman can consume */
     public enum Food{
@@ -130,6 +137,12 @@ public enum GameState implements RenderEvent, StateListener {
             g.setFont(PAUSE_FONT);
             g.drawString("GAME OVER...", 165, 332);
         }
+        // Render the last bonus-points (if present):
+        if (last_bonus_points != 0){
+            g.setColor(BONUS_POINTS_COLOR);
+            g.setFont(BONUS_POINTS_FONT);
+            g.drawString(last_bonus_points+"", 215, 328);
+        }
     }
 
     /**
@@ -197,6 +210,16 @@ public enum GameState implements RenderEvent, StateListener {
         // Notify the listeners:
         for (FoodListener listener : foodListeners)
             listener.consumed(consumed);
+        // If bonus was eaten, show the points on the game-field:
+        if (consumed == Food.BONUS){
+            last_bonus_points = consumed.points;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    last_bonus_points = 0;
+                }
+            }, 800);
+        }
     }
 
     /**
