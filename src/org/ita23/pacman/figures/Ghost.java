@@ -14,9 +14,9 @@ import org.ita23.pacman.logic.StateListener;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
+import java.util.Timer;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -30,6 +30,10 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
 
     /** The diameter of a ghost's body, e.g. his hitbox */
     private static final int HITBOX = 28;
+    /** The color to use, when added points should be shown on the game-field */
+    public static final Color BONUS_POINTS_COLOR = new Color(54, 149, 131);
+    /** The font to use, when added points should be shown on the game-field */
+    public static final Font BONUS_POINTS_FONT = new Font("Arial", Font.BOLD, 12);
     
     /** The pacman-instance which is currently moving on the game-field. */
     private final Pacman player;
@@ -154,6 +158,10 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      */
     protected abstract Point getTargetChunk(Pacman player);
 
+    /** The points the player got for eating this ghost */
+    private int kill_bonus;
+    /** The point where this ghost was killed */
+    private Point kill_location = new Point(0, 0);
     @Override
     public void detectCollusion(CollusionTest tester) {
         if (pixel_moved_count % ChunkedMap.Chunk.CHUNK_SIZE != 0 && !isCaged()) return;
@@ -165,6 +173,17 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             isEaten = true;
             kill_combo++;
             GameState.INSTANCE.addKill(kill_combo);
+            // TODO Add the "eaten"-sound!
+            // Show the points for a short time, then diaper them:
+            kill_bonus = kill_combo*400;
+            kill_location.setX(this.x);
+            kill_location.setY(this.y);
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    kill_bonus = 0;
+                }
+            }, 800);
         } else if (current_mode != Mode.RETURNING && gotPlayer(x, y)){ // Check if we got pacman:
             GameState.INSTANCE.removeLive();
             // Reset the rest:
@@ -331,6 +350,13 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             } // Otherwise just draw the frightened image.
             else g.drawImage(frightened[image_index], this.x, this.y, null);
         } else if (isEaten()){
+            // if we've just been eaten, show the points!
+            if (kill_bonus != 0){
+                g.setColor(BONUS_POINTS_COLOR);
+                g.setFont(BONUS_POINTS_FONT);
+                g.drawString(kill_bonus +"", kill_location.getX(), kill_location.getY()+8);
+            }
+            // Show the ghosts eyes:
             switch (getNextDirection()){
                 case UP:
                     g.drawImage(dead_up, this.x, this.y, null);
