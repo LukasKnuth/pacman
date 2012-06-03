@@ -413,10 +413,11 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
             next_speed = Speed.SLOW;
             isEatable = true;
             kill_combo = 0;
+            // Store the last mode:
+            next_mode = current_mode;
         }
         // Set the new mode:
         this.current_mode = mode;
-        this.next_mode = mode;
     }
 
     /**
