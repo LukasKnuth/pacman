@@ -36,3 +36,13 @@ application {
     mainClass = 'org.ita23.pacman.Main'
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+
+    // The JAR will contain the resources (graphics/sounds) twice, once from the
+    // "output.classesDirs" output and once from the "resources.srcDirs".
+    // We drop all that aren't in the top-level "org" folder because they aren't used.
+    include { it.path.startsWith("org") }
+}
