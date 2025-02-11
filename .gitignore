@@ -2,6 +2,10 @@
 .idea/
 Pacman.iml
 
+# JDT Language Server stuff
+.settings/
+bin/
+
 # Ignore Gradle project-specific cache directory
 .gradle
 
