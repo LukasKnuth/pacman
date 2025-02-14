@@ -1,0 +1,33 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':game')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'org.ita23.pacman.DesktopMain'
+}
+
+jar {
+    from {
+        // Copies the .class files and resources from the `:game` project into the JAR as well.
+        // Taken from https://discuss.gradle.org/t/how-to-include-dependencies-in-jar/19571/18
+        configurations.runtimeClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+}

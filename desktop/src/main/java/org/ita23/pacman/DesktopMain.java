@@ -19,7 +19,7 @@ import java.util.TimerTask;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Main {
+public class DesktopMain {
 
     /** The window everything takes place on. */
     private JFrame f;
@@ -29,7 +29,7 @@ public class Main {
     /**
      * Construct the main-aspects of the game.
      */
-    private Main(){
+    private DesktopMain(){
         first_launch = true;
         populateWindow();
         addFigures();
@@ -127,6 +127,6 @@ public class Main {
      * Entry point, kickstart the whole game.
      */
     public static void main(String[] args){
-        new Main();
+        new DesktopMain();
     }
 }
