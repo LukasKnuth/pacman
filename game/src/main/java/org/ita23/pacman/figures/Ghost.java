@@ -1,19 +1,17 @@
 package org.ita23.pacman.figures;
 
-import org.ita23.pacman.Main;
 import org.ita23.pacman.game.CollusionEvent;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.game.ResourceLoader;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 import org.ita23.pacman.logic.StateListener;
 
-import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
@@ -468,10 +466,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      *  found.
      */
     protected Image loadImageResource(String path){
-        URL url = Main.class.getResource("/resources/graphics/"+path);
-        if (url != null) return new ImageIcon(url).getImage();
-        else throw new IllegalArgumentException("The resource in the package '" +
-                "/res/graphics/"+path+"' could not be found.");
+        return ResourceLoader.loadGraphic("/graphics/"+path);
     }
 
     /**

@@ -1,9 +1,6 @@
 package org.ita23.pacman.game;
 
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import java.net.URL;
 
 /**
  * Represents a single sound which should be played when a defined event occurs.
@@ -23,21 +20,14 @@ public class Sound {
      * Create a new {@code Sound}, which can the be added to the {@code SoundManger}
      *  for playback.
      * @param event the name of the event, used to trigger this sound.
-     * @param sound_res the audio-resource of this sound.
+     * @param sound_resource_path the audio-resource of this sound.
      * @throws IllegalArgumentException if the give URL couldn't be used to get
      *  a working audio input.
      * @see org.ita23.pacman.game.SoundManager#addSound(Sound)
      */
-    public Sound(String event, URL sound_res){
+    public Sound(String event, String sound_resource_path){
         this.event = event;
-        try {
-            audio = AudioSystem.getClip();
-            audio.open(AudioSystem.getAudioInputStream(sound_res));
-        } catch (LineUnavailableException e){
-            System.err.println("Something is blocking the audio line.");
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
+        this.audio = ResourceLoader.loadSound(sound_resource_path);
     }
 
     /**
