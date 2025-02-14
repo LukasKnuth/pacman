@@ -1,10 +1,3 @@
-[language-server.jdtls]
-command = "jdtls"
-# The LSP trips over the resources _within_ the source folder. This results is that _all_ imports
-# are not found (even standard JDK classes). We tell it to ignore the files, which resolves the
-# problem. From: https://github.com/eclipse-jdtls/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
-config = {"settings" = [{"java" = {"import" = { "exclusions" = ["**/src/org/ita23/pacman/res"]}}}]}
-
 [[language]]
 name = "java"
 indent = { tab-width = 2, unit = "  " }
