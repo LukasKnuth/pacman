@@ -1,4 +1,3 @@
-plugins {
-}
+include('game')
 
 rootProject.name = 'pacman'

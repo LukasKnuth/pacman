@@ -53,15 +53,15 @@ public class Main {
      */
     private void addSounds(){
         SoundManager.INSTANCE.addSound(new Sound("intro",
-                Main.class.getResource("res/sound/intro.wav")));
+                Main.class.getResource("/resources/sound/intro.wav")));
         SoundManager.INSTANCE.addSound(new Sound("dieing",
-                Main.class.getResource("res/sound/dieing.wav")));
+                Main.class.getResource("/resources/sound/dieing.wav")));
         SoundManager.INSTANCE.addSound(new Sound("round_over",
-                Main.class.getResource("res/sound/round_over.wav")));
+                Main.class.getResource("/resources/sound/round_over.wav")));
         SoundManager.INSTANCE.addSound(new Sound("eat",
-                Main.class.getResource("res/sound/eat.wav")));
+                Main.class.getResource("/resources/sound/eat.wav")));
         SoundManager.INSTANCE.addSound(new Sound("eat_fruit",
-                Main.class.getResource("res/sound/eat_fruit.wav")));
+                Main.class.getResource("/resources/sound/eat_fruit.wav")));
     }
 
     /**

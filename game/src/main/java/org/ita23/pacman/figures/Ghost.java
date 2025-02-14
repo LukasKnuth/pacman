@@ -468,7 +468,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      *  found.
      */
     protected Image loadImageResource(String path){
-        URL url = Main.class.getResource("res/graphics/"+path);
+        URL url = Main.class.getResource("/resources/graphics/"+path);
         if (url != null) return new ImageIcon(url).getImage();
         else throw new IllegalArgumentException("The resource in the package '" +
                 "/res/graphics/"+path+"' could not be found.");

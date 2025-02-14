@@ -61,8 +61,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
         // Create the maze:
         setupMaze();
         // Load the maze-image:
-        background = new ImageIcon(Main.class.getResource("res/graphics/maze.png")).getImage();
-        cherry = new ImageIcon(Main.class.getResource("res/graphics/cherry.png")).getImage();
+        background = new ImageIcon(Main.class.getResource("/resources/graphics/maze.png")).getImage();
+        cherry = new ImageIcon(Main.class.getResource("/resources/graphics/cherry.png")).getImage();
         // Set the point for the start:
         start_point = new Point(13*Chunk.CHUNK_SIZE, 23*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
