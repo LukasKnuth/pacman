@@ -3,11 +3,11 @@ package org.ita23.pacman;
 import org.ita23.pacman.figures.Cage;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
-import org.ita23.pacman.game.Sound;
 import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.game.InputEvent.JoystickState;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.GameState;
+import org.ita23.pacman.res.SoundResource;
 
 import javax.swing.*;
 
@@ -52,12 +52,11 @@ public class DesktopMain {
         populateWindow();
         // TODO these below should really be in the `game` project.
         addFigures();
-        addSounds();
         // Start the game:
         startLoop();
         // Pause to play the intro:
         GameLoop.INSTANCE.pause();
-        SoundManager.INSTANCE.play("intro");
+        SoundManager.INSTANCE.play(SoundResource.INTRO);
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -94,6 +93,7 @@ public class DesktopMain {
     };
 
     private void startLoop() {
+        SoundManager.INSTANCE.setGramophone(new SwingGramophone());
         GameLoop.INSTANCE.lock();
         game_loop_executor = Executors.newSingleThreadScheduledExecutor();
         game_loop_handler = game_loop_executor.scheduleAtFixedRate(
@@ -104,22 +104,6 @@ public class DesktopMain {
     public void stopLoop(){
         game_loop_handler.cancel(true);
         game_loop_executor.shutdown();
-    }
-
-    /**
-     * Adds the games sounds to the {@code SoundManager}.
-     */
-    private void addSounds(){
-        SoundManager.INSTANCE.addSound(new Sound("intro",
-                "/sound/intro.wav"));
-        SoundManager.INSTANCE.addSound(new Sound("dieing",
-                "/sound/dieing.wav"));
-        SoundManager.INSTANCE.addSound(new Sound("round_over",
-                "/sound/round_over.wav"));
-        SoundManager.INSTANCE.addSound(new Sound("eat",
-                "/sound/eat.wav"));
-        SoundManager.INSTANCE.addSound(new Sound("eat_fruit",
-                "/sound/eat_fruit.wav"));
     }
 
     /**

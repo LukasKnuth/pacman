@@ -5,12 +5,10 @@ import org.ita23.pacman.game.Canvas;
 import org.ita23.pacman.game.Color;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.res.SoundResource;
 import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 import org.ita23.pacman.logic.StateListener;
-
-import javax.sound.sampled.Clip;
-import java.awt.*;
 
 /**
  * The main-character of this game.
@@ -219,22 +217,22 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
         }
         // Check if we ate something:
         if (tester.checkCollusion(this.x, this.y, Chunk.POINT)){
-            SoundManager.INSTANCE.loop("eat", Clip.LOOP_CONTINUOUSLY);
+            SoundManager.INSTANCE.loop(SoundResource.EAT);
             GameState.INSTANCE.addScore(GameState.Food.POINT);
         } else if (tester.checkCollusion(this.x, this.y, Chunk.BALL)){
             GameState.INSTANCE.addScore(GameState.Food.BALL);
         } else if (tester.checkCollusion(this.x, this.y, Chunk.FRUIT)){
             GameState.INSTANCE.addScore(GameState.Food.BONUS);
-            SoundManager.INSTANCE.play("eat_fruit");
+            SoundManager.INSTANCE.play(SoundResource.EAT_FRUIT);
         } else {
-            SoundManager.INSTANCE.stop("eat");
+            SoundManager.INSTANCE.stop(SoundResource.EAT);
         }
     }
 
     @Override
     public void stateChanged(States state) {
         // Stop the eating sound!
-        SoundManager.INSTANCE.stop("eat");
+        SoundManager.INSTANCE.stop(SoundResource.EAT);
         // Handle the specific cases:
         if (state == States.LIVE_LOST){
             // Kick off the death-animation:

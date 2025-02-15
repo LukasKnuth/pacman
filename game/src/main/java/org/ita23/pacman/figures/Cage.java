@@ -9,6 +9,7 @@ import org.ita23.pacman.game.RenderEvent;
 import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.logic.*;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
+import org.ita23.pacman.res.SoundResource;
 import org.ita23.pacman.logic.Point;
 
 import java.util.HashMap;
@@ -196,7 +197,7 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
         if (state == States.LIVE_LOST){
             // Pause and play melody:
             GameLoop.INSTANCE.freeze();
-            SoundManager.INSTANCE.play("dieing");
+            SoundManager.INSTANCE.play(SoundResource.DIEING);
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {

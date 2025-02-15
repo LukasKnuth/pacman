@@ -1,6 +1,7 @@
 package org.ita23.pacman.logic;
 
 import org.ita23.pacman.res.ImageResource;
+import org.ita23.pacman.res.SoundResource;
 import org.ita23.pacman.game.*;
 import org.ita23.pacman.game.Canvas;
 import org.ita23.pacman.game.Color;
@@ -334,7 +335,7 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
         if (state == States.ROUND_WON){
             // Pause and play melody:
             GameLoop.INSTANCE.freeze();
-            SoundManager.INSTANCE.play("round_over");
+            SoundManager.INSTANCE.play(SoundResource.ROUND_OVER);
             new java.util.Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
