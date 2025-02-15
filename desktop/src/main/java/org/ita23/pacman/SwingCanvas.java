@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Stroke;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.ita23.pacman.game.Canvas;
 import org.ita23.pacman.game.Color;
@@ -18,33 +20,52 @@ import org.ita23.pacman.res.ImageResource;
 public class SwingCanvas implements Canvas {
 
   private final Graphics graphics;
+	private final Map<ImageResource, Image> resourceCache;
+	private final Map<Color, java.awt.Color> colorCache;
+	private final Map<Font, java.awt.Font> fontCache;
 
   public SwingCanvas(Graphics graphics) {
     this.graphics = graphics;
+    this.resourceCache = new HashMap<>();
+    this.colorCache = new HashMap<>();
+    this.fontCache = new HashMap<>();
+    preloadCache();
+  }
+
+  private void preloadCache() {
+  	for (ImageResource resource : ImageResource.values()) {
+			Image image = ClasspathResourceLoader.loadImage(resource);
+  		this.resourceCache.put(resource, image);
+  	}
   }
 
 	@Override
 	public void setColor(Color color) {
-	  this.graphics.setColor(new java.awt.Color(color.r, color.g, color.b));
+		if (!this.colorCache.containsKey(color)) {
+			this.colorCache.put(color, new java.awt.Color(color.r, color.g, color.b));
+		}
+		this.graphics.setColor(this.colorCache.get(color));
 	}
 
 	@Override
 	public void setFont(Font font) {
-	  int awtStyle = java.awt.Font.PLAIN;
+		if (!this.fontCache.containsKey(font)) {
+		  int awtStyle = java.awt.Font.PLAIN;
 
-	  switch (font.style) {
-	    case BOLD:
-	      awtStyle = java.awt.Font.BOLD;
-	      break;
-	    case ITALIC:
-	      awtStyle = java.awt.Font.ITALIC;
-	      break;
-	    case BOLD_ITALIC:
-	      awtStyle = java.awt.Font.BOLD | java.awt.Font.ITALIC;
-	      break;
-	  }
-
-	  this.graphics.setFont(new java.awt.Font(font.name, awtStyle, font.size));
+		  switch (font.style) {
+		    case BOLD:
+		      awtStyle = java.awt.Font.BOLD;
+		      break;
+		    case ITALIC:
+		      awtStyle = java.awt.Font.ITALIC;
+		      break;
+		    case BOLD_ITALIC:
+		      awtStyle = java.awt.Font.BOLD | java.awt.Font.ITALIC;
+		      break;
+		  }
+			this.fontCache.put(font, new java.awt.Font(font.name, awtStyle, font.size));
+		}
+	  this.graphics.setFont(this.fontCache.get(font));
 	}
 
 	@Override
@@ -52,17 +73,14 @@ public class SwingCanvas implements Canvas {
 	  this.graphics.drawString(text, x, y);
 	}
 
-	// TODO this loads the image EVERY TIME its drawn. Cache it!
 	@Override
 	public void drawImage(ImageResource resource, int x, int y) {
-		Image image = ClasspathResourceLoader.loadImage(resource);
-		this.graphics.drawImage(image, x, y, null);
+		this.graphics.drawImage(this.resourceCache.get(resource), x, y, null);
 	}
 
 	@Override
 	public void drawImage(ImageResource resource, int x, int y, int width, int height) {
-		Image image = ClasspathResourceLoader.loadImage(resource);
-		this.graphics.drawImage(image, x, y, width, height, null);
+		this.graphics.drawImage(this.resourceCache.get(resource), x, y, width, height, null);
 	}
 
 	@Override
