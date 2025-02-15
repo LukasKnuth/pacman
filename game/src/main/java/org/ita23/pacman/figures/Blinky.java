@@ -1,10 +1,9 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.res.ImageResource;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
-
-import java.awt.*;
 
 /**
  * Blinky is the red ghost AI, which will start "out of the box" at the beginning
@@ -25,13 +24,13 @@ class Blinky extends Ghost{
     private Point target;
 
     /** The images for this ghost, looking to the left */
-    private final Image[] ghost_left;
+    private final ImageResource[] ghost_left;
     /** The images for this ghost, looking to the right */
-    private final Image[] ghost_right;
+    private final ImageResource[] ghost_right;
     /** The images for this ghost, looking up */
-    private final Image[] ghost_up;
+    private final ImageResource[] ghost_up;
     /** The images for this ghost, looking down */
-    private final Image[] ghost_down;
+    private final ImageResource[] ghost_down;
 
     /**
      * Create a new instance of the red ghost.
@@ -40,21 +39,21 @@ class Blinky extends Ghost{
         super(player);
         target = new Point(0, 0);
         // Load the images:
-        ghost_down = new Image[]{
-            loadImageResource("blinky/blinky_down_1.png"),
-            loadImageResource("blinky/blinky_down_2.png")
+        ghost_down = new ImageResource[]{
+            ImageResource.BLINKY_DOWN_1,
+            ImageResource.BLINKY_DOWN_2
         };
-        ghost_left = new Image[]{
-            loadImageResource("blinky/blinky_left_1.png"),
-            loadImageResource("blinky/blinky_left_2.png")
+        ghost_left = new ImageResource[]{
+            ImageResource.BLINKY_LEFT_1,
+            ImageResource.BLINKY_LEFT_2
         };
-        ghost_up = new Image[]{
-            loadImageResource("blinky/blinky_up_1.png"),
-            loadImageResource("blinky/blinky_up_2.png")
+        ghost_up = new ImageResource[]{
+            ImageResource.BLINKY_UP_1,
+            ImageResource.BLINKY_UP_2
         };
-        ghost_right = new Image[]{
-            loadImageResource("blinky/blinky_right_1.png"),
-            loadImageResource("blinky/blinky_right_2.png")
+        ghost_right = new ImageResource[]{
+            ImageResource.BLINKY_RIGHT_1,
+            ImageResource.BLINKY_RIGHT_2
         };
     }
 
@@ -66,7 +65,7 @@ class Blinky extends Ghost{
     }
 
     @Override
-    protected Image getGhostImage(CollusionTest.NextDirection direction, int image_index) {
+    protected ImageResource getGhostImage(CollusionTest.NextDirection direction, int image_index) {
         switch (direction){
             case UP:
                 return ghost_up[image_index];

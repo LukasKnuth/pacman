@@ -1,6 +1,5 @@
 package org.ita23.pacman.game;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,7 +71,7 @@ public enum GameLoop {
      * Simulates and renders the next frame of the game. Call this method repeatedly to
      * progress the game forward.
      */
-    public void step(InputEvent.JoystickState state, Graphics g) {
+    public void step(InputEvent.JoystickState state, Canvas c) {
         if (!isLocked()) {
             throw new IllegalStateException("Must call 'lock()' on GameLoop before calling 'step()'!");
         }
@@ -88,7 +87,7 @@ public enum GameLoop {
             }
         }
         for (RenderContainer container : renderEvents) {
-            container.getEvent().render(g);
+            container.getEvent().render(c);
         }
     }
 

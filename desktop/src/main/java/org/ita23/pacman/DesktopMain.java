@@ -50,6 +50,7 @@ public class DesktopMain {
     private DesktopMain(){
         first_launch = true;
         populateWindow();
+        // TODO these below should really be in the `game` project.
         addFigures();
         addSounds();
         // Start the game:
@@ -79,7 +80,7 @@ public class DesktopMain {
                 // Clip the buffer at the top because otherwise we're drawing _under_ the window decoration
                 Graphics clipped =  off_screen_buffer.create(0, 20, f.getWidth(), f.getHeight() - 20);
                 // Run the loop and render to the off-screen buffer
-                GameLoop.INSTANCE.step(last_input_state, clipped);
+                GameLoop.INSTANCE.step(last_input_state, new SwingCanvas(clipped));
                 // Finalize the buffers for GC - can not draw to it anymore
                 clipped.dispose();
                 off_screen_buffer.dispose();

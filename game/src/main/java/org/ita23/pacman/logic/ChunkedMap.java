@@ -1,8 +1,10 @@
 package org.ita23.pacman.logic;
 
+import org.ita23.pacman.res.ImageResource;
 import org.ita23.pacman.game.*;
+import org.ita23.pacman.game.Canvas;
+import org.ita23.pacman.game.Color;
 
-import java.awt.*;
 import java.util.TimerTask;
 
 /**
@@ -36,9 +38,9 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
     private final Point cage_point;
     
     /** The background-image for the maze */
-    private final Image background;
+    private final ImageResource background;
     /** The image of a chery, used as a bonus fruit */
-    private final Image cherry;
+    private final ImageResource cherry;
 
     private final static int ZINDEX=2;
 
@@ -59,8 +61,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
         // Create the maze:
         setupMaze();
         // Load the maze-image:
-        background = ResourceLoader.loadGraphic("/graphics/maze.png");
-        cherry = ResourceLoader.loadGraphic("/graphics/cherry.png");
+        background = ImageResource.MAZE;
+        cherry = ImageResource.CHERRY;
         // Set the point for the start:
         start_point = new Point(13*Chunk.CHUNK_SIZE, 23*Chunk.CHUNK_SIZE+GameState.MAP_SPACER);
         // Add the cage for the ghosts:
@@ -359,11 +361,11 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
     }
 
     @Override
-    public void render(Graphics g) {
-        g.setColor(BACKGROUND_COLOR);
-        g.fillRect(0, 0, w+16, h);
-        g.drawImage(background, 7, GameState.MAP_SPACER+4,
-                field.length*Chunk.CHUNK_SIZE-4, field[0].length*Chunk.CHUNK_SIZE+2, null);
+    public void render(Canvas c) {
+        c.setColor(BACKGROUND_COLOR);
+        c.fillRect(0, 0, w+16, h);
+        c.drawImage(background, 7, GameState.MAP_SPACER+4,
+                field.length*Chunk.CHUNK_SIZE-4, field[0].length*Chunk.CHUNK_SIZE+2);
         int object_spacer = 10; // Pixels to be placed between the objects.
         // Draw the chunks:
         for (int x = 0; x < field.length; x++)
@@ -371,8 +373,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
                 // Draw the objects
                 switch (getChunk(x, y)){
                     case POINT:
-                        g.setColor(PILLS_COLOR);
-                        g.fillRect(
+                        c.setColor(PILLS_COLOR);
+                        c.fillRect(
                                 x*Chunk.CHUNK_SIZE+object_spacer,
                                 y*Chunk.CHUNK_SIZE+object_spacer
                                     + GameState.MAP_SPACER,
@@ -380,8 +382,8 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
                         );
                         break;
                     case BALL:
-                        g.setColor(PILLS_COLOR);
-                        g.fillOval(
+                        c.setColor(PILLS_COLOR);
+                        c.fillOval(
                                 x*Chunk.CHUNK_SIZE+object_spacer-4,
                                 y*Chunk.CHUNK_SIZE+object_spacer-4
                                         + GameState.MAP_SPACER,
@@ -389,11 +391,11 @@ public class ChunkedMap implements Map, RenderEvent, StateListener, FoodListener
                         );
                         break;
                     case FRUIT:
-                        g.drawImage(cherry,
+                        c.drawImage(cherry,
                                 x*Chunk.CHUNK_SIZE+object_spacer-4,
                                 y*Chunk.CHUNK_SIZE+object_spacer-4
-                                    + GameState.MAP_SPACER,
-                        null);
+                                    + GameState.MAP_SPACER
+                        );
                 }
             }
     }

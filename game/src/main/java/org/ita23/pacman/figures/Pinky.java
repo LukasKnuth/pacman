@@ -1,10 +1,9 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.res.ImageResource;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
-
-import java.awt.*;
 
 /**
  * Pinky is the pink ghost AI, which will start in the middle of the cage.</p>
@@ -24,13 +23,13 @@ public class Pinky extends Ghost {
     private Point target;
 
     /** The images for this ghost, looking to the left */
-    private final Image[] ghost_left;
+    private final ImageResource[] ghost_left;
     /** The images for this ghost, looking to the right */
-    private final Image[] ghost_right;
+    private final ImageResource[] ghost_right;
     /** The images for this ghost, looking up */
-    private final Image[] ghost_up;
+    private final ImageResource[] ghost_up;
     /** The images for this ghost, looking down */
-    private final Image[] ghost_down;
+    private final ImageResource[] ghost_down;
 
     /**
      * Create a new instance of the pink ghost.
@@ -39,21 +38,21 @@ public class Pinky extends Ghost {
         super(player);
         target = new Point(0, 0);
         // Load the images:
-        ghost_down = new Image[]{
-                loadImageResource("pinky/pinky_down_1.png"),
-                loadImageResource("pinky/pinky_down_2.png")
+        ghost_down = new ImageResource[]{
+                ImageResource.PINKY_DOWN_1,
+                ImageResource.PINKY_DOWN_2
         };
-        ghost_left = new Image[]{
-                loadImageResource("pinky/pinky_left_1.png"),
-                loadImageResource("pinky/pinky_left_2.png")
+        ghost_left = new ImageResource[]{
+                ImageResource.PINKY_LEFT_1,
+                ImageResource.PINKY_LEFT_2
         };
-        ghost_up = new Image[]{
-                loadImageResource("pinky/pinky_up_1.png"),
-                loadImageResource("pinky/pinky_up_2.png")
+        ghost_up = new ImageResource[]{
+                ImageResource.PINKY_UP_1,
+                ImageResource.PINKY_UP_2
         };
-        ghost_right = new Image[]{
-                loadImageResource("pinky/pinky_right_1.png"),
-                loadImageResource("pinky/pinky_right_2.png")
+        ghost_right = new ImageResource[]{
+                ImageResource.PINKY_RIGHT_1,
+                ImageResource.PINKY_RIGHT_2
         };
     }
 
@@ -82,7 +81,7 @@ public class Pinky extends Ghost {
     }
 
     @Override
-    protected Image getGhostImage(CollusionTest.NextDirection direction, int image_index) {
+    protected ImageResource getGhostImage(CollusionTest.NextDirection direction, int image_index) {
         switch (direction){
             case UP:
                 return ghost_up[image_index];

@@ -1,6 +1,8 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.figures.Ghost.Mode;
+import org.ita23.pacman.game.Canvas;
+import org.ita23.pacman.game.Color;
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
@@ -9,7 +11,6 @@ import org.ita23.pacman.logic.*;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -174,21 +175,20 @@ public class Cage implements RenderEvent, StateListener, MovementEvent, FoodList
     }
 
     @Override
-    public void render(Graphics grap) {
-        Graphics2D g = (Graphics2D)grap;
-        Stroke old = g.getStroke();
+    public void render(Canvas c) {
+        float old = c.getStrokeWidth();
         // Draw the boundary's:
-        g.setStroke(new BasicStroke(2.0f));
-        g.setColor(ChunkedMap.BLOCK_COLOR);
-        g.drawRect(p.getX()+EXTRA_SPACE, p.getY()+EXTRA_SPACE,
+        c.setStrokeWidth(2.0f);
+        c.setColor(ChunkedMap.BLOCK_COLOR);
+        c.drawRect(p.getX()+EXTRA_SPACE, p.getY()+EXTRA_SPACE,
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2+6, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2+6);
-        g.drawRect(p.getX()+EXTRA_SPACE+4, p.getY()+EXTRA_SPACE+4,
+        c.drawRect(p.getX()+EXTRA_SPACE+4, p.getY()+EXTRA_SPACE+4,
                 (Chunk.CHUNK_SIZE*8)-EXTRA_SPACE*2-2, (Chunk.CHUNK_SIZE*5)-EXTRA_SPACE*2-2);
         // Draw the door:
-        g.setColor(Color.WHITE);
-        g.fillRect(door.getX()+2, door.getY()-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2+2, 8);
+        c.setColor(Color.WHITE);
+        c.fillRect(door.getX()+2, door.getY()-2+EXTRA_SPACE, Chunk.CHUNK_SIZE*2+2, 8);
         // Reset the stroke:
-        g.setStroke(old);
+        c.setStrokeWidth(old);
     }
 
     @Override

@@ -3,8 +3,10 @@ package org.ita23.pacman.logic;
 import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.RenderEvent;
+import org.ita23.pacman.game.Canvas;
+import org.ita23.pacman.game.Color;
+import org.ita23.pacman.game.Font;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -38,13 +40,13 @@ public enum GameState implements RenderEvent, StateListener {
     /** The amount of pixels needed to draw the state */
     public static final int MAP_SPACER = 40;
     /** The font used to write out the score */
-    private static final Font SCORE_FONT = new Font("Arial", Font.BOLD, 18);
+    private static final Font SCORE_FONT = new Font("Arial", Font.Style.BOLD, 18);
     /** The font used to show if the game is paused or not */
-    private static final Font PAUSE_FONT = new Font("Arial", Font.BOLD | Font.ITALIC, 18);
+    private static final Font PAUSE_FONT = new Font("Arial", Font.Style.BOLD_ITALIC, 18);
     /** The color to use, when added points should be shown on the game-field */
     public static final Color BONUS_POINTS_COLOR = new Color(54, 149, 131);
     /** The font to use, when added points should be shown on the game-field */
-    public static final Font BONUS_POINTS_FONT = new Font("Arial", Font.BOLD, 12);
+    public static final Font BONUS_POINTS_FONT = new Font("Arial", Font.Style.BOLD, 12);
 
     /** The count of "eatable" items on the game-field */
     private static final int EATABLE_ITEMS = 253;
@@ -114,34 +116,34 @@ public enum GameState implements RenderEvent, StateListener {
     }
 
     @Override
-    public void render(Graphics g) {
+    public void render(Canvas c) {
         // Render the current score:
-        g.setColor(Color.WHITE);
-        g.setFont(SCORE_FONT);
-        g.drawString("SCORE", 40, 35);
-        g.drawString(score+"", 110, 35);
+        c.setColor(Color.WHITE);
+        c.setFont(SCORE_FONT);
+        c.drawString("SCORE", 40, 35);
+        c.drawString(score+"", 110, 35);
         // Render the lives left:
         for (int i = 0; i < getLivesLeft(); i++){
-            g.setColor(Pacman.BODY_COLOR);
-            g.fillOval((400+30*i), 20, 20, 20);
-            g.setColor(ChunkedMap.BACKGROUND_COLOR);
-            g.fillArc((400+30*i), 20, 20, 20, 75+90, 30);
+            c.setColor(Pacman.BODY_COLOR);
+            c.fillOval((400+30*i), 20, 20, 20);
+            c.setColor(ChunkedMap.BACKGROUND_COLOR);
+            c.fillArc((400+30*i), 20, 20, 20, 75+90, 30);
         }
         // Render the "pause"-message:
         if (GameLoop.INSTANCE.isPaused()){
-            g.setColor(Pacman.BODY_COLOR);
-            g.setFont(PAUSE_FONT);
-            g.drawString("READY!", 195, 332);
+            c.setColor(Pacman.BODY_COLOR);
+            c.setFont(PAUSE_FONT);
+            c.drawString("READY!", 195, 332);
         } else if (game_over){
-            g.setColor(Pacman.BODY_COLOR);
-            g.setFont(PAUSE_FONT);
-            g.drawString("GAME OVER...", 165, 332);
+            c.setColor(Pacman.BODY_COLOR);
+            c.setFont(PAUSE_FONT);
+            c.drawString("GAME OVER...", 165, 332);
         }
         // Render the last bonus-points (if present):
         if (last_bonus_points != 0){
-            g.setColor(BONUS_POINTS_COLOR);
-            g.setFont(BONUS_POINTS_FONT);
-            g.drawString(last_bonus_points+"", 215, 328);
+            c.setColor(BONUS_POINTS_COLOR);
+            c.setFont(BONUS_POINTS_FONT);
+            c.drawString(last_bonus_points+"", 215, 328);
         }
     }
 

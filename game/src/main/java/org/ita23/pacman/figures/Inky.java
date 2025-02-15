@@ -1,10 +1,9 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.res.ImageResource;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
-
-import java.awt.*;
 
 /**
  * Inky is the blue ghost AI, which starts in the cage on the left side.</p>
@@ -26,13 +25,13 @@ public class Inky extends Ghost{
     private Point target;
 
     /** The images for this ghost, looking to the left */
-    private final Image[] ghost_left;
+    private final ImageResource[] ghost_left;
     /** The images for this ghost, looking to the right */
-    private final Image[] ghost_right;
+    private final ImageResource[] ghost_right;
     /** The images for this ghost, looking up */
-    private final Image[] ghost_up;
+    private final ImageResource[] ghost_up;
     /** The images for this ghost, looking down */
-    private final Image[] ghost_down;
+    private final ImageResource[] ghost_down;
 
     /**
      * Create an instance of the blue ghost.
@@ -44,21 +43,21 @@ public class Inky extends Ghost{
         target = new Point(0, 0);
         this.blinky = blinky;
         // Load the images:
-        ghost_down = new Image[]{
-                loadImageResource("inky/inky_down_1.png"),
-                loadImageResource("inky/inky_down_2.png")
+        ghost_down = new ImageResource[]{
+                ImageResource.INKY_DOWN_1,
+                ImageResource.INKY_DOWN_2
         };
-        ghost_left = new Image[]{
-                loadImageResource("inky/inky_left_1.png"),
-                loadImageResource("inky/inky_left_2.png")
+        ghost_left = new ImageResource[]{
+                ImageResource.INKY_LEFT_1,
+                ImageResource.INKY_LEFT_2
         };
-        ghost_up = new Image[]{
-                loadImageResource("inky/inky_up_1.png"),
-                loadImageResource("inky/inky_up_2.png")
+        ghost_up = new ImageResource[]{
+                ImageResource.INKY_UP_1,
+                ImageResource.INKY_UP_2
         };
-        ghost_right = new Image[]{
-                loadImageResource("inky/inky_right_1.png"),
-                loadImageResource("inky/inky_right_2.png")
+        ghost_right = new ImageResource[]{
+                ImageResource.INKY_RIGHT_1,
+                ImageResource.INKY_RIGHT_2
         };
     }
 
@@ -93,7 +92,7 @@ public class Inky extends Ghost{
     }
 
     @Override
-    protected Image getGhostImage(CollusionTest.NextDirection direction, int image_index) {
+    protected ImageResource getGhostImage(CollusionTest.NextDirection direction, int image_index) {
         switch (direction){
             case UP:
                 return ghost_up[image_index];

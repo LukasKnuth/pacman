@@ -1,20 +1,22 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.res.ImageResource;
+import org.ita23.pacman.game.Canvas;
 import org.ita23.pacman.game.CollusionEvent;
 import org.ita23.pacman.game.CollusionTest;
 import org.ita23.pacman.game.MovementEvent;
 import org.ita23.pacman.game.RenderEvent;
-import org.ita23.pacman.game.ResourceLoader;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.logic.Point;
 import org.ita23.pacman.logic.StateListener;
 
-import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * An abstract base-class, shared between all ghosts, which offers basic
@@ -87,17 +89,17 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private int pixel_moved_count;
     
     /** The ghost-images to use, when the ghost is blinking. */
-    protected final Image[] blinking;
+    protected final ImageResource[] blinking;
     /** The ghost-images to use, when the ghost is currently in frightened mode */
-    protected final Image[] frightened;
+    protected final ImageResource[] frightened;
     /** The images to use for a returning, dead ghost - direction right */
-    protected final Image dead_right;
+    protected final ImageResource dead_right;
     /** The images to use for a returning, dead ghost - direction down */
-    protected final Image dead_down;
+    protected final ImageResource dead_down;
     /** The images to use for a returning, dead ghost - direction left */
-    protected final Image dead_left;
+    protected final ImageResource dead_left;
     /** The images to use for a returning, dead ghost - direction up */
-    protected final Image dead_up;
+    protected final ImageResource dead_up;
 
     /** Counts how many ghosts have been eaten during this FRIGHTENED-mode period */
     protected static int kill_combo = 0;
@@ -124,18 +126,18 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
         // Register to the listeners:
         GameState.INSTANCE.addStateListener(this);
         // Load the general ghost-images:
-        blinking = new Image[]{
-                loadImageResource("ghosts_general/blinking_1.png"),
-                loadImageResource("ghosts_general/blinking_2.png")
+        blinking = new ImageResource[]{
+                ImageResource.GHOST_BLINKING_1,
+                ImageResource.GHOST_BLINKING_2
         };
-        frightened = new Image[]{
-                loadImageResource("ghosts_general/frightened_1.png"),
-                loadImageResource("ghosts_general/frightened_2.png")
+        frightened = new ImageResource[]{
+                ImageResource.GHOST_FRIGHTENED_1,
+                ImageResource.GHOST_FRIGHTENED_2
         };
-        dead_down = loadImageResource("ghosts_general/dead_down.png");
-        dead_up = loadImageResource("ghosts_general/dead_up.png");
-        dead_left = loadImageResource("ghosts_general/dead_left.png");
-        dead_right = loadImageResource("ghosts_general/dead_right.png");
+        dead_down = ImageResource.GHOST_DEAD_DOWN;
+        dead_up = ImageResource.GHOST_DEAD_UP;
+        dead_left = ImageResource.GHOST_DEAD_LEFT;
+        dead_right = ImageResource.GHOST_DEAD_RIGHT;
     }
 
     /**
@@ -323,8 +325,9 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     private int image_count;
     /** This counter is used to make the ghost blink at the end of frightened mode */
     private int blink_count;
+
     @Override
-    public void render(Graphics g) {
+    public void render(Canvas c) {
         // Calculate the current image-index
         int image_index = 0;
         image_count++;
@@ -337,36 +340,36 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
                 // Simulate the blinking:
                 blink_count++;
                 if (blink_count < 8){
-                    g.drawImage(frightened[image_index], this.x, this.y, null);
+                    c.drawImage(frightened[image_index], this.x, this.y);
                 } else if (blink_count < 16){
-                    g.drawImage(blinking[image_index], this.x, this.y, null);
+                    c.drawImage(blinking[image_index], this.x, this.y);
                 } else blink_count = 0;
             } // Otherwise just draw the frightened image.
-            else g.drawImage(frightened[image_index], this.x, this.y, null);
+            else c.drawImage(frightened[image_index], this.x, this.y);
         } else if (isEaten()){
             // if we've just been eaten, show the points!
             if (kill_bonus != 0){
-                g.setColor(GameState.BONUS_POINTS_COLOR);
-                g.setFont(GameState.BONUS_POINTS_FONT);
-                g.drawString(kill_bonus +"", kill_location.getX(), kill_location.getY()+8);
+                c.setColor(GameState.BONUS_POINTS_COLOR);
+                c.setFont(GameState.BONUS_POINTS_FONT);
+                c.drawString(kill_bonus +"", kill_location.getX(), kill_location.getY()+8);
             }
             // Show the ghosts eyes:
             switch (getNextDirection()){
                 case UP:
-                    g.drawImage(dead_up, this.x, this.y, null);
+                    c.drawImage(dead_up, this.x, this.y);
                     break;
                 case DOWN:
-                    g.drawImage(dead_down, this.x, this.y, null);
+                    c.drawImage(dead_down, this.x, this.y);
                     break;
                 case LEFT:
-                    g.drawImage(dead_left, this.x, this.y, null);
+                    c.drawImage(dead_left, this.x, this.y);
                     break;
                 case RIGHT:
-                    g.drawImage(dead_right, this.x, this.y, null);
+                    c.drawImage(dead_right, this.x, this.y);
             }
         } else {
             // Draw the ghost how he normally looks:
-            g.drawImage(getGhostImage(getNextDirection(), image_index), this.x, this.y, null);
+            c.drawImage(getGhostImage(getNextDirection(), image_index), this.x, this.y);
         }
     }
 
@@ -452,24 +455,6 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
     }
 
     /**
-     * This will try to load an image-resource from the {@code /res/graphics}-
-     *  package and returns the created {@code Image}.</p>
-     * To load the file {@code /res/graphics/asd/test_image.png}, you would
-     *  have to specify this methods {@code path}-argument as follows:
-     *  {@code asd/test_image.png}, <b>without</b> a leading slash!.</p>
-     * If the resource could not be found inside the {@code /res/graphics}- or
-     *  any specified sub-package, this method will throw a
-     *  {@code IllegalArgumentException}.
-     * @param path the path to the image-resource you want to load.
-     * @return the created image from the specified path.
-     * @throws IllegalArgumentException if the specified resource could not be
-     *  found.
-     */
-    protected Image loadImageResource(String path){
-        return ResourceLoader.loadGraphic("/graphics/"+path);
-    }
-
-    /**
      * Returns the next direction this ghost will turn to.</p>
      * This information should be used to determine which of the images to use for
      *  painting purposes.
@@ -489,7 +474,7 @@ abstract class Ghost implements MovementEvent, RenderEvent, CollusionEvent, Stat
      *  flicker. The index will either be 0 or 1.
      * @return the {@code Image} of the ghost with the given criteria.
      */
-    protected abstract Image getGhostImage(CollusionTest.NextDirection direction, int image_index);
+    protected abstract ImageResource getGhostImage(CollusionTest.NextDirection direction, int image_index);
 
     /**
      * This method returns the home-corner for this ghost instance.</p>

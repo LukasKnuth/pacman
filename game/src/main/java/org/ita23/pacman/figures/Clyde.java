@@ -1,10 +1,9 @@
 package org.ita23.pacman.figures;
 
+import org.ita23.pacman.res.ImageResource;
 import org.ita23.pacman.game.CollusionTest.NextDirection;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.Point;
-
-import java.awt.*;
 
 /**
  * Clyde is the orange ghost AI, which will start from the cage and emerge last
@@ -25,13 +24,13 @@ public class Clyde extends Ghost{
     private Point target;
 
     /** The images for this ghost, looking to the left */
-    private final Image[] ghost_left;
+    private final ImageResource[] ghost_left;
     /** The images for this ghost, looking to the right */
-    private final Image[] ghost_right;
+    private final ImageResource[] ghost_right;
     /** The images for this ghost, looking up */
-    private final Image[] ghost_up;
+    private final ImageResource[] ghost_up;
     /** The images for this ghost, looking down */
-    private final Image[] ghost_down;
+    private final ImageResource[] ghost_down;
 
     /**
      * Create an instance of the orange ghost.
@@ -40,21 +39,21 @@ public class Clyde extends Ghost{
         super(player);
         target = new Point(0, 0);
         // Load the images:
-        ghost_down = new Image[]{
-                loadImageResource("clyde/clyde_down_1.png"),
-                loadImageResource("clyde/clyde_down_2.png")
+        ghost_down = new ImageResource[]{
+                ImageResource.CLYDE_DOWN_1,
+                ImageResource.CLYDE_DOWN_2
         };
-        ghost_left = new Image[]{
-                loadImageResource("clyde/clyde_left_1.png"),
-                loadImageResource("clyde/clyde_left_2.png")
+        ghost_left = new ImageResource[]{
+                ImageResource.CLYDE_LEFT_1,
+                ImageResource.CLYDE_LEFT_2
         };
-        ghost_up = new Image[]{
-                loadImageResource("clyde/clyde_up_1.png"),
-                loadImageResource("clyde/clyde_up_2.png")
+        ghost_up = new ImageResource[]{
+                ImageResource.CLYDE_UP_1,
+                ImageResource.CLYDE_UP_2
         };
-        ghost_right = new Image[]{
-                loadImageResource("clyde/clyde_right_1.png"),
-                loadImageResource("clyde/clyde_right_2.png")
+        ghost_right = new ImageResource[]{
+                ImageResource.CLYDE_RIGHT_1,
+                ImageResource.CLYDE_RIGHT_2
         };
     }
 
@@ -88,7 +87,7 @@ public class Clyde extends Ghost{
     }
 
     @Override
-    protected Image getGhostImage(NextDirection direction, int image_index) {
+    protected ImageResource getGhostImage(NextDirection direction, int image_index) {
         switch (direction){
             case UP:
                 return ghost_up[image_index];

@@ -1,7 +1,5 @@
 package org.ita23.pacman.game;
 
-import java.awt.*;
-
 /**
  * Describes an object that can be rendered.
  * @author Lukas Knuth
@@ -9,14 +7,10 @@ import java.awt.*;
  */
 public interface RenderEvent {
 
-
-    /**
-     * This method is used to draw the current state on the
-     *  given {@code Graphics}-object.
-     * @param g the object to draw an.
-     * @return the drawn object.
-     */
-    public void render(Graphics g);
-
-
+  /**
+   * This method is used to draw the current state on the
+   * given {@code Canvas}.
+   * @param c the object to draw on.
+   */
+  public void render(Canvas c);
 }

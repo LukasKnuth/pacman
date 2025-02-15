@@ -1,6 +1,8 @@
 package org.ita23.pacman.figures;
 
 import org.ita23.pacman.game.*;
+import org.ita23.pacman.game.Canvas;
+import org.ita23.pacman.game.Color;
 import org.ita23.pacman.logic.ChunkedMap;
 import org.ita23.pacman.logic.ChunkedMap.Chunk;
 import org.ita23.pacman.logic.GameState;
@@ -150,14 +152,14 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     }
     
     @Override
-    public void render(Graphics g) {
+    public void render(Canvas c) {
         // Draw the "ball"
-        g.setColor(BODY_COLOR);
-        g.fillOval(this.x-3, this.y-3, HITBOX, HITBOX);
+        c.setColor(BODY_COLOR);
+        c.fillOval(this.x-3, this.y-3, HITBOX, HITBOX);
         // Draw the mouth:
-        g.setColor(ChunkedMap.BACKGROUND_COLOR);
+        c.setColor(ChunkedMap.BACKGROUND_COLOR);
         // The mouth:
-        g.fillArc(this.x-3, this.y-3, HITBOX, HITBOX,
+        c.fillArc(this.x-3, this.y-3, HITBOX, HITBOX,
                 calculateMouthSpacer(mouth_degrees)+current_direction.degrees,
                 mouth_degrees
         );
