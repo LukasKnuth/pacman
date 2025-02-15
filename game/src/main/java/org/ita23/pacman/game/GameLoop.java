@@ -1,14 +1,9 @@
 package org.ita23.pacman.game;
 
-import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The main game-loop, calling all registered events.</p>
@@ -36,31 +31,18 @@ import java.util.concurrent.TimeUnit;
  * @author Fabain Bottler
  * @version 1.0
  */
-public enum GameLoop implements KeyListener{
+public enum GameLoop {
 
     /** The instance to work with */
     INSTANCE;
     
-    /** Indicates if the game-loop is currently running */
-    private boolean isRunning;
+    /** Indicates that the game-loop was locked and is ready to run */
+    private boolean isLocked;
     /** Weather if the game is currently frozen */
     private boolean isFrozen;
     /** Weather the game is currently paused */
     private boolean isPaused;
 
-    /** The executor-service running the main game-loop */
-    private ScheduledExecutorService game_loop_executor;
-    /** The handler fot the main-game-thread, used to stop it */
-    private ScheduledFuture game_loop_handler;
-    
-    /** The canvas to draw all game-elements on */
-    private GameCanvas canvas;
-
-    /** The last key-event that was given by the user */
-    private KeyEvent last_key_event;
-    /** The last key-event-type that was given by the user */
-    private InputEvent.KeyEventType last_key_type;
-    
     /** All registered {@code InputEvent}s */
     private List<InputEvent> inputEvents;
     /** All registered {@code MovementEvent}s */
@@ -81,60 +63,45 @@ public enum GameLoop implements KeyListener{
         movementEvents = new ArrayList<MovementEvent>(6);
         renderEvents = new ArrayList<RenderContainer>(20);
         collusionEvents = new ArrayList<CollusionEvent>(5);
-        isRunning = false;
+        isLocked = false;
         isFrozen = false;
         isPaused = false;
-        game_loop_executor = Executors.newSingleThreadScheduledExecutor();
-        canvas = new GameCanvas();
     }
 
     /**
-     * The {@code Runnable} used for the {@code Executor}, executing
-     * all defined methods of the registered Events.
+     * Simulates and renders the next frame of the game. Call this method repeatedly to
+     * progress the game forward.
      */
-    private Runnable game_loop = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                if (!isFrozen() && !isPaused()){
-                    // Input events:
-                    if (last_key_event != null && last_key_type != null) {
-                        for (InputEvent event : inputEvents)
-                            event.keyboardInput(last_key_event, last_key_type);
-                        // Clear
-                        last_key_type = null;
-                        last_key_event = null;
-                    }
-                    // Collusion-events:
-                    for (CollusionEvent event : collusionEvents)
-                        event.detectCollusion(game_field.getCollusionTest());
-                    // Movement-events:
-                    for (MovementEvent event : movementEvents)
-                        event.move();
-                }
-                // Render-events:
-                canvas.repaint();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
+    public void step(InputEvent.JoystickState state, Graphics g) {
+        if (!isLocked()) {
+            throw new IllegalStateException("Must call 'lock()' on GameLoop before calling 'step()'!");
+        }
+        if (!isFrozen() && !isPaused()){
+            for (InputEvent event : inputEvents) {
+                event.joystickInput(state);
+            }
+            for (CollusionEvent event : collusionEvents) {
+                event.detectCollusion(game_field.getCollusionTest());
+            }
+            for (MovementEvent event : movementEvents) {
+                event.move();
             }
         }
-    };
+        for (RenderContainer container : renderEvents) {
+            container.getEvent().render(g);
+        }
+    }
 
     /**
-     * Add the {@code Runnable} for the main-loop, set it for schedule and
-     *  begin executing it.
+     * Locks all mutations in place and finalizes the Loop for execution.
      */
-    private void createMainLoop(){
+    public void lock(){
         // Check if we have a Map:
         if (this.game_field == null)
             throw new IllegalStateException("The game can't start without a Map!");
-        // Give the Canvas all Elements to paint:
-        canvas.setRenderEvents(this.renderEvents);
-        // Start the new game executor:
-        game_loop_handler = game_loop_executor.scheduleAtFixedRate(
-                game_loop, 0L, 16L, TimeUnit.MILLISECONDS
-        );
+        // Order render events by their Z-index
+        Collections.sort(this.renderEvents);
+        this.isLocked = true;
     }
 
     /**
@@ -147,7 +114,7 @@ public enum GameLoop implements KeyListener{
      * @return whether if the main game-loop is currently running or not.
      */
     private boolean isLocked(){
-        return isRunning;
+        return isLocked;
     }
 
     /**
@@ -211,26 +178,6 @@ public enum GameLoop implements KeyListener{
     }
 
     /**
-     * Start the game-loop.
-     */
-    public void startLoop(){
-        if (!isRunning){
-            createMainLoop();
-            isRunning = true;
-        }
-    }
-
-    /**
-     * Gracefully stop the game-loop, allowing all pending operations
-     *  to finish first.
-     */
-    public void stopLoop(){
-        game_loop_handler.cancel(true);
-        game_loop_executor.shutdown();
-        isRunning = false;
-    }
-
-    /**
      * This method will un-pause or un-freeze the game.</p>
      * Calling this method when the game was not paused/frozen
      *  will not have any effect.
@@ -285,27 +232,4 @@ public enum GameLoop implements KeyListener{
     public boolean isFrozen(){
         return this.isFrozen;
     }
-
-    /**
-     * Get the view which holds the drawn state of the game.
-     * @return the view of the Game.
-     */
-    public JComponent getView(){
-        return canvas;
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        last_key_event = e;
-        last_key_type = InputEvent.KeyEventType.PRESSED;
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        last_key_event = e;
-        last_key_type = InputEvent.KeyEventType.RELEASED;
-    }
-
-    /* Unused */
-    @Override public void keyTyped(KeyEvent e) {}
 }

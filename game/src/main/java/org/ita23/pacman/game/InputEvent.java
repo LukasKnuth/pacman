@@ -1,7 +1,5 @@
 package org.ita23.pacman.game;
 
-import java.awt.event.KeyEvent;
-
 /**
  * Describes an event which is interested in the users input.
  * @author Lukas Knuth
@@ -10,22 +8,17 @@ import java.awt.event.KeyEvent;
 public interface InputEvent {
 
     /**
-     * The type of event that was triggered.</p>
-     * This is used to determine if a key was pressed
-     *  ({@code KeyEventType.PRESSED}), or released
-     *  ({@code KeyEventType.RELEASED}).
+     * The current state of the (usually virtual) Joystick for directional input
+     * to control Pacman.
      */
-    public enum KeyEventType{
-        PRESSED, RELEASED
+    public enum JoystickState {
+      UP, DOWN, LEFT, RIGHT, NEUTRAL;
     }
 
     /**
-     * The user has given input by using the keyboard.</p>
-     * If no key was pressed, no event-listeners are notified.
-     *  This means, that the parameters given to this method
-     *  can never be {@code null} or any other "spacing"-value.
-     * @param event the input-event.
-     * @param type the type of event that occurred.
+     * The user has given input by using the (virtual) Joystick.</p>
+     * If no key was pressed, the state is {@code NEUTRAL}.
+     * @param state the state of the virtual joystick.
      */
-    public void keyboardInput(KeyEvent event, KeyEventType type);
+    public void joystickInput(JoystickState state);
 }

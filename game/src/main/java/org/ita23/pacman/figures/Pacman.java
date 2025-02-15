@@ -9,7 +9,6 @@ import org.ita23.pacman.logic.StateListener;
 
 import javax.sound.sampled.Clip;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
 /**
  * The main-character of this game.
@@ -246,16 +245,24 @@ public class Pacman implements RenderEvent, InputEvent, CollusionEvent, Movement
     }
 
     @Override
-    public void keyboardInput(KeyEvent event, KeyEventType type) {
+    public void joystickInput(JoystickState state) {
         has_collided = false;
-        if (event.getKeyCode() == KeyEvent.VK_UP)
-            next_direction = FacingDirection.UP;
-        else if (event.getKeyCode() == KeyEvent.VK_DOWN)
-            next_direction = FacingDirection.DOWN;
-        else if (event.getKeyCode() == KeyEvent.VK_LEFT)
-            next_direction = FacingDirection.LEFT;
-        else if (event.getKeyCode() == KeyEvent.VK_RIGHT)
-            next_direction = FacingDirection.RIGHT;
+        switch (state) {
+            case InputEvent.JoystickState.UP:
+                next_direction = FacingDirection.UP;
+                break;
+            case InputEvent.JoystickState.DOWN:
+                next_direction = FacingDirection.DOWN;
+                break;
+            case InputEvent.JoystickState.LEFT:
+                next_direction = FacingDirection.LEFT;
+                break;
+            case InputEvent.JoystickState.RIGHT:
+                next_direction = FacingDirection.RIGHT;
+                break;
+            case InputEvent.JoystickState.NEUTRAL:
+                // NOTE: No case for NEUTRAL, we just continue in the same direction.
+        }
     }
 
     /**
