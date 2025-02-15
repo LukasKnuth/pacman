@@ -1,0 +1,24 @@
+plugins {
+    id "java"
+    id "war"
+    id "org.teavm" version "0.11.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation teavm.libs.jsoApis
+    implementation project(':game')
+}
+
+teavm {
+    all {
+        mainClass = "org.ita23.pacman.WebMain"
+    }
+    js {
+        addedToWebApp = true
+        targetFileName = "pacman.js"
+    }
+}
