@@ -17,6 +17,9 @@ public class WebMain implements AnimationFrameCallback {
   private JoystickState last_input_state = JoystickState.NEUTRAL;
   private Canvas web_canvas;
 
+  private static final double TARGET_FPS_INTERVAL = 1000 / 60;
+  private double last_frame_time = -1;
+
   private WebMain() {
     setupGame();
     startLoop();
@@ -30,8 +33,23 @@ public class WebMain implements AnimationFrameCallback {
   
   @Override
   public void onAnimationFrame(double timestamp) {
-	  GameLoop.INSTANCE.step(last_input_state, web_canvas);
+    // register for next frame
 	  Window.requestAnimationFrame(this);
+
+    // populate frame time for very first frame drawn
+    if (this.last_frame_time == -1) {
+      this.last_frame_time = timestamp;
+    }
+
+    // Ensure we render/simulate at 60FPS
+    // Partially stolen from https://stackoverflow.com/a/19772220/717341
+    double elapsed = timestamp - last_frame_time;
+    if (elapsed > TARGET_FPS_INTERVAL) {
+  	  // NOTE: subtract any time we waited "too long" on the current frame as well
+  	  this.last_frame_time = timestamp - (elapsed % TARGET_FPS_INTERVAL);
+
+  	  GameLoop.INSTANCE.step(last_input_state, web_canvas);
+    }
   }
 
   private void setupGame() {
@@ -63,7 +81,6 @@ public class WebMain implements AnimationFrameCallback {
     Bootstrap.bootstrap(canvas.getWidth(), canvas.getHeight());
   }
 
-  // TODO game-loop runs at variable FPS at the moment, 60 is target!
   // TODO support WASD and ESC for the game
   // TODO Start off muted and allow toggle mute with M
   // TODO Support gamepad via Navigator.getGamepads()
