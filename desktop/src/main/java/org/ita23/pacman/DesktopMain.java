@@ -1,12 +1,8 @@
 package org.ita23.pacman;
 
-import org.ita23.pacman.figures.Cage;
-import org.ita23.pacman.figures.Pacman;
 import org.ita23.pacman.game.GameLoop;
 import org.ita23.pacman.game.SoundManager;
 import org.ita23.pacman.game.InputEvent.JoystickState;
-import org.ita23.pacman.logic.ChunkedMap;
-import org.ita23.pacman.logic.GameState;
 import org.ita23.pacman.res.SoundResource;
 
 import javax.swing.*;
@@ -50,8 +46,7 @@ public class DesktopMain {
     private DesktopMain(){
         first_launch = true;
         populateWindow();
-        // TODO these below should really be in the `game` project.
-        addFigures();
+        Bootstrap.bootstrap(f.getWidth(), f.getHeight());
         // Start the game:
         startLoop();
         // Pause to play the intro:
@@ -104,30 +99,6 @@ public class DesktopMain {
     public void stopLoop(){
         game_loop_handler.cancel(true);
         game_loop_executor.shutdown();
-    }
-
-    /**
-     * Add all Events (figures as of this case) to the
-     *  {@code GameLoop}, so they get useful.
-     */
-    private void addFigures(){
-        ChunkedMap map = new ChunkedMap( // Use real canvas-size for map-generation!
-                f.getWidth(),
-                f.getHeight()
-        );
-        GameLoop.INSTANCE.setMap(map);
-        GameLoop.INSTANCE.addRenderEvent(map, map.getZIndex());
-        // Add the game-state
-        GameLoop.INSTANCE.addRenderEvent(GameState.INSTANCE, 0);
-        // Add Pacman
-        Pacman pacman = new Pacman(map.getStartPoint());
-        GameLoop.INSTANCE.addRenderEvent(pacman,pacman.getZIndex());
-        GameLoop.INSTANCE.addInputEvent(pacman);
-        GameLoop.INSTANCE.addCollusionEvent(pacman);
-        GameLoop.INSTANCE.addMovementEvent(pacman);
-        // Add the ghost-cage (including the ghosts):
-        Cage cage = new Cage(map.getCagePoint(), pacman);
-        GameLoop.INSTANCE.addRenderEvent(cage, 2);
     }
 
     /**
