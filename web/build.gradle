@@ -24,3 +24,48 @@ teavm {
         targetFileName = "pacman.js"
     }
 }
+
+// Generates a source file with Base64 encoded string constants for all resources of the `game` project.
+// This is then used to load the images via the `src`-tag and does not require any network/IO to load images.
+task genBase64Resources(dependsOn: ":game:build") {
+    def outputDir = layout.buildDirectory.dir("generated/sources/webresources/main/java")
+    def outputFile = outputDir.get().file("org/ita23/pacman/Base64Resource.java").asFile
+    outputs.dir(outputDir)
+
+    def classpath = sourceSets.main.runtimeClasspath
+    def respath = project(":game").sourceSets.main.output.resourcesDir
+
+    doLast {
+        // TODO only load the one file?
+        def classLoader = new URLClassLoader(classpath.collect { it.toURI().toURL() } as URL[])
+        def containerClass = classLoader.loadClass("org.ita23.pacman.res.ImageResource");
+
+        def code = StringBuilder.newInstance()
+        code << "package org.ita23.pacman;\n"
+        code << "public final class Base64Resource {\n"
+        code << " private Base64Resource() {};\n"
+        code << " public static String getResource(String path){\n"
+        code << "  switch (path) {\n"
+
+        containerClass.getEnumConstants().each {
+            code << "case \"" << it.resource_path << "\": "
+            code << "return \"data:image/png;base64,"
+            new File(respath, it.resource_path).withInputStream {
+                code << Base64.encoder.encodeToString(it.readAllBytes())
+            }
+            code << "\";\n"
+        }
+
+        code << "  default: throw new RuntimeException(\"unknown resource_path: \"+path);\n"
+        code << "  }\n"
+        code << " }\n"
+        code << "}\n"
+
+        outputFile.parentFile.mkdirs()
+        outputFile.text = code.toString()
+    }
+}
+
+sourceSets.main.java {
+    srcDir(genBase64Resources)
+}
