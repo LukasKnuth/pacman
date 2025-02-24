@@ -1,38 +1,50 @@
 package org.ita23.pacman;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.ita23.pacman.game.Canvas;
 import org.ita23.pacman.game.Color;
 import org.ita23.pacman.game.Font;
 import org.ita23.pacman.res.ImageResource;
+import org.teavm.jso.browser.Window;
 import org.teavm.jso.canvas.CanvasRenderingContext2D;
+import org.teavm.jso.dom.html.HTMLImageElement;
 
 /**
- * The pacman canvas to draw the game on, implemented with Web Canvas technologies.
+ * The pacman canvas to draw the game on, implemented with Web Canvas
+ * technologies.
  */
 public class WebCanvas implements Canvas {
 
-  private final CanvasRenderingContext2D render;
+	private final Map<ImageResource, HTMLImageElement> imageCache;
+	private final CanvasRenderingContext2D render;
 
-  public WebCanvas(CanvasRenderingContext2D render) {
-    this.render = render;
-    loadImages();
-  }
+	public WebCanvas(CanvasRenderingContext2D render) {
+		this.render = render;
+		this.imageCache = new HashMap<>();
+		loadImages();
+	}
 
-  private void loadImages() {
-  	// TODO load the images and cache them.
-  	// TODO render them later in the image-specific methods.
-  }
+	private void loadImages() {
+		for (ImageResource resource : ImageResource.values()) {
+			HTMLImageElement image = (HTMLImageElement) Window.current().getDocument().createElement("img");
+			image.setSrc(Base64Resource.getResource(resource.resource_path));
+			this.imageCache.put(resource, image);
+		}
+	}
 
 	@Override
 	public void setColor(Color color) {
-		// TODO is this the _fill_ or _stroke_ style?
-	  this.render.setFillStyle("rgb(" + color.r + "," + color.g + "," + color.b + ")"); 
-	  this.render.setStrokeStyle("rgb(" + color.r + "," + color.g + "," + color.b + ")"); 
+		// NOTE: The original Swing implementation uses one color for both - so we
+		// emulate this behaviour
+		this.render.setFillStyle("rgb(" + color.r + "," + color.g + "," + color.b + ")");
+		this.render.setStrokeStyle("rgb(" + color.r + "," + color.g + "," + color.b + ")");
 	}
 
 	@Override
 	public void setFont(Font font) {
-		switch(font.style) {
+		switch (font.style) {
 			case Font.Style.BOLD:
 				this.render.setFont("bold " + font.size + "px " + font.name);
 				break;
@@ -52,12 +64,12 @@ public class WebCanvas implements Canvas {
 
 	@Override
 	public void drawImage(ImageResource resource, int x, int y) {
-		// TODO implement with resoutce loading
+		this.render.drawImage(this.imageCache.get(resource), x, y);
 	}
 
 	@Override
 	public void drawImage(ImageResource resource, int x, int y, int width, int height) {
-		// TODO implement with resoutce loading
+		this.render.drawImage(this.imageCache.get(resource), x, y, width, height);
 	}
 
 	@Override
@@ -66,7 +78,8 @@ public class WebCanvas implements Canvas {
 		int centerX = x + width / 2;
 		int centerY = y + width / 2;
 		this.render.beginPath();
-		// TODO this renders a perfect circle, not an oval (height is ignored...)
+		// NOTE: this renders a perfect circle, not an oval (height is ignored...) -
+		// good enough
 		this.render.arc(centerX, centerY, width / 2, 0, Math.PI * 2);
 		this.render.closePath();
 		this.render.fill();
