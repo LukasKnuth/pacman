@@ -87,22 +87,32 @@ public class WebCanvas implements Canvas {
 
 	@Override
 	public void fillArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
+		int radius = width / 2;
 		// Adjust X/Y from top-left (in Swing) to center (HTML canvas)
-		int centerX = x + width / 2;
-		int centerY = y + width / 2;
+		int centerX = x + radius;
+		int centerY = y + radius;
+		// This value can become briefly negative, which flashes on Web.
+		// It does nothing in the Swing implementation, go figure...
+		arcAngle = Math.max(arcAngle, 0);
 		// Positive angles means COUNTER-clockwise rotation... (thanks Swing)
 		startAngle = -startAngle;
 		arcAngle = -arcAngle;
 		// Convert from degrees to radians
-		double startRad = startAngle * Math.PI / 180;
-		double endRad = (startAngle + arcAngle) * Math.PI / 180;
+		double startRad = toRadians(startAngle);
+		double endRad = toRadians(startAngle + arcAngle);
+
+		System.out.println("Equal!");
 
 		this.render.beginPath();
 		// NOTE: last "true" to draw counter-clockwise!
-		this.render.arc(centerX, centerY, width / 2, startRad, endRad, true);
+		this.render.arc(centerX, centerY, radius, startRad, endRad, true);
 		this.render.lineTo(centerX, centerY);
 		this.render.closePath();
 		this.render.fill();
+	}
+
+	private double toRadians(int degrees) {
+		return degrees * Math.PI / 180;
 	}
 
 	@Override
