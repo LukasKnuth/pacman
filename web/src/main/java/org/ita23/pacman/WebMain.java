@@ -63,15 +63,19 @@ public class WebMain implements AnimationFrameCallback {
   		public void handleEvent(KeyboardEvent e) {
   		  switch (e.getKey()) {
   		    case "ArrowUp":
+  		    case "w":
   		      last_input_state = JoystickState.UP;
   		      break;
   		    case "ArrowDown":
+  		    case "s":
   		      last_input_state = JoystickState.DOWN;
   		      break;
   		    case "ArrowLeft":
+  		    case "a":
   		      last_input_state = JoystickState.LEFT;
   		      break;
   		    case "ArrowRight":
+  		    case "d":
   		      last_input_state = JoystickState.RIGHT;
   		      break;
   		  }

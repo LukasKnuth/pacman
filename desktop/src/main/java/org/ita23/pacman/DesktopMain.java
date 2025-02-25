@@ -134,15 +134,19 @@ public class DesktopMain {
           public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
+                case KeyEvent.VK_W:
                     last_input_state = JoystickState.UP;
                     break;
                 case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_S:
                     last_input_state = JoystickState.DOWN;
                     break;
                 case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_A:
                     last_input_state = JoystickState.LEFT;
                     break;
                 case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_D:
                     last_input_state = JoystickState.RIGHT;
                     break;
             }
