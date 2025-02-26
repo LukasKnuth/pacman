@@ -19,10 +19,10 @@ jobs:
       - name: "Create deployment directory"
         run: "mkdir deployment"
       - name: "Extract built .war file and remove Java stuff"
-        run: "unzip web/build/libs/web.war && rm -r META-INF WEB-INF"
+        run: "unzip ../web/build/libs/web.war && rm -r META-INF WEB-INF"
         working-directory: ./deployment
       - name: "Copy .jar file for download"
-        run: "cp desktop/build/libs/pacman.jar ."
+        run: "cp ../desktop/build/libs/pacman.jar ."
         working-directory: ./deployment
       - name: "Upload static files as artifact"
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v.3.0.1
