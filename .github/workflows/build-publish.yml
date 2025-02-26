@@ -22,8 +22,7 @@ jobs:
         run: "unzip ../web/build/libs/web.war && rm -r META-INF WEB-INF"
         working-directory: ./deployment
       - name: "Copy .jar file for download"
-        run: "cp ../desktop/build/libs/pacman.jar ."
-        working-directory: ./deployment
+        run: "ls -l desktop/build/libs/pacman.jar && cp desktop/build/libs/pacman.jar deployment/"
       - name: "Upload static files as artifact"
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v.3.0.1
         with:
