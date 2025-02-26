@@ -16,6 +16,8 @@ jobs:
           java-version: '21'
       - name: "Build everything"
         run: "./gradlew build --no-daemon"
+      - name: "Create deployment directory"
+        run: "mkdir deployment"
       - name: "Extract built .war file and remove Java stuff"
         run: "unzip web/build/libs/web.war && rm -r META-INF WEB-INF"
         working-directory: ./deployment
