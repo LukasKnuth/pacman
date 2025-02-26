@@ -30,4 +30,6 @@ jar {
     manifest {
         attributes 'Main-Class': application.mainClass
     }
+
+    archiveBaseName = "pacman"
 }
