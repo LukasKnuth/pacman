@@ -6,6 +6,7 @@ import org.ita23.pacman.game.InputEvent.JoystickState;
 import org.ita23.pacman.game.SoundManager;
 import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.KeyboardEvent;
+import org.teavm.jso.dom.events.TouchEvent;
 import org.teavm.jso.dom.html.HTMLCanvasElement;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.browser.Window;
@@ -16,6 +17,7 @@ public class WebMain implements AnimationFrameCallback {
 
   private JoystickState last_input_state = JoystickState.NEUTRAL;
   private Canvas web_canvas;
+  private TouchInput touch_input;
 
   private static final double TARGET_FPS_INTERVAL = 1000 / 60;
   private double last_frame_time = -1;
@@ -79,6 +81,32 @@ public class WebMain implements AnimationFrameCallback {
   		      last_input_state = JoystickState.RIGHT;
   		      break;
   		  }
+  		}
+    });
+
+    touch_input = new TouchInput();
+    canvas.addEventListener("touchstart", new EventListener<TouchEvent>() {
+  		@Override
+  		public void handleEvent(TouchEvent evt) {
+  		  last_input_state = touch_input.onTouchStart(evt);
+  		}
+    });
+    canvas.addEventListener("touchend", new EventListener<TouchEvent>() {
+  		@Override
+  		public void handleEvent(TouchEvent evt) {
+  		  last_input_state = touch_input.onTouchEnd(evt);
+  		}
+    });
+    canvas.addEventListener("touchmove", new EventListener<TouchEvent>() {
+  		@Override
+  		public void handleEvent(TouchEvent evt) {
+  		  last_input_state = touch_input.onTouchMove(evt);
+  		}
+    });
+    canvas.addEventListener("touchcancel", new EventListener<TouchEvent>() {
+  		@Override
+  		public void handleEvent(TouchEvent evt) {
+  		  last_input_state = touch_input.onTouchCancel(evt);
   		}
     });
 
