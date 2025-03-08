@@ -9,6 +9,7 @@ import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.events.TouchEvent;
 import org.teavm.jso.dom.html.HTMLCanvasElement;
 import org.teavm.jso.dom.html.HTMLDocument;
+import org.teavm.jso.gamepad.GamepadEvent;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.canvas.CanvasRenderingContext2D;
 import org.teavm.jso.browser.AnimationFrameCallback;
@@ -18,6 +19,7 @@ public class WebMain implements AnimationFrameCallback {
   private JoystickState last_input_state = JoystickState.NEUTRAL;
   private Canvas web_canvas;
   private TouchInput touch_input;
+  private GamepadInput gamepad_input;
 
   private static final double TARGET_FPS_INTERVAL = 1000 / 60;
   private double last_frame_time = -1;
@@ -50,7 +52,15 @@ public class WebMain implements AnimationFrameCallback {
   	  // NOTE: subtract any time we waited "too long" on the current frame as well
   	  this.last_frame_time = timestamp - (elapsed % TARGET_FPS_INTERVAL);
 
+  	  // Only poll gamepad (no listeners) if we don't have input yet.
+  	  if (last_input_state == JoystickState.NEUTRAL) {
+  	    last_input_state = gamepad_input.getDirection();
+  	  }
+
   	  GameLoop.INSTANCE.step(last_input_state, web_canvas);
+
+  	  // Clear for next frame
+  	  last_input_state = JoystickState.NEUTRAL;
     }
   }
 
@@ -113,10 +123,24 @@ public class WebMain implements AnimationFrameCallback {
   		}
     });
 
+    gamepad_input = new GamepadInput();
+    Window.current().addEventListener("gamepadconnected", new EventListener<GamepadEvent>() {
+  		@Override
+  		public void handleEvent(GamepadEvent evt) {
+  		  gamepad_input.onConnected(evt);
+  		}
+    });
+    Window.current().addEventListener("gamepaddisconnected", new EventListener<GamepadEvent>() {
+  		@Override
+  		public void handleEvent(GamepadEvent evt) {
+  		  gamepad_input.onDisconnected(evt);
+  		}
+    });
+
     Bootstrap.bootstrap(canvas.getWidth(), canvas.getHeight());
   }
 
-  // TODO support WASD and ESC for the game
+  // TODO support ESC to pause game
   // TODO Start off muted and allow toggle mute with M
   // TODO Support gamepad via Navigator.getGamepads()
 
