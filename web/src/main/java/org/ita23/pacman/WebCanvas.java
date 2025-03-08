@@ -98,8 +98,8 @@ public class WebCanvas implements Canvas {
 		startAngle = -startAngle;
 		arcAngle = -arcAngle;
 		// Convert from degrees to radians
-		double startRad = toRadians(startAngle);
-		double endRad = toRadians(startAngle + arcAngle);
+		double startRad = Math.toRadians(startAngle);
+		double endRad = Math.toRadians(startAngle + arcAngle);
 
 		System.out.println("Equal!");
 
@@ -109,10 +109,6 @@ public class WebCanvas implements Canvas {
 		this.render.lineTo(centerX, centerY);
 		this.render.closePath();
 		this.render.fill();
-	}
-
-	private double toRadians(int degrees) {
-		return degrees * Math.PI / 180;
 	}
 
 	@Override
