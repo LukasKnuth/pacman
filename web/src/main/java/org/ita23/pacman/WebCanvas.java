@@ -101,8 +101,6 @@ public class WebCanvas implements Canvas {
 		double startRad = Math.toRadians(startAngle);
 		double endRad = Math.toRadians(startAngle + arcAngle);
 
-		System.out.println("Equal!");
-
 		this.render.beginPath();
 		// NOTE: last "true" to draw counter-clockwise!
 		this.render.arc(centerX, centerY, radius, startRad, endRad, true);
