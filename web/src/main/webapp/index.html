@@ -1,13 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Web APIs demo app</title>
+  <title>Pacman</title>
+  <meta charset="utf-8" />
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
   <script type="text/javascript" charset="utf-8" src="js/pacman.js"></script>
-  <style></style>
+  <style>
+    #pacman_canvas {
+      margin: 0 auto;
+      touch-action: pan-x pan-y;
+      background-color: black;
+    }
+    @media (width <= 460px) {
+      #pacman_canvas {
+        transform: scale(0.75);
+        transform-origin: left;
+        margin: 0;
+        padding: 0;
+      }
+      #game_wrapper {
+        overflow-x: hidden;
+      }
+    }
+  </style>
 </head>
 <body onload="main()">
-<h1>Pacman!</h1>
-<canvas id="pacman_canvas" width="460" height="580"/>
+  <h1>Pacman!</h1>
+  <div id="game_wrapper">
+    <canvas id="pacman_canvas" width="460" height="580"></canvas>
+  </div>
 </body>
 </html>
