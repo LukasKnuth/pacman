@@ -75,10 +75,10 @@ public enum GameLoop {
         if (!isLocked()) {
             throw new IllegalStateException("Must call 'lock()' on GameLoop before calling 'step()'!");
         }
+        for (InputEvent event : inputEvents) {
+            event.joystickInput(state);
+        }
         if (!isFrozen() && !isPaused()){
-            for (InputEvent event : inputEvents) {
-                event.joystickInput(state);
-            }
             for (CollusionEvent event : collusionEvents) {
                 event.detectCollusion(game_field.getCollusionTest());
             }
