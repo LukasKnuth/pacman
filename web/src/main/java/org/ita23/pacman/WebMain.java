@@ -70,7 +70,7 @@ public class WebMain implements AnimationFrameCallback {
     CanvasRenderingContext2D context = (CanvasRenderingContext2D) canvas.getContext("2d");
     this.web_canvas = new WebCanvas(context);
 
-    document.addEventListener("keyup", new EventListener<KeyboardEvent>() {
+    document.addEventListener("keydown", new EventListener<KeyboardEvent>() {
   		@Override
   		public void handleEvent(KeyboardEvent e) {
   		  e.preventDefault();
