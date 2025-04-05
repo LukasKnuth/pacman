@@ -10,6 +10,9 @@ import org.teavm.jso.gamepad.GamepadEvent;
  * Web browser based gamepad inputs.
  */
 public class GamepadInput {
+  // type from https://w3c.github.io/gamepad/#dom-gamepadmappingtype
+  private static final String STANDARD_MAPPING = "standard";
+  // standard mappings: https://w3c.github.io/gamepad/#dfn-standard-gamepad
   private static final int IDX_DIGI_L = 14;
   private static final int IDX_DIGI_R = 15;
   private static final int IDX_DIGI_U = 12;
@@ -27,8 +30,10 @@ public class GamepadInput {
   
   public void onConnected(GamepadEvent evt) {
     int gamepad_index = evt.getGamepad().getIndex();
+    String mapping = evt.getGamepad().getMapping();
     // Only allow one pad - keep the same pad if a new one is connected
-    if (this.current_gamepad_index == NOT_CONNECTED) {
+    // Only allow gamepads using the standard button mapping
+    if (this.current_gamepad_index == NOT_CONNECTED && mapping == STANDARD_MAPPING) {
       this.current_gamepad_index = gamepad_index;
     }
   }
