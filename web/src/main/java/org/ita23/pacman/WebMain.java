@@ -138,11 +138,13 @@ public class WebMain implements AnimationFrameCallback {
     });
 
     Bootstrap.bootstrap(canvas.getWidth(), canvas.getHeight());
-  }
 
-  // TODO support ESC to pause game
-  // TODO Start off muted and allow toggle mute with M
-  // TODO Support gamepad via Navigator.getGamepads()
+    // Show start-screen first
+    LaunchScreen launch_screen = new LaunchScreen();
+    GameLoop.INSTANCE.addRenderEvent(launch_screen, -1);
+    GameLoop.INSTANCE.addInputEvent(launch_screen);
+    GameLoop.INSTANCE.pause();
+  }
 
   public static void main(String[] args) {
     new WebMain();
