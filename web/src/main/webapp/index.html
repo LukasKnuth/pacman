@@ -7,28 +7,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
   <script type="text/javascript" charset="utf-8" src="js/pacman.js"></script>
   <style>
+    /* Style reset taken from https://www.joshwcomeau.com/css/custom-css-reset/ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    * {
+      margin: 0;
+    }
+    body {
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+    /* Make mobile accessible */
+    body {
+      background-color: black;
+    }
     #pacman_canvas {
       margin: 0 auto;
       touch-action: pan-x pan-y;
-      background-color: black;
-    }
-    @media (width <= 460px) {
-      #pacman_canvas {
-        transform: scale(0.75);
-        transform-origin: left;
-        margin: 0;
-        padding: 0;
-      }
-      #game_wrapper {
-        overflow-x: hidden;
-      }
+      /* Calculated via orignal sizes as aspect ratio */
+      /* Taken from https://stackoverflow.com/a/20593342/717341 */
+      height: 100vh;
+      width: 79.31vh;
+      max-width: 100vw;
+      max-height: 126.08vw;
     }
   </style>
 </head>
 <body onload="main()">
-  <h1>Pacman!</h1>
-  <div id="game_wrapper">
-    <canvas id="pacman_canvas" width="460" height="580"></canvas>
-  </div>
+  <canvas id="pacman_canvas" width="460" height="580"></canvas>
 </body>
 </html>
