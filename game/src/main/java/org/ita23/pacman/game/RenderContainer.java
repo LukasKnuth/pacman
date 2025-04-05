@@ -20,11 +20,9 @@ public class RenderContainer implements Comparable<RenderContainer>{
         return event;
     }
 
-
-
-
     @Override
     public int compareTo(RenderContainer index) {
+        // Orders ascending, lowest Z-Index first!
         if(zIndex<index.getZIndex()){
             return 1;
         }else if(zIndex>index.getZIndex()){
